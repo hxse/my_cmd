@@ -68,6 +68,24 @@ Function cwas {  cat $cwaDir\config\config.json | jq '.origin' }
 Function tuf { python "D:\my_repo\tg-upload\tg_upload.py" uf $args}
 Function tud { python "D:\my_repo\tg-upload\tg_upload.py" ud $args}
 
+$biliPath="D:\bilibili"
+Function ydb {
+yt-dlp -o $biliPath\"%(uploader)s/%(upload_date)s %(playlist)s/%(title)s %(id)s.%(ext)s"  -i $args[0] 
+}
+
+Function cydb {
+cd "D:\my_repo\bilibili-crawler";
+$data2 = (pdm run python main.py gb $args[0]);
+$data=  $data2 | ConvertFrom-Json;
+echo $data.data;
+echo $data.count;
+$data.data|ForEach {ydb $_.url};
+#$data| ConvertFrom-Json |Select -ExpandProperty data|ForEach {ydb $_.url};
+} 
+
+
+# 下载单个视频的时候, yva {油管网址链接} -> ysts {本地字幕文件链接} -> yats {本地字幕文件链接}
+
 $proxy="--proxy","127.0.0.1:7890"
 $cf="--concurrent-fragments","10"
 $video="--no-playlist"
@@ -75,20 +93,33 @@ $playlist="--yes-playlist"
 $da="--download-archive","archive.txt"
 $ws="--write-subs"
 $was="--write-auto-subs"
-$langs="--sub-langs","en,en-us,zh-CN,zh-TW,zh-HK,ja,-live_chat"#all
+$langs="--sub-langs","en,en-GB,en-en,en-us,zh-CN,zh-TW,zh-HK,ja,-live_chat"#all
 $cs="--convert-subs","srt"
-$outVideo="-o","%(uploader)s/videos/%(upload_date)s %(title)s %(id)s.%(ext)s"
+$outVideo="-o","%(uploader)s/videos/%(upload_date)s %(title)s %(id)s/%(upload_date)s %(title)s %(id)s.%(ext)s"
 $outPlaylist="-o","%(uploader)s/%(playlist)s %(playlist_id)s/%(upload_date)s %(title)s %(id)s.%(ext)s"
 $audio="--extract-audio","--audio-format","mp3"
 $embed="--embed-thumbnail","--embed-metadata"#,"--embed-subs"
 $cookie=""#"--cookies-from-browser","chrome"
 $ytDownload="D:\my_repo\parrot_fashion\download"
+Function yats { #translate srt srt
+$dir=Get-Location;
+cd "D:\my_repo\parrot_fashion\crawler";
+& pdm run python D:\my_repo\parrot_fashion\crawler\autosub_tool.py ats $args;
+cd $dir
+}
 Function yts {
 $dir=Get-Location;
 cd "D:\my_repo\parrot_fashion\crawler";
 & pdm run python D:\my_repo\parrot_fashion\crawler\loop_trans_srt.py ts --dirPath $ytDownload $args;
 cd $dir
 }
+Function yfs {# srt format to txt to srt
+$dir=Get-Location;
+cd "D:\my_repo\parrot_fashion\crawler";
+& pdm run python D:\my_repo\parrot_fashion\crawler\format.py lp $ytDownload $args;
+cd $dir
+}
+Function yfst {yfs;yts;}
 Function yvv { 
 $dir=Get-Location;
 cd $ytDownload; 
@@ -118,6 +149,16 @@ cd $dir
 }
 Function ypat{ypa $args;yts $args;}
 
+Function yxt{#txt to srt
+			C:\Python37-32\python.exe -m aeneas.tools.execute_task $args[0] $args[1]   "task_language=eng|os_task_file_format=srt|is_text_type=plain" $args[2]}
+			
+Function ysts {#格式化字幕, srt to txt to srt
+$dir=Get-Location;
+cd "D:\my_repo\parrot_fashion\crawler";
+& pdm run python D:\my_repo\parrot_fashion\crawler\format.py sts $args;
+cd $dir
+}
+
 Function ti { python "D:\Note\02-Computer\program\python\python-repo\color-filter\cf.py" ti $args }
 Function pi { python "D:\Note\02-Computer\program\python\python-repo\color-filter\cf.py" pi $args }
 
@@ -131,7 +172,7 @@ Function js {
 Function jable {
 $dir=Get-Location;
 cd "D:\my_repo\JableTVDownload"
-pdm run python "D:\my_repo\JableTVDownload\main.py" --outPath "E:\jable download" $args;
+pdm run python "D:\my_repo\JableTVDownload\main.py" --outPath "E:\jable download" --tempDir "C:\Users\hxse\Downloads\jable temp" $args;
 cd $dir
 }
 
