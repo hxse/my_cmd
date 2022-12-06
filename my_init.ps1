@@ -84,7 +84,8 @@ $data.data|ForEach {ydb $_.url};
 } 
 
 
-# 下载单个视频的时候, yva {油管网址链接} -> ysts {本地字幕文件链接} -> yats {本地字幕文件链接}
+# 已弃用: 下载单个视频的时候, yva {油管网址链接} -> ysts {本地字幕文件链接} -> yats {本地字幕文件链接}
+# 不要上面那个麻烦的了,yva {油管网址链接} -> ycs {本地英文字幕文件链接} -> 程序会自动排版本地字幕, 然后自动谷歌翻译成中文
 
 $proxy="--proxy","127.0.0.1:7890"
 $cf="--concurrent-fragments","10"
@@ -93,14 +94,35 @@ $playlist="--yes-playlist"
 $da="--download-archive","archive.txt"
 $ws="--write-subs"
 $was="--write-auto-subs"
-$langs="--sub-langs","en,en-GB,en-en,en-us,zh-CN,zh-TW,zh-HK,ja,-live_chat"#all
+$langs="--sub-langs","en,en-*,en-GB,en-en,en-us,zh-CN,zh-TW,zh-HK,ja,-live_chat"#all
 $cs="--convert-subs","srt"
-$outVideo="-o","%(uploader)s/videos/%(upload_date)s %(title)s %(id)s/%(upload_date)s %(title)s %(id)s.%(ext)s"
+$outVideo="-o","%(uploader)s/videos/%(upload_date)s %(id)s/%(upload_date)s %(title)s %(id)s.%(ext)s"
 $outPlaylist="-o","%(uploader)s/%(playlist)s %(playlist_id)s/%(upload_date)s %(title)s %(id)s.%(ext)s"
 $audio="--extract-audio","--audio-format","mp3"
 $embed="--embed-thumbnail","--embed-metadata"#,"--embed-subs"
 $cookie=""#"--cookies-from-browser","chrome"
 $ytDownload="D:\my_repo\parrot_fashion\download"
+
+Function yga { #gen anki,这个需要手动输入audioPath,srtPath,srt2Path,可以根据实际情况,再写个批处理脚本,来使用这个命令
+$dir=Get-Location;
+cd "D:\my_repo\parrot_fashion\crawler";
+$audioPath=$args[0];
+$srtPath=$args[1];
+$srtPath2=$args[2];
+pdm run python gen_anki.py ga $audioPath $srtPath $srtPath2
+cd $dir
+}
+Function ycs { #clean srt 
+$dir=Get-Location;
+cd "D:\my_repo\parrot_fashion\crawler";
+$inPath=$args[0];
+$outPath="$inPath.txt.srt";
+echo 'format srt:'$inPath;
+ysts $inPath;
+echo 'translate srt:'$outPath;
+yats $outPath;
+cd $dir
+}
 Function yats { #translate srt srt
 $dir=Get-Location;
 cd "D:\my_repo\parrot_fashion\crawler";
