@@ -1,8 +1,7 @@
 # 用powershell如下调用来初始化工作空间
 # powershell.exe -noexit '. D:\\Note\\02-Computer\\program\\my_init.ps1'
 # in windows terminal: powershell -noexit '. C:\Users\hxse\Downloads\my_init.ps1'
-#chcp 65001
-
+# 如果出现乱码,就打开windows的系统设置,找到"更改系统区域设置",打开"Beta 版: 使用 Unicode UTF-8 提供全球语言支持"
 $ompPath= "C:\Users\hxse\scoop\apps\oh-my-posh\current\themes"
 oh-my-posh init pwsh | Invoke-Expression
 oh-my-posh --init --shell pwsh --config $ompPath\kali2.omp.json | Invoke-Expression #预览参考: https://ohmyposh.dev/docs/themes
@@ -85,7 +84,7 @@ $data.data|ForEach {ydb $_.url};
 
 
 # 已弃用: 下载单个视频的时候, yva {油管网址链接} -> ysts {本地字幕文件链接} -> yats {本地字幕文件链接}
-# 不要上面那个麻烦的了,yva {油管网址链接} -> ycs {本地英文字幕文件链接} -> 程序会自动排版本地字幕, 然后自动谷歌翻译成中文
+# 不要上面那个麻烦的了,yva {油管网址链接} -> ycs {本地英文字幕文件链接}
 
 $proxy="--proxy","127.0.0.1:7890"
 $cf="--concurrent-fragments","10"
@@ -103,6 +102,15 @@ $embed="--embed-thumbnail","--embed-metadata"#,"--embed-subs"
 $cookie=""#"--cookies-from-browser","chrome"
 $ytDownload="D:\my_repo\parrot_fashion\download"
 
+Function ylp { #gen anki,这个需要手动输入audioPath,srtPath,srt2Path,可以根据实际情况,再写个批处理脚本,来使用这个命令
+$dir=Get-Location;
+cd "D:\my_repo\parrot_fashion\crawler";
+$dict = @{ 
+	ku = $ytDownload+"\Kurzgesagt – In a Nutshell"#中间的–不是-,所以会有莫名其妙的bug,换成中文其实也会乱码,,解决方法是,在windows设置里找到"区域设置",然后找到"更改系统区域设置,打开"Beta 版: 使用 Unicode UTF-8 提供全球语言支持""
+}
+pdm run python loop.py $args[0] $dict[$args[0]] 直接写在代码里吧,不要写在这了
+cd $dir
+}
 Function yga { #gen anki,这个需要手动输入audioPath,srtPath,srt2Path,可以根据实际情况,再写个批处理脚本,来使用这个命令
 $dir=Get-Location;
 cd "D:\my_repo\parrot_fashion\crawler";
