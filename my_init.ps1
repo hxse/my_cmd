@@ -85,6 +85,7 @@ $data.data|ForEach {ydb $_.url};
 
 # 已弃用: 下载单个视频的时候, yva {油管网址链接} -> ysts {本地字幕文件链接} -> yats {本地字幕文件链接}
 # 不要上面那个麻烦的了,yva {油管网址链接} -> ycs {本地英文字幕文件链接}
+# 文件名带.handle.的,就直接翻译然后生成anki,不会经过aeneas了
 
 $proxy="--proxy","127.0.0.1:7890"
 $cf="--concurrent-fragments","10"
@@ -108,7 +109,7 @@ cd "D:\my_repo\parrot_fashion\crawler";
 $dict = @{ 
 	ku = $ytDownload+"\Kurzgesagt – In a Nutshell\videos";#中间的–不是-,所以会有莫名其妙的bug,换成中文其实也会乱码,,解决方法是,在windows设置里找到"区域设置",然后找到"更改系统区域设置,打开"Beta 版: 使用 Unicode UTF-8 提供全球语言支持""
 	kuMediSuffix='.mp3';
-	kuSuffixArr="['.en-GB.srt','.en-en.srt','.en.srt']";
+	kuSuffixArr="['.handle.en.srt','.en-GB.srt','.en-en.srt','.en.srt']";#handle是人工调整过的意思
 }
 pdm run python loop.py $args[0] $dict[$args[0]] $dict[$args[0]+"MediSuffix"] $dict[$args[0]+"SuffixArr"] 
 cd $dir
