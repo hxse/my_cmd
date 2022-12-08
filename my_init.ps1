@@ -106,9 +106,11 @@ Function ylp { #gen anki,这个需要手动输入audioPath,srtPath,srt2Path,可�
 $dir=Get-Location;
 cd "D:\my_repo\parrot_fashion\crawler";
 $dict = @{ 
-	ku = $ytDownload+"\Kurzgesagt – In a Nutshell"#中间的–不是-,所以会有莫名其妙的bug,换成中文其实也会乱码,,解决方法是,在windows设置里找到"区域设置",然后找到"更改系统区域设置,打开"Beta 版: 使用 Unicode UTF-8 提供全球语言支持""
+	ku = $ytDownload+"\Kurzgesagt – In a Nutshell\videos";#中间的–不是-,所以会有莫名其妙的bug,换成中文其实也会乱码,,解决方法是,在windows设置里找到"区域设置",然后找到"更改系统区域设置,打开"Beta 版: 使用 Unicode UTF-8 提供全球语言支持""
+	kuMediSuffix='.mp3';
+	kuSuffixArr="['.en-GB.srt','.en-en.srt','.en.srt']";
 }
-pdm run python loop.py $args[0] $dict[$args[0]] 直接写在代码里吧,不要写在这了
+pdm run python loop.py $args[0] $dict[$args[0]] $dict[$args[0]+"MediSuffix"] $dict[$args[0]+"SuffixArr"] 
 cd $dir
 }
 Function yga { #gen anki,这个需要手动输入audioPath,srtPath,srt2Path,可以根据实际情况,再写个批处理脚本,来使用这个命令
