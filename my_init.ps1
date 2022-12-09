@@ -82,6 +82,11 @@ $data.data|ForEach {ydb $_.url};
 #$data| ConvertFrom-Json |Select -ExpandProperty data|ForEach {ydb $_.url};
 } 
 
+Function ftm {#ffmpeg ts -> mp4
+	$file=$args[0]
+	$outFile=$file+'.mp4'
+	ffmpeg -i "$file" -acodec copy -vcodec copy "$outFile"
+}
 
 # 已弃用: 下载单个视频的时候, yva {油管网址链接} -> ysts {本地字幕文件链接} -> yats {本地字幕文件链接}
 # 不要上面那个麻烦的了,yva {油管网址链接} -> ycs {本地英文字幕文件链接}
