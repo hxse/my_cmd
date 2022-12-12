@@ -114,7 +114,7 @@ cd "D:\my_repo\parrot_fashion\crawler";
 $dict = @{ 
 	ku = $ytDownload+"\Kurzgesagt – In a Nutshell\videos";#中间的–不是-,所以会有莫名其妙的bug,换成中文其实也会乱码,,解决方法是,在windows设置里找到"区域设置",然后找到"更改系统区域设置,打开"Beta 版: 使用 Unicode UTF-8 提供全球语言支持"",这玩应win11有坑还是别用, 用了打不开中文的股票软件 
 	kuMediSuffix='.mp3';
-	kuSuffixArr="['.handle.en.srt','.en-GB.srt','.en-en.srt','.en.srt']";#handle是人工调整过的意思
+	kuSuffixArr="['.handle.en-GB.srt','.handle.en-en.srt','.handle.en.srt','.en-GB.srt','.en-en.srt','.en.srt']";#handle是人工调整过的意思
 }
 if (!$args[1]) 
 {
