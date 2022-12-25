@@ -12,6 +12,13 @@ $assetsDir= $scriptDir+'\assets'
 $dir=Get-Location
 echo $assetsDir
 
+Function py310 { . "C:\Users\hxse\AppData\Local\Programs\Python\Python310\python.exe" $args }
+Function pip310 { . "C:\Users\hxse\AppData\Local\Programs\Python\Python310\python.exe" -m "pip" $args }
+Function py37 { . "C:\Python37-32\python.exe" $args }
+Function pip37 { . "C:\Python37-32\python.exe" -m "pip" $args }
+Function py27 { . "C:\Python27\python.exe" $args }
+Function pip27 { . "C:\Python27\python.exe" -m "pip" $args }
+
 # For zoxide v0.8.0+
 Invoke-Expression (& {
     $hook = if ($PSVersionTable.PSVersion.Major -lt 6) { 'prompt' } else { 'pwd' }
@@ -107,7 +114,7 @@ $audio="--extract-audio","--audio-format","mp3"
 $embed="--embed-thumbnail","--embed-metadata"#,"--embed-subs"
 $cookie=""#"--cookies-from-browser","chrome"
 $ytDownload="D:\my_repo\parrot_fashion\download"
-
+Function wh { whisper --language en $args}
 Function ylp { #gen anki,这个需要手动输入audioPath,srtPath,srt2Path,可以根据实际情况,再写个批处理脚本,来使用这个命令
 $dir=Get-Location;
 cd "D:\my_repo\parrot_fashion\crawler";
