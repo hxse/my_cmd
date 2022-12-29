@@ -31,9 +31,9 @@ Invoke-Expression (& {
     (zoxide init --hook $hook powershell) -join "`n"
 })
 
-Function nfp {netstat -aon|findstr $args[0]}
-Function tfp {tasklist|findstr $args[0]}
-Function tkp {taskkill /T /F /PID $args[0]}
+Function nfp {netstat -aon|findstr $args[0]} #查找端口
+Function tfp {tasklist|findstr $args[0]} #根据pid查找进程
+Function tkp {taskkill /T /F /PID $args[0]} #根据pid结束进程
 Function sd { Shutdown -s -t 30 }
 
 $ytw=[regex]::Unescape("\u4ee5\u592a\u7f51")#以太网三个字的的unicode
