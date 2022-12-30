@@ -1,7 +1,8 @@
 # 用powershell如下调用来初始化工作空间
 # powershell.exe -noexit '. D:\\Note\\02-Computer\\program\\my_init.ps1'
 # in windows terminal: powershell -noexit '. C:\Users\hxse\Downloads\my_init.ps1'
-# 如果出现乱码,就打开windows的系统设置,找到"更改系统区域设置",打开"Beta 版: 使用 Unicode UTF-8 提供全球语言支持"
+# 如果出现乱码,就打开windows的系统设置,找到"更改系统区域设置",打开"Beta 版: 使用 Unicode UTF-8 提供全球语言支持"(这个可能导致打不开文华财经,谨慎使用)
+#chcp 65001#解决中文乱码
 $ompPath= "C:\Users\hxse\scoop\apps\oh-my-posh\current\themes"
 oh-my-posh init pwsh | Invoke-Expression
 oh-my-posh --init --shell pwsh --config $ompPath\kali2.omp.json | Invoke-Expression #预览参考: https://ohmyposh.dev/docs/themes

@@ -1,0 +1,11 @@
+# XONSH WEBCONFIG START
+xontrib load whole_word_jumping
+# XONSH WEBCONFIG END
+import warnings
+
+warnings.filterwarnings(
+    'ignore',
+    message='There is no current event loop',# workaround https://github.com/xonsh/xonsh/issues/4409
+    category=DeprecationWarning,
+    module='prompt_toolkit',
+)
