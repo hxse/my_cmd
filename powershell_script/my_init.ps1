@@ -17,7 +17,7 @@ $dir=Get-Location
 # [遇到“OSError: \[WinError 10013\] 以一种访问权限不允许的方式做了一个访问套接字的尝试。”的解决方法。 · Issue #13552 · XX-net/XX-Net](https://github.com/XX-net/XX-Net/issues/13552)
 # [windows tcp动态端口被占用过多，导致没有空闲的端口完成http请求。（发现很多TIME_WAIT状态的TCP连接） - 简书](https://www.jianshu.com/p/9ee0166aa01c)
 Function nst { netsh int ipv4 show dynamicport tcp
-               #netsh int ipv4 show dynamicport udp 
+               #netsh int ipv4 show dynamicport udp
                }
 Function nstp { netsh int ipv4 set dynamicport tcp start=49152 num=16384
 				#netsh int ipv4 set dynamicport udp start=49152 num=16384
@@ -70,7 +70,7 @@ Function cvtw { yarn create vite $args[0] --template react-ts;
 				Copy-Item -Path $assetsDir'\cvtw\tailwind.config.js' -Destination $dir\$name\'tailwind.config.js'
 				Copy-Item -Path $assetsDir'\cvtw\index.css' -Destination $dir\$name\'src\index.css'
 				Copy-Item -Path $assetsDir'\cvtw\App.tsx' -Destination $dir\$name\'src\App.tsx'
-				
+
 				 #(Get-Content ".\tailwind.config.js" | Out-String) -replace "content: \[]", "content:[`r`n    `"./index.html`",`r`n    `"./src/**/*.{vue,js,ts,jsx,tsx}`",`r`n  ]" | Out-File ".\tailwind.config.js";
 				 #"@tailwind base;@tailwind components;@tailwind utilities;"-replace ";", ";`r`n"|Out-File ".\src\index.css";
 				 #(Get-Content ".\src\App.tsx" | Out-String ) -replace "(?sm)return \(.*\)", "return (`r`n    <h1 className=`"text-3xl font-bold underline`">`r`n      Hello world!`r`n    </h1>`r`n  )" | Out-File ".\src\App.tsx";
@@ -87,7 +87,7 @@ Function tud { python "D:\my_repo\tg-upload\tg_upload.py" ud $args}
 
 $biliPath="D:\bilibili"
 Function ydb {
-yt-dlp -o $biliPath\"%(uploader)s/%(upload_date)s %(playlist)s/%(title)s %(id)s.%(ext)s"  -i $args[0] 
+yt-dlp -o $biliPath\"%(uploader)s/%(upload_date)s %(playlist)s/%(title)s %(id)s.%(ext)s"  -i $args[0]
 }
 
 Function cydb {
@@ -98,7 +98,7 @@ echo $data.data;
 echo $data.count;
 $data.data|ForEach {ydb $_.url};
 #$data| ConvertFrom-Json |Select -ExpandProperty data|ForEach {ydb $_.url};
-} 
+}
 
 Function ftm {#ffmpeg ts -> mp4
 	$file=$args[0]
@@ -129,12 +129,12 @@ Function whi { whisper --language en $args}
 Function ylp { #gen anki,这个需要手动输入audioPath,srtPath,srt2Path,可以根据实际情况,再写个批处理脚本,来使用这个命令
 $dir=Get-Location;
 cd "D:\my_repo\parrot_fashion\crawler";
-$dict = @{ 
-	ku = $ytDownload+"\Kurzgesagt – In a Nutshell\videos";#中间的–不是-,所以会有莫名其妙的bug,换成中文其实也会乱码,,解决方法是,在windows设置里找到"区域设置",然后找到"更改系统区域设置,打开"Beta 版: 使用 Unicode UTF-8 提供全球语言支持"",这玩应win11有坑还是别用, 用了打不开中文的股票软件 
+$dict = @{
+	ku = $ytDownload+"\Kurzgesagt – In a Nutshell\videos";#中间的–不是-,所以会有莫名其妙的bug,换成中文其实也会乱码,,解决方法是,在windows设置里找到"区域设置",然后找到"更改系统区域设置,打开"Beta 版: 使用 Unicode UTF-8 提供全球语言支持"",这玩应win11有坑还是别用, 用了打不开中文的股票软件
 	kuMediSuffix='.mp3';
 	kuSuffixArr="['.handle.en-GB.srt','.handle.en-en.srt','.handle.en.srt','.en-GB.srt','.en-en.srt','.en.srt']";#handle是人工调整过的意思
 }
-if (!$args[1]) 
+if (!$args[1])
 {
     $setPath='None'
 }else{
@@ -152,7 +152,7 @@ $srtPath2=$args[2];
 pdm run python gen_anki.py ga $audioPath $srtPath $srtPath2
 cd $dir
 }
-Function ycs { #clean srt 
+Function ycs { #clean srt
 $dir=Get-Location;
 cd "D:\my_repo\parrot_fashion\crawler";
 $inPath=$args[0];
@@ -182,30 +182,30 @@ cd "D:\my_repo\parrot_fashion\crawler";
 cd $dir
 }
 Function yfst {yfs;yts;}
-Function yvv { 
+Function yvv {
 $dir=Get-Location;
-cd $ytDownload; 
+cd $ytDownload;
 & yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $video $outVideo $args;
 cd $dir
 }
 Function yvvt{yvv $args;yts $args;}
 Function yva {
 $dir=Get-Location;
-cd $ytDownload; 
+cd $ytDownload;
 & yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $video $outVideo $audio $args;
 cd $dir
 }
 Function yvat{yva $args;yts $args;}
 Function ypv {
 $dir=Get-Location;
-cd $ytDonload; 
+cd $ytDonload;
 & yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $playlist $outPlaylist $args;
 cd $dir
 }
 Function ypvt{ypv $args;yts $args;}
 Function ypa {
 $dir=Get-Location;
-cd $ytDownload; 
+cd $ytDownload;
 & yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $playlist $outPlaylist $audio $args;
 cd $dir
 }
@@ -213,7 +213,7 @@ Function ypat{ypa $args;yts $args;}
 
 Function yxt{#txt to srt
 			C:\Python37-32\python.exe -m aeneas.tools.execute_task $args[0] $args[1]   "task_language=eng|os_task_file_format=srt|is_text_type=plain" $args[2]}
-			
+
 Function ysts {#格式化字幕, srt to txt to srt
 $dir=Get-Location;
 cd "D:\my_repo\parrot_fashion\crawler";
@@ -224,7 +224,7 @@ cd $dir
 Function ti { python "D:\Note\02-Computer\program\python\python-repo\color-filter\cf.py" ti $args }
 Function pi { python "D:\Note\02-Computer\program\python\python-repo\color-filter\cf.py" pi $args }
 
-Function js { 
+Function js {
 	$dir=Get-Location;
 	cd "D:\my_repo\94_crawler"
 	pdm run python ".\94.py" md --outPath "E:/91porn" $args
