@@ -1,4 +1,2 @@
 from moudle.init2 import test2
-test="hello world"
-print(test)
-print(test2)
+my_repo_path=r"D:\my_repo"
