@@ -125,7 +125,7 @@ $audio="--extract-audio","--audio-format","mp3"
 $embed="--embed-thumbnail","--embed-metadata"#,"--embed-subs"
 $cookie=""#"--cookies-from-browser","chrome"
 $ytDownload="D:\my_repo\parrot_fashion\download"
-Function wh { whisper --language en $args}
+Function whi { whisper --language en $args}
 Function ylp { #gen anki,这个需要手动输入audioPath,srtPath,srt2Path,可以根据实际情况,再写个批处理脚本,来使用这个命令
 $dir=Get-Location;
 cd "D:\my_repo\parrot_fashion\crawler";
