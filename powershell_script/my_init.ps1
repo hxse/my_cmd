@@ -23,12 +23,14 @@ Function nstp { netsh int ipv4 set dynamicport tcp start=49152 num=16384
 				#netsh int ipv4 set dynamicport udp start=49152 num=16384
 				}
 
-Function py310 { . "C:\Users\hxse\AppData\Local\Programs\Python\Python310\python.exe" $args }
-Function pip310 { . "C:\Users\hxse\AppData\Local\Programs\Python\Python310\python.exe" -m "pip" $args }
-Function py37 { . "C:\Python37-32\python.exe" $args }
-Function pip37 { . "C:\Python37-32\python.exe" -m "pip" $args }
-Function py27 { . "C:\Python27\python.exe" $args }
-Function pip27 { . "C:\Python27\python.exe" -m "pip" $args }
+Function py310 { . "C:\Users\hxse\scoop\apps\python310\current\python.exe" $args }
+Function pip310 { . "C:\Users\hxse\scoop\apps\python310\current\python.exe" -m "pip" $args }
+Function py37 { . "C:\Users\hxse\scoop\apps\python37\current\python.exe" $args }
+Function pip37 { . "C:\Users\hxse\scoop\apps\python37\current\python.exe" -m "pip" $args }
+Function py27 { . "C:\Users\hxse\scoop\apps\python27\current\python.exe" $args }
+Function pip27 { . "C:\Users\hxse\scoop\apps\python27\current\python.exe" -m "pip" $args }
+
+Function gfh { Get-FileHash $args}
 
 # For zoxide v0.8.0+
 Invoke-Expression (& {
