@@ -51,7 +51,7 @@ Function sd { Shutdown -s -t 30 }
 
 $ytw=[regex]::Unescape("\u4ee5\u592a\u7f51")#以太网三个字的的unicode
 $mip = Get-NetIPAddress |  where IPAddress -like '192.168.*' | where InterfaceAlias -like $ytw | select  -ExpandProperty "IPAddress"
-Function mip{$mip}
+Function mip{}
 
 
 Function cvr { yarn create vite $args[0] --template react;
@@ -127,7 +127,15 @@ $audio="--extract-audio","--audio-format","mp3"
 $embed="--embed-thumbnail","--embed-metadata"#,"--embed-subs"
 $cookie=""#"--cookies-from-browser","chrome"
 $ytDownload="D:\my_repo\parrot_fashion\download"
-Function whi { whisper --language en $args}
+Function whi { 
+  # 自动生成音频字幕,按句切分,结尾可能有几秒不准确
+  # pip310 install git+https://github.com/openai/whisper.git 
+  whisper --language en $args}
+Function whx {
+  # 自动生成音频字幕,按词切分,精准
+  # pip310 install git+https://github.com/m-bain/whisperx.git
+  whisperx --language en $args
+}
 Function ylp { #gen anki,这个需要手动输入audioPath,srtPath,srt2Path,可以根据实际情况,再写个批处理脚本,来使用这个命令
 $dir=Get-Location;
 cd "D:\my_repo\parrot_fashion\crawler";
