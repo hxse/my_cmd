@@ -129,9 +129,7 @@ mode_show(){
     ActivateWindows()
 }
 mode_hidden(){
-    if WinWait(title) {
-        HiddenWindows()
-    }
+    HiddenWindows()
 }
 if(mode=="show"){
     mode_show()
