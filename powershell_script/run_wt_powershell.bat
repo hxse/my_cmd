@@ -8,8 +8,6 @@ wt -w 0 new-tab --title "webdav" -p "powershell" powershell -NOLogo -NoExit -Com
 powershell -Command "Start-Sleep -Seconds 0.5"
 wt -w 0 new-tab --title "alist" -p "powershell" powershell -NOLogo -NoExit -Command ". D:\my_repo\my_cmd\powershell_script\my_init.ps1\;D:\my_repo\my_cmd\powershell_script\run_alist.ps1"
 powershell -Command "Start-Sleep -Seconds 0.5"
-wt -w 0 new-tab --title "powershell" -p "powershell" powershell -NOLogo -NoExit -File "D:\my_repo\my_cmd\powershell_script\my_init.ps1"
-powershell -Command "Start-Sleep -Seconds 0.5"
 wt -w 0 new-tab --title "run_clash" -p "powershell" powershell -NOLogo -NoExit -Command ". D:\my_repo\my_cmd\powershell_script\my_init.ps1\;D:\my_repo\my_cmd\powershell_script\run_clash.ps1"
 powershell -Command "Start-Sleep -Seconds 0.5"
 @REM https://github.com/PowerShell/PowerShell/issues/3028

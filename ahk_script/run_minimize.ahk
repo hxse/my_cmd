@@ -1,26 +1,30 @@
-; 举例 autohotkey /restart  .\run.ahk "run_clash" "C:\Users\hxse\scoop\apps\windows-terminal\current\WindowsTerminal.exe" hidden
-if A_Args.Length == 3
+; autohotkey /restart "D:\my_repo\my_cmd\ahk_script\run_minimize.ahk" "hidden" "C:\Users\hxse\scoop\apps\windows-terminal\1.15.3465.0\WindowsTerminal.exe" "run_clash" "alist" "webdav" "ftp" "subcovert" "SubConverter v0.7.1" "cat"
+if A_Args.Length < 3
 {
-    title:=A_Args[1]
-    path:=A_Args[2]
-    mode:=A_Args[3] ;可选项,show,hidden,exit,exit之后会自动恢复窗口
-}else if (A_Args.Length==2){
-    title:=A_Args[1]
-    path:=A_Args[2]
-    mode:=""
-}else{
-    MsgBox "脚本需要 2,3 个参数, 但它接收到 " A_Args.Length " 个" "`n" join(A_Args)
+
+    MsgBox "脚本需要至少3个参数, 但它接收到 " A_Args.Length " 个" "`n" join(A_Args)
     ; ListVars
     ; Pause
     ExitApp
 }
+mode:=A_Args[1] ;可选项,show,hidden,exit,no,exit之后会自动恢复窗口,no表示什么也不做
+path:=A_Args[2]
+title:=A_Args[3]
+
+titleArr := Array()
+for k, v in A_Args
+if(k>2){
+    titleArr.Push v
+
+}
+; MsgBox "标题列表" join(titleArr)
 
 join( strArray )
 {
     s := ""
     for i,v in strArray
         s .= "`n" v
-    return substr(s, 3)
+    return s
 }
 
 Persistent ; 阻止脚本自动退出.
@@ -72,11 +76,13 @@ ActivateWindows(){
             Sleep 100
             WinActivate this_id
         }
-        loop_list(title,path,callback)
+        for t in titleArr{
+            loop_list(t,path,callback)
+        }
     }
     catch Error as err {
-        ListVars
-        Pause
+        ; ListVars
+        ; Pause
     } else {
     } finally {
     }
@@ -87,11 +93,13 @@ HiddenWindows(){
         callback(this_id,this_title,this_class,this_pPath,this_pName){
             WinHide this_id
         }
-        loop_list(title,path,callback)
+        for t in titleArr{
+            loop_list(t,path,callback)
+        }
     }
     catch Error as err {
-        ListVars
-        Pause
+        ; ListVars
+        ; Pause
     } else {
     } finally {
     }
@@ -139,4 +147,6 @@ if(mode=="hidden"){
 }
 if(mode=="exit"){
     ExitApp
+}
+if(mode=="no"){
 }
