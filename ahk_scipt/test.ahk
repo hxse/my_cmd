@@ -8,19 +8,19 @@ title:=A_Args[1]
 name:=A_Args[2]
 
 if WinWait(title) {
-	pName := WinGetProcessName(title)
-	if (pName==name){
-		WinActivate title
-		Sleep 500
-		WinHide ; 使用由 WinWait 找到的窗口.
-		Sleep 1000
-		WinShow ; 使用由 WinWait 找到的窗口.
+    pName := WinGetProcessName(title)
+    if (pName==name){
+        WinActivate title
+        Sleep 500
+        WinHide ; 使用由 WinWait 找到的窗口.
+        Sleep 1000
+        WinShow ; 使用由 WinWait 找到的窗口.
 
-		;Send "#+{F4}"
-		;WinMinimize ; Use the window found by WinWait.
-		
-		;ListVars
-		Pause
-	}
-	
+        ;Send "#+{F4}"
+        ;WinMinimize ; Use the window found by WinWait.
+
+        ;ListVars
+        Pause
+    }
+
 }

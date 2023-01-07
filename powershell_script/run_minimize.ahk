@@ -5,14 +5,14 @@ title:="run_minimize"
 pName:="WindowsTerminal.exe"
 ;WinWaitActive("ahk_exe WindowsTerminal.exe")and
 if WinWait(title) {
-	name := WinGetProcessName(title)
-	if (name==pName){
-	WinActivate title
-	sleep 200
-	Send "#+{F4}"
-    ;WinMinimize ; Use the window found by WinWait.
-    ;MsgBox name
-    ;A_Clipboard := name
-	}
-	
+    name := WinGetProcessName(title)
+    if (name==pName){
+        WinActivate title
+        sleep 200
+        Send "#+{F4}"
+        ;WinMinimize ; Use the window found by WinWait.
+        ;MsgBox name
+        ;A_Clipboard := name
+    }
+
 }
