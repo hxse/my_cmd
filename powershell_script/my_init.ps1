@@ -271,4 +271,17 @@ Function jable {
 	cd $dir
 }
 
+Function cut_mp4 {
+	$files = Get-ChildItem ".\"
+	foreach ($f in $files){
+		$outFile = $f.BaseName + "_out" + $f.Extension
+		echo $outFile
+		#echo $f.BaseName 
+		#echo $f.Extension
+		#echo $f.Name
+		ffmpeg -i $f.Name -ss 00:00:05 -avoid_negative_ts 1  -avoid_negative_ts make_zero -c copy $outFile
+		break
+	}
+}
+
 echo "init.ps1 have been loaded"
