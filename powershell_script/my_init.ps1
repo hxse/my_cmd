@@ -12,9 +12,9 @@ $zLua = "D:\my_repo\my_cmd\lua_script\z.lua\z.lua"
 echo $zLua
 Invoke-Expression (& { (lua $zLua --init powershell) -join "`n" })
 
-Import-Module PSReadLine
-Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
-Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+#Import-Module PSReadLine
+#Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+#Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
 
 #$ompPath= "C:\Users\hxse\scoop\apps\oh-my-posh\current\themes"
 #oh-my-posh init pwsh | Invoke-Expression
@@ -280,6 +280,28 @@ Function cut_mp4 {
 		#echo $f.Extension
 		#echo $f.Name
 		ffmpeg -i $f.Name -ss 00:00:05 -avoid_negative_ts 1  -avoid_negative_ts make_zero -c copy $outFile
+		break
+	}
+}
+Function reduceVideoSize{
+	$files = Get-ChildItem ".\"
+	foreach ($f in $files){
+		$outFile = $f.BaseName + "_out" + $f.Extension
+		$size = $f.length/1024/1024/1024
+		$threshold=1.97
+		#echo $outFile
+		#echo $size
+		#echo $threshold
+		if ($size -gt $threshold){
+		echo "$size > $threshold name: $f.$Name"
+			ffmpeg -i $f -fs 1970M -c copy $outFile
+		}
+		else{
+		echo "$size <= $threshold name: $f.$Name"
+		}
+		#echo $f.BaseName 
+		#echo $f.Extension
+		#echo $f.Name
 		break
 	}
 }
