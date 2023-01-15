@@ -286,15 +286,14 @@ Function cut_mp4 {
 Function reduceVideoSize{
 	$files = Get-ChildItem ".\"
 	foreach ($f in $files){
-		$outFile = $f.BaseName + "_out" + $f.Extension
+		#$outFile = $f.BaseName + "_out" + $f.Extension
+		$outFile = $f.BaseName +"_out"+ ".mp4"
 		$size = $f.length/1024/1024/1024
 		$threshold=1.97
-		#echo $outFile
-		#echo $size
-		#echo $threshold
 		if ($size -gt $threshold){
 		echo "$size > $threshold name: $f.$Name"
-			ffmpeg -i $f -fs 1970M -c copy $outFile
+			#ffmpeg -i $f -fs 1970M -c copy $outFile #这个只会截取一部分时长
+			 ffmpeg -i $f -vcodec libx265 -crf 24 $outFile
 		}
 		else{
 		echo "$size <= $threshold name: $f.$Name"
@@ -306,4 +305,14 @@ Function reduceVideoSize{
 	}
 }
 
+Function crop_ffmpeg{
+	$files = Get-ChildItem ".\"
+	foreach ($f in $files){
+		$outFile = $f.BaseName +"_out" + ".mp4"
+		$size = $f.length/1024/1024/1024
+		$threshold=1.97
+		ffmpeg -i $f  -fs 1970M -filter:v "crop=1024:660:000:400" $outFile
+		
+	}
+}
 echo "init.ps1 have been loaded"
