@@ -146,6 +146,7 @@ Function lwsa{
     (	
 		$loopDir
     )
+    
     if( $loopDir -eq $null){#eq等于ne不等于
     		echo "No parameter was detected" $loopDir
     		return
@@ -153,6 +154,7 @@ Function lwsa{
 	$files = (Get-ChildItem -Recurse $loopDir)
 	Write-Output "Are you sure loop this folder?" 
 	pause
+	
 	foreach ($f in $files){
 		if( $f.Extension -eq '.mp3'){
 			echo $f.FullName
@@ -173,46 +175,70 @@ Function wsa {
     (
         $audioPath
     )
-    #$audioPath = $args[0];
-	$pathArray=wsx $audioPath
-
-	yats $pathArray[0]
+	wsx $audioPath
 	
 	$dirPath=(Get-Item $audioPath).Directory.FullName
+	cd $dirPath
+	$lang='en'
+	$baseName=  (Get-Item $audioPath).BaseName
+    $suffix = ".mp3.$lang.srt"
+    $name=$baseName+$suffix
+ 
+	$dirPath=(Get-Item $audioPath).Directory.FullName
 	$wsxDir=(Get-Item $audioPath).Directory.FullName+'\wsx'
-	$srt1=$wsxDir+'\'+ (Get-Item $pathArray[0]).name
-	$srt2=$wsxDir+'\'+ (Get-Item $pathArray[0]).name+'.autosub.zh-cn.srt'
+	$srt1=$wsxDir+'\'+ $name
+	$srt2=$wsxDir+'\'+ $name +'.autosub.zh-cn.srt'
 	$srt1Exist=Test-Path $srt1
-	$srt2Exist=Test-Path $srt2
+
 	
 	$handleDir=(Get-Item $audioPath).Directory.FullName+'\wsx\handle'
-	$srt1Handle=$handleDir+'\'+ (Get-Item $pathArray[0]).name
-	$srt2Handle=$handleDir+'\'+ (Get-Item $pathArray[0]).name+'.autosub.zh-cn.srt'
+	$srt1Handle=$handleDir+'\'+ $name
+	$srt2Handle=$handleDir+'\'+ $name +'.autosub.zh-cn.srt'
 	$srt1HandleExist=Test-Path $srt1Handle
+	if($true -eq $srt1HandleExist){
+		yats $srt1Handle
+		}else{
+			if($true -eq $srt1Exist){
+			yats $srt1
+		}
+	}
+
+	$srt2Exist=Test-Path $srt2
 	$srt2HandleExist=Test-Path $srt2Handle
+
 	if($true -eq $srt1HandleExist -And $true -eq $srt2HandleExist){
 		echo 'yes handle'
 		yga $audioPath  $srt1Handle $srt2Handle
 	}
 	else{
+		if($true -eq $srt1Exist -And $true -eq $srt2Exist){
 		echo 'no  handle'
 		yga $audioPath  $srt1 $srt2
+		}
 	}
 }
 Function wsp {
+	param
+    (
+        $audioPath
+    )
 	# 自动生成音频字幕,按句切分,结尾可能有几秒不准确
 	# pip310 install git+https://github.com/openai/whisper.git
-	whisper --language en $args
+	whisper --language en $audioPath $args
 }
 Function wsx {
 	# 自动生成音频字幕,按词切分,精准
 	# pip310 install git+https://github.com/m-bain/whisperx.git
-	$audioPath = $args[0];
+	param
+    (
+        $audioPath
+    )
+	#$audioPath = $args[0];
 	$dirPath=(Get-Item $audioPath).Directory.FullName
 	cd $dirPath
 	$lang='en'
 	$baseName=  (Get-Item $audioPath).BaseName
-	whisperx --language $lang $args  --output_dir 'wsx' --fp16 False
+	whisperx --language $lang  --output_dir 'wsx' --fp16 False $audioPath $args
 	
 	$suffix = '.mp3.srt','.mp3.ass','.mp3.word.srt'
 	$suffixLang = ".mp3.$lang.srt",".mp3.$lang.ass",".mp3.word.$lang.srt"
@@ -233,8 +259,6 @@ Function wsx {
 		#	}
 		$n++
 	}
-	return $pathArray
-
 }
 Function ylp {
  #gen anki,这个需要手动输入audioPath,srtPath,srt2Path,可以根据实际情况,再写个批处理脚本,来使用这个命令
