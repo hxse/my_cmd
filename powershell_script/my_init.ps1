@@ -141,11 +141,63 @@ $audio = "--extract-audio", "--audio-format", "mp3"
 $embed = "--embed-thumbnail", "--embed-metadata"#,"--embed-subs"
 $cookie = ""#"--cookies-from-browser","chrome"
 $ytDownload = "D:\my_repo\parrot_fashion\download"
+Function lwsa{
+     param
+    (	
+		$loopDir
+    )
+    if( $loopDir -eq $null){#eq等于ne不等于
+    		echo "No parameter was detected" $loopDir
+    		return
+	}
+	$files = (Get-ChildItem -Recurse $loopDir)
+	Write-Output "Are you sure loop this folder?" 
+	pause
+	foreach ($f in $files){
+		if( $f.Extension -eq '.mp3'){
+			echo $f.FullName
+			echo $f.Directory.name
+			if( $f.Directory.name -eq 'cache'){#忽略cache文件夹
+				echo 'cache dir'
+			}else{
+				echo 'no cache dir'
+				wsa $f.FullName #不该用这个写, 应该直接用python写,传参真费尽
+			}
+		}
+		
+	}
+}
 Function wsa {
-    #通过whisperx来生成字幕,然后翻译,然后生成anki卡牌
-    $audioPath = $args[0];
+    #通过whisperx来生成字幕,然后用autosub翻译,然后生成anki卡牌
+     param
+    (
+        $audioPath
+    )
+    #$audioPath = $args[0];
 	$pathArray=wsx $audioPath
+
 	yats $pathArray[0]
+	
+	$dirPath=(Get-Item $audioPath).Directory.FullName
+	$wsxDir=(Get-Item $audioPath).Directory.FullName+'\wsx'
+	$srt1=$wsxDir+'\'+ (Get-Item $pathArray[0]).name
+	$srt2=$wsxDir+'\'+ (Get-Item $pathArray[0]).name+'.autosub.zh-cn.srt'
+	$srt1Exist=Test-Path $srt1
+	$srt2Exist=Test-Path $srt2
+	
+	$handleDir=(Get-Item $audioPath).Directory.FullName+'\wsx\handle'
+	$srt1Handle=$handleDir+'\'+ (Get-Item $pathArray[0]).name
+	$srt2Handle=$handleDir+'\'+ (Get-Item $pathArray[0]).name+'.autosub.zh-cn.srt'
+	$srt1HandleExist=Test-Path $srt1Handle
+	$srt2HandleExist=Test-Path $srt2Handle
+	if($true -eq $srt1HandleExist -And $true -eq $srt2HandleExist){
+		echo 'yes handle'
+		yga $audioPath  $srt1Handle $srt2Handle
+	}
+	else{
+		echo 'no  handle'
+		yga $audioPath  $srt1 $srt2
+	}
 }
 Function wsp {
 	# 自动生成音频字幕,按句切分,结尾可能有几秒不准确
@@ -156,10 +208,10 @@ Function wsx {
 	# 自动生成音频字幕,按词切分,精准
 	# pip310 install git+https://github.com/m-bain/whisperx.git
 	$audioPath = $args[0];
-	$dirPath=(Get-ChildItem $audioPath).Directory.FullName
+	$dirPath=(Get-Item $audioPath).Directory.FullName
 	cd $dirPath
 	$lang='en'
-	$baseName=  (Get-ChildItem $audioPath).BaseName
+	$baseName=  (Get-Item $audioPath).BaseName
 	whisperx --language $lang $args  --output_dir 'wsx' --fp16 False
 	
 	$suffix = '.mp3.srt','.mp3.ass','.mp3.word.srt'
