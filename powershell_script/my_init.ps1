@@ -141,15 +141,48 @@ $audio = "--extract-audio", "--audio-format", "mp3"
 $embed = "--embed-thumbnail", "--embed-metadata"#,"--embed-subs"
 $cookie = ""#"--cookies-from-browser","chrome"
 $ytDownload = "D:\my_repo\parrot_fashion\download"
-Function whi {
+Function wsa {
+    #通过whisperx来生成字幕,然后翻译,然后生成anki卡牌
+    $audioPath = $args[0];
+	$pathArray=wsx $audioPath
+	yats $pathArray[0]
+}
+Function wsp {
 	# 自动生成音频字幕,按句切分,结尾可能有几秒不准确
 	# pip310 install git+https://github.com/openai/whisper.git
 	whisper --language en $args
 }
-Function whx {
+Function wsx {
 	# 自动生成音频字幕,按词切分,精准
 	# pip310 install git+https://github.com/m-bain/whisperx.git
-	whisperx --language en $args
+	$audioPath = $args[0];
+	$dirPath=(Get-ChildItem $audioPath).Directory.FullName
+	cd $dirPath
+	$lang='en'
+	$baseName=  (Get-ChildItem $audioPath).BaseName
+	whisperx --language $lang $args  --output_dir 'wsx' --fp16 False
+	
+	$suffix = '.mp3.srt','.mp3.ass','.mp3.word.srt'
+	$suffixLang = ".mp3.$lang.srt",".mp3.$lang.ass",".mp3.word.$lang.srt"
+	$n=0
+	$pathArray=@()
+	foreach ($s in $suffix){
+		$inputPath= $dirPath +'\wsx\'+$baseName+$suffix[$n]
+		$outPath=$dirPath+'\wsx\'+$baseName+$suffixLang[$n]
+		$exits=Test-Path $inputPath
+		
+		if($exits -eq $true){ 
+			#write-output "y" 
+			rename-Item $inputPath -NewName $outPath
+		}else{
+		}
+		#if($flagSuffix -eq $suffixLang[$n]){
+				$pathArray+=$outPath
+		#	}
+		$n++
+	}
+	return $pathArray
+
 }
 Function ylp {
  #gen anki,这个需要手动输入audioPath,srtPath,srt2Path,可以根据实际情况,再写个批处理脚本,来使用这个命令
@@ -193,6 +226,8 @@ Function ycs {
 }
 Function yats {
  #translate srt srt
+ #pip install git+https://github.com/BingLingGroup/autosub.git@dev
+ #autosub直接从命令行调用,所以全局安装
 	$dir = Get-Location;
 	cd "D:\my_repo\parrot_fashion\crawler";
 	& pdm run python D:\my_repo\parrot_fashion\crawler\autosub_tool.py ats $args;
@@ -308,11 +343,10 @@ Function reduceVideoSize{
 Function crop_ffmpeg{
 	$files = Get-ChildItem ".\"
 	foreach ($f in $files){
-		$outFile = $f.BaseName +"_out" + ".mp4"
+		$outFile = $f.BaseName + ".mp4"
 		$size = $f.length/1024/1024/1024
 		$threshold=1.97
 		ffmpeg -i $f  -fs 1970M -filter:v "crop=1024:660:000:400" $outFile
-		
 	}
 }
 echo "init.ps1 have been loaded"
