@@ -142,6 +142,18 @@ $embed = "--embed-thumbnail", "--embed-metadata"#,"--embed-subs"
 $cookie = ""#"--cookies-from-browser","chrome"
 $ytDownload = "D:\my_repo\parrot_fashion\download"
 Function lwsa{
+	# loop whisper to anki
+	# lwsa dirPath --enable_whisperx 1 --enable_translate 1 --enable_anki 1 --handle auto --skip 0
+    cd "D:\my_repo\parrot_fashion\crawler"
+    pdm run python .\loop_whisper.py loop $args
+}
+Function wsa{
+	# whisper to anki
+	# wsa audioPath --enable_whisperx 1 --enable_translate 1 --enable_anki 1 --handle auto
+    cd "D:\my_repo\parrot_fashion\crawler"
+    pdm run python .\loop_whisper.py run $args
+}
+Function _lwsa{
      param
     (	
 		$loopDir
@@ -169,7 +181,7 @@ Function lwsa{
 		
 	}
 }
-Function wsa {
+Function _wsa {
     #通过whisperx来生成字幕,然后用autosub翻译,然后生成anki卡牌
      param
     (
@@ -217,7 +229,7 @@ Function wsa {
 		}
 	}
 }
-Function wsp {
+Function _wsp {
 	param
     (
         $audioPath
@@ -226,7 +238,7 @@ Function wsp {
 	# pip310 install git+https://github.com/openai/whisper.git
 	whisper --language en $audioPath $args
 }
-Function wsx {
+Function _wsx {
 	# 自动生成音频字幕,按词切分,精准
 	# pip310 install git+https://github.com/m-bain/whisperx.git
 	param
@@ -239,7 +251,7 @@ Function wsx {
 	$lang='en'
 	$baseName=  (Get-Item $audioPath).BaseName
 	whisperx --language $lang  --output_dir 'wsx' --fp16 False $audioPath $args
-	
+
 	$suffix = '.mp3.srt','.mp3.ass','.mp3.word.srt'
 	$suffixLang = ".mp3.$lang.srt",".mp3.$lang.ass",".mp3.word.$lang.srt"
 	$n=0
