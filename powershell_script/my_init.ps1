@@ -131,155 +131,66 @@ $cf = "--concurrent-fragments", "10"
 $video = "--no-playlist"
 $playlist = "--yes-playlist"
 $da = "--download-archive", "archive.txt"
+$da = ""
 $ws = "--write-subs"
 $was = "--write-auto-subs"
 $langs = "--sub-langs", "en,en-*,en-GB,en-en,en-us,zh-CN,zh-TW,zh-HK,ja,-live_chat"#all
 $cs = "--convert-subs", "srt"
-$outVideo = "-o", "%(uploader)s/videos/%(upload_date)s %(id)s/%(upload_date)s %(title)s %(id)s.%(ext)s"
-$outPlaylist = "-o", "%(uploader)s/%(playlist)s %(playlist_id)s/%(upload_date)s %(title)s %(id)s.%(ext)s"
+$outVideo = "-o", "%(uploader)s/_videos/%(upload_date)s %(id)s/%(upload_date)s %(title)s %(id)s.%(ext)s"
+$outPlaylist = "-o", "%(uploader)s/%(playlist)s %(playlist_id)s/%(upload_date)s %(id)s/%(upload_date)s %(title)s %(id)s.%(ext)s"
+$meta = "title,playlist,playlist_id,uploader,upload_date,id,ext"
+$replace = "--replace-in-metadata", $meta, "&", "_"
+$replace2 = "--replace-in-metadata", $meta, "$([System.Text.Encoding]::UTF8.GetString(([byte]226, 128, 147)))", "_"
+$replaceMetadata = $replace + $replace2 # 这里一定要用加号, 不能用逗号, 因为replace,和replace2都已经是参数了
 $audio = "--extract-audio", "--audio-format", "mp3"
 $embed = "--embed-thumbnail", "--embed-metadata"#,"--embed-subs"
 $cookie = ""#"--cookies-from-browser","chrome"
 $ytDownload = "D:\my_repo\parrot_fashion\download"
-Function lwsa{
+
+Function sdlp {
+	$archive =
+	$commandArray = @(`
+			"ypa 'https://www.youtube.com/playlist?list=PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt' --download-archive 'BBC Learning English/6 Minute English - Vocabulary _ listening PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt.txt'", `
+			"yva 'https://www.youtube.com/@kurzgesagt' --download-archive 'Kurzgesagt _ In a Nutshell/_videos.txt'"
+	)
+	For ($i = 0; $i -lt $commandArray.Length; $i++) {
+		Write-Host $i $commandArray[$i]
+	}
+	$number = Read-Host -Prompt 'select command'
+	if ( $number -match "^[\d\.]+$" ) {
+		echo $number
+		iex $commandArray[$number]
+ }
+}
+Function swsa {
+	#select y-dlp command
+	$command = "ypa https://www.youtube.com/playlist?list=PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt --download-archive 'BBC Learning English/6 Minute English - Vocabulary _ listening PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt.txt'"
+	Write-Host [1] $command
+	$number = Read-Host -Prompt 'select command'
+	if ($number -eq 1) {
+		iex $command
+	}
+}
+Function lwsa {
 	# loop whisper to anki
 	# lwsa dirPath --enable_whisperx 1 --enable_translate 1 --enable_anki 1 --handle auto --skip 0
-    cd "D:\my_repo\parrot_fashion\crawler"
-    pdm run python .\loop_whisper.py loop $args
+	cd "D:\my_repo\parrot_fashion\crawler"
+	pdm run python .\loop_whisper.py loop $args
 }
-Function wsa{
+Function wsa {
 	# whisper to anki
 	# wsa audioPath --enable_whisperx 1 --enable_translate 1 --enable_anki 1 --handle auto
-    cd "D:\my_repo\parrot_fashion\crawler"
-    pdm run python .\loop_whisper.py run $args
-}
-Function _lwsa{
-     param
-    (	
-		$loopDir
-    )
-    
-    if( $loopDir -eq $null){#eq等于ne不等于
-    		echo "No parameter was detected" $loopDir
-    		return
-	}
-	$files = (Get-ChildItem -Recurse $loopDir)
-	Write-Output "Are you sure loop this folder?" 
-	pause
-	
-	foreach ($f in $files){
-		if( $f.Extension -eq '.mp3'){
-			echo $f.FullName
-			echo $f.Directory.name
-			if( $f.Directory.name -eq 'cache'){#忽略cache文件夹
-				echo 'cache dir'
-			}else{
-				echo 'no cache dir'
-				wsa $f.FullName #不该用这个写, 应该直接用python写,传参真费尽
-			}
-		}
-		
-	}
-}
-Function _wsa {
-    #通过whisperx来生成字幕,然后用autosub翻译,然后生成anki卡牌
-     param
-    (
-        $audioPath
-    )
-	wsx $audioPath
-	
-	$dirPath=(Get-Item $audioPath).Directory.FullName
-	cd $dirPath
-	$lang='en'
-	$baseName=  (Get-Item $audioPath).BaseName
-    $suffix = ".mp3.$lang.srt"
-    $name=$baseName+$suffix
- 
-	$dirPath=(Get-Item $audioPath).Directory.FullName
-	$wsxDir=(Get-Item $audioPath).Directory.FullName+'\wsx'
-	$srt1=$wsxDir+'\'+ $name
-	$srt2=$wsxDir+'\'+ $name +'.autosub.zh-cn.srt'
-	$srt1Exist=Test-Path $srt1
-
-	
-	$handleDir=(Get-Item $audioPath).Directory.FullName+'\wsx\handle'
-	$srt1Handle=$handleDir+'\'+ $name
-	$srt2Handle=$handleDir+'\'+ $name +'.autosub.zh-cn.srt'
-	$srt1HandleExist=Test-Path $srt1Handle
-	if($true -eq $srt1HandleExist){
-		yats $srt1Handle
-		}else{
-			if($true -eq $srt1Exist){
-			yats $srt1
-		}
-	}
-
-	$srt2Exist=Test-Path $srt2
-	$srt2HandleExist=Test-Path $srt2Handle
-
-	if($true -eq $srt1HandleExist -And $true -eq $srt2HandleExist){
-		echo 'yes handle'
-		yga $audioPath  $srt1Handle $srt2Handle
-	}
-	else{
-		if($true -eq $srt1Exist -And $true -eq $srt2Exist){
-		echo 'no  handle'
-		yga $audioPath  $srt1 $srt2
-		}
-	}
-}
-Function _wsp {
-	param
-    (
-        $audioPath
-    )
-	# 自动生成音频字幕,按句切分,结尾可能有几秒不准确
-	# pip310 install git+https://github.com/openai/whisper.git
-	whisper --language en $audioPath $args
-}
-Function _wsx {
-	# 自动生成音频字幕,按词切分,精准
-	# pip310 install git+https://github.com/m-bain/whisperx.git
-	param
-    (
-        $audioPath
-    )
-	#$audioPath = $args[0];
-	$dirPath=(Get-Item $audioPath).Directory.FullName
-	cd $dirPath
-	$lang='en'
-	$baseName=  (Get-Item $audioPath).BaseName
-	whisperx --language $lang  --output_dir 'wsx' --fp16 False $audioPath $args
-
-	$suffix = '.mp3.srt','.mp3.ass','.mp3.word.srt'
-	$suffixLang = ".mp3.$lang.srt",".mp3.$lang.ass",".mp3.word.$lang.srt"
-	$n=0
-	$pathArray=@()
-	foreach ($s in $suffix){
-		$inputPath= $dirPath +'\wsx\'+$baseName+$suffix[$n]
-		$outPath=$dirPath+'\wsx\'+$baseName+$suffixLang[$n]
-		$exits=Test-Path $inputPath
-		
-		if($exits -eq $true){ 
-			#write-output "y" 
-			rename-Item $inputPath -NewName $outPath
-		}else{
-		}
-		#if($flagSuffix -eq $suffixLang[$n]){
-				$pathArray+=$outPath
-		#	}
-		$n++
-	}
+	cd "D:\my_repo\parrot_fashion\crawler"
+	pdm run python .\loop_whisper.py run $args
 }
 Function ylp {
  #gen anki,这个需要手动输入audioPath,srtPath,srt2Path,可以根据实际情况,再写个批处理脚本,来使用这个命令
 	$dir = Get-Location;
 	cd "D:\my_repo\parrot_fashion\crawler";
 	$dict = @{
-		ku           = $ytDownload + "\Kurzgesagt – In a Nutshell\videos"; #中间的–不是-,所以会有莫名其妙的bug,换成中文其实也会乱码,,解决方法是,在windows设置里找到"区域设置",然后找到"更改系统区域设置,打开"Beta 版: 使用 Unicode UTF-8 提供全球语言支持"",这玩应win11有坑还是别用, 用了打不开中文的股票软件
+		ku           = $ytDownload + "\Kurzgesagt – In a Nutshell\videos"; #中间的–不是-,所以会有莫名其妙的bug,换成中文其实也会乱码,,解决方法是,在windows设置里找到"区域设置",然后找到"更改系统区域设置, 打开"Beta 版: 使用 Unicode UTF-8 提供全球语言支持"",这玩应win11有坑还是别用, 用了打不开中文的股票软件
 		kuMediSuffix = '.mp3';
-		kuSuffixArr  = "['.handle.en-GB.srt','.handle.en-en.srt','.handle.en.srt','.en-GB.srt','.en-en.srt','.en.srt']"; #handle是人工调整过的意思
+		kuSuffixArr  = "['.handle.en-GB.srt', '.handle.en-en.srt', '.handle.en.srt', '.en-GB.srt', '.en-en.srt', '.en.srt']"; #handle是人工调整过的意思
 	}
 	if (!$args[1]) {
 		$setPath = 'None'
@@ -338,35 +249,36 @@ Function yfst { yfs; yts; }
 Function yvv {
 	$dir = Get-Location;
 	cd $ytDownload;
-	& yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $video $outVideo $args;
+	& yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $video $outVideo $replaceMetadata $args;
 	cd $dir
 }
 Function yvvt { yvv $args; yts $args; }
 Function yva {
 	$dir = Get-Location;
 	cd $ytDownload;
-	& yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $video $outVideo $audio $args;
+	& yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $video $outVideo $audio $replaceMetadata $args;
 	cd $dir
 }
 Function yvat { yva $args; yts $args; }
 Function ypv {
 	$dir = Get-Location;
 	cd $ytDonload;
-	& yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $playlist $outPlaylist $args;
+	& yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $playlist $outPlaylist $replaceMetadata $args;
 	cd $dir
 }
 Function ypvt { ypv $args; yts $args; }
 Function ypa {
 	$dir = Get-Location;
 	cd $ytDownload;
-	& yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $playlist $outPlaylist $audio $args;
+	$da = "--download-archive", "archive.txt"
+	& yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $playlist $outPlaylist $audio $replaceMetadata $args;
 	cd $dir
 }
 Function ypat { ypa $args; yts $args; }
 
 Function yxt {
 	#txt to srt
-	C:\Python37-32\python.exe -m aeneas.tools.execute_task $args[0] $args[1]   "task_language=eng|os_task_file_format=srt|is_text_type=plain" $args[2]
+	C:\Python37-32\python.exe -m aeneas.tools.execute_task $args[0] $args[1]   "task_language=eng| os_task_file_format=srt | is_text_type=plain" $args[2]
 }
 
 Function ysts {
@@ -396,44 +308,44 @@ Function jable {
 
 Function cut_mp4 {
 	$files = Get-ChildItem ".\"
-	foreach ($f in $files){
+	foreach ($f in $files) {
 		$outFile = $f.BaseName + "_out" + $f.Extension
 		echo $outFile
-		#echo $f.BaseName 
+		#echo $f.BaseName
 		#echo $f.Extension
 		#echo $f.Name
 		ffmpeg -i $f.Name -ss 00:00:05 -avoid_negative_ts 1  -avoid_negative_ts make_zero -c copy $outFile
 		break
 	}
 }
-Function reduceVideoSize{
+Function reduceVideoSize {
 	$files = Get-ChildItem ".\"
-	foreach ($f in $files){
+	foreach ($f in $files) {
 		#$outFile = $f.BaseName + "_out" + $f.Extension
-		$outFile = $f.BaseName +"_out"+ ".mp4"
-		$size = $f.length/1024/1024/1024
-		$threshold=1.97
-		if ($size -gt $threshold){
-		echo "$size > $threshold name: $f.$Name"
+		$outFile = $f.BaseName + "_out" + ".mp4"
+		$size = $f.length / 1024 / 1024 / 1024
+		$threshold = 1.97
+		if ($size -gt $threshold) {
+			echo "$size > $threshold name: $f.$Name"
 			#ffmpeg -i $f -fs 1970M -c copy $outFile #这个只会截取一部分时长
-			 ffmpeg -i $f -vcodec libx265 -crf 24 $outFile
+			ffmpeg -i $f -vcodec libx265 -crf 24 $outFile
 		}
-		else{
-		echo "$size <= $threshold name: $f.$Name"
+		else {
+			echo "$size <= $threshold name: $f.$Name"
 		}
-		#echo $f.BaseName 
+		#echo $f.BaseName
 		#echo $f.Extension
 		#echo $f.Name
 		break
 	}
 }
 
-Function crop_ffmpeg{
+Function crop_ffmpeg {
 	$files = Get-ChildItem ".\"
-	foreach ($f in $files){
+	foreach ($f in $files) {
 		$outFile = $f.BaseName + ".mp4"
-		$size = $f.length/1024/1024/1024
-		$threshold=1.97
+		$size = $f.length / 1024 / 1024 / 1024
+		$threshold = 1.97
 		ffmpeg -i $f  -fs 1970M -filter:v "crop=1024:660:000:400" $outFile
 	}
 }
