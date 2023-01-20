@@ -270,8 +270,7 @@ Function ypvt { ypv $args; yts $args; }
 Function ypa {
 	$dir = Get-Location;
 	cd $ytDownload;
-	$da = "--download-archive", "archive.txt"
-	& yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $playlist $outPlaylist $audio $replaceMetadata $args;
+	& yt-dlp $proxy $cf $ws $was $langs $cs $embed $cookie $playlist $outPlaylist $audio $replaceMetadata $args;
 	cd $dir
 }
 Function ypat { ypa $args; yts $args; }
