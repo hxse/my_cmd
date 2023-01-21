@@ -1,6 +1,7 @@
 # 用powershell如下调用来初始化工作空间
 # in windows terminal: powershell -NOLogo -NoExit -File "D:\my_repo\my_cmd\powershell_script\my_init.ps1"
 # 如果出现乱码,就打开windows的系统设置,找到"更改系统区域设置",打开"Beta 版: 使用 Unicode UTF-8 提供全球语言支持"(这个可能导致打不开文华财经,谨慎使用)
+$OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
 #chcp 65001#解决中文乱码
 $startup = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp"
 $scriptPath = $MyInvocation.MyCommand.Definition
@@ -20,7 +21,11 @@ Invoke-Expression (& { (lua $zLua --init powershell) -join "`n" })
 #oh-my-posh init pwsh | Invoke-Expression
 #oh-my-posh --init --shell pwsh --config $ompPath\kali2.omp.json | Invoke-Expression #预览参考: https://ohmyposh.dev/docs/themes
 
-
+function g {
+	# python terminal gui
+	cd $scriptDir\..\"python_script"
+	pdm run python main.py
+}
 # 修改tcp默认端口号起点,避免进程端口被占用,即使被占用了,也无法用 netstat -aon | findstr 查到哪个占用
 # [遇到“OSError: \[WinError 10013\] 以一种访问权限不允许的方式做了一个访问套接字的尝试。”的解决方法。 · Issue #13552 · XX-net/XX-Net](https://github.com/XX-net/XX-Net/issues/13552)
 # [windows tcp动态端口被占用过多，导致没有空闲的端口完成http请求。（发现很多TIME_WAIT状态的TCP连接） - 简书](https://www.jianshu.com/p/9ee0166aa01c)
@@ -139,19 +144,23 @@ $cs = "--convert-subs", "srt"
 $outVideo = "-o", "%(uploader)s/_videos/%(upload_date)s %(id)s/%(upload_date)s %(title)s %(id)s.%(ext)s"
 $outPlaylist = "-o", "%(uploader)s/%(playlist)s %(playlist_id)s/%(upload_date)s %(id)s/%(upload_date)s %(title)s %(id)s.%(ext)s"
 $meta = "title,playlist,playlist_id,uploader,upload_date,id,ext"
-$replace = "--replace-in-metadata", $meta, "&", "_"
-$replace2 = "--replace-in-metadata", $meta, "$([System.Text.Encoding]::UTF8.GetString(([byte]226, 128, 147)))", "_"
-$replaceMetadata = $replace + $replace2 # 这里一定要用加号, 不能用逗号, 因为replace,和replace2都已经是参数了
+$replace = "--replace-in-metadata", $meta, "\&", "_"
+$replace2 = "--replace-in-metadata", $meta, "$([System.Text.Encoding]::UTF8.GetString(([byte]226, 128, 147)))", "_" #替换全角减号
+#$replace2 = "--replace-in-metadata", $meta, "\-", "_" #替换全角减号
+$replace3 = "--replace-in-metadata", $meta, "\?", "_" #替换全角问号
+$replace4 = "--replace-in-metadata", $meta, "\:", "_" #替换全角冒号
+$replaceMetadata = $replace + $replace2 + $replace3 + $replace4  # 这里一定要用加号, 不能用逗号, 因为replace,和replace2都已经是参数了
+$replaceMetadata = ""
 $audio = "--extract-audio", "--audio-format", "mp3"
 $embed = "--embed-thumbnail", "--embed-metadata"#,"--embed-subs"
 $cookie = ""#"--cookies-from-browser","chrome"
 $ytDownload = "D:\my_repo\parrot_fashion\download"
 
+$fullSubtract = "$([System.Text.Encoding]::UTF8.GetString(([byte]226, 128, 147)))"#全角减号
 Function sdlp {
-	$archive =
 	$commandArray = @(`
-			"ypa 'https://www.youtube.com/playlist?list=PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt' --download-archive 'BBC Learning English/6 Minute English - Vocabulary _ listening PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt.txt'", `
-			"yva 'https://www.youtube.com/@kurzgesagt' --download-archive 'Kurzgesagt _ In a Nutshell/_videos.txt'"
+			"ypa 'https://www.youtube.com/playlist?list=PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt' --download-archive 'BBC Learning English/6 Minute English - Vocabulary & listening PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt.txt'", `
+			"yva 'https://www.youtube.com/@kurzgesagt' --download-archive 'Kurzgesagt $fullSubtract In a Nutshell/_videos.txt'"
 	)
 	For ($i = 0; $i -lt $commandArray.Length; $i++) {
 		Write-Host $i $commandArray[$i]
@@ -163,13 +172,18 @@ Function sdlp {
  }
 }
 Function swsa {
-	#select y-dlp command
-	$command = "ypa https://www.youtube.com/playlist?list=PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt --download-archive 'BBC Learning English/6 Minute English - Vocabulary _ listening PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt.txt'"
-	Write-Host [1] $command
-	$number = Read-Host -Prompt 'select command'
-	if ($number -eq 1) {
-		iex $command
+	$commandArray = @(`
+				"lwsa 'D:\my_repo\parrot_fashion\download\BBC Learning English'"
+				"lwsa 'D:\my_repo\parrot_fashion\download\Kurzgesagt $fullSubtract In a Nutshell'"
+	)
+	For ($i = 0; $i -lt $commandArray.Length; $i++) {
+		Write-Host $i $commandArray[$i]
 	}
+	$number = Read-Host -Prompt 'select command'
+	if ( $number -match "^[\d\.]+$" ) {
+		echo $number
+		iex $commandArray[$number]
+ }
 }
 Function lwsa {
 	# loop whisper to anki
