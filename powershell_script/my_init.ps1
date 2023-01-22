@@ -180,9 +180,10 @@ Function swsa {
 		Write-Host $i $commandArray[$i]
 	}
 	$number = Read-Host -Prompt 'select command'
+
 	if ( $number -match "^[\d\.]+$" ) {
-		echo $number
-		iex $commandArray[$number]
+		Write-Host "$($commandArray[$number]) $($args)"
+		iex ("$($commandArray[$number]) $($args)")
  }
 }
 Function lwsa {
