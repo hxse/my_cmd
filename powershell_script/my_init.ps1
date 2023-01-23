@@ -152,9 +152,10 @@ $replace4 = "--replace-in-metadata", $meta, "\:", "_" #替换全角冒号
 $replaceMetadata = $replace + $replace2 + $replace3 + $replace4  # 这里一定要用加号, 不能用逗号, 因为replace,和replace2都已经是参数了
 $replaceMetadata = ""
 $audio = "--extract-audio", "--audio-format", "mp3"
-$embed = "--embed-thumbnail", "--embed-metadata"#,"--embed-subs"
+$embed = "--no-embed-thumbnail", "--embed-metadata"#,"--embed-subs"#--embed-thumbnail嵌入封面会导致ffmpeg后续处理不了报错 Invalid data found when processing input
 $cookie = ""#"--cookies-from-browser","chrome"
 $ytDownload = "D:\my_repo\parrot_fashion\download"
+$overWrite="--force-overwrites"
 
 $fullSubtract = "$([System.Text.Encoding]::UTF8.GetString(([byte]226, 128, 147)))"#全角减号
 Function sdlp {
@@ -264,28 +265,28 @@ Function yfst { yfs; yts; }
 Function yvv {
 	$dir = Get-Location;
 	cd $ytDownload;
-	& yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $video $outVideo $replaceMetadata $args;
+	& yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $video $outVideo $replaceMetadata $overWrite $args;
 	cd $dir
 }
 Function yvvt { yvv $args; yts $args; }
 Function yva {
 	$dir = Get-Location;
 	cd $ytDownload;
-	& yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $video $outVideo $audio $replaceMetadata $args;
+	& yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $video $outVideo $audio $replaceMetadata $overWrite $args;
 	cd $dir
 }
 Function yvat { yva $args; yts $args; }
 Function ypv {
 	$dir = Get-Location;
 	cd $ytDonload;
-	& yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $playlist $outPlaylist $replaceMetadata $args;
+	& yt-dlp $proxy $cf $da $ws $was $langs $cs $embed $cookie $playlist $outPlaylist $replaceMetadata $overWrite $args;
 	cd $dir
 }
 Function ypvt { ypv $args; yts $args; }
 Function ypa {
 	$dir = Get-Location;
 	cd $ytDownload;
-	& yt-dlp $proxy $cf $ws $was $langs $cs $embed $cookie $playlist $outPlaylist $audio $replaceMetadata $args;
+	& yt-dlp $proxy $cf $ws $was $langs $cs $embed $cookie $playlist $outPlaylist $audio $replaceMetadata $overWrite $args;
 	cd $dir
 }
 Function ypat { ypa $args; yts $args; }
