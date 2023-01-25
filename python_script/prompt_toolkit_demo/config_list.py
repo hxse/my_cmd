@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+# coding: utf-8
+config_option = [
+    "apple",
+    "abs",
+    "banana",
+    "color",
+    "dict",
+    "dog",
+    "ear",
+    "顶头没s",
+    "了头s",
+    "顶头哈s",
+    "顶头哈s",
+    "顶级阿k",
+    "顶",
+    "顶",
+    "顶",
+    "顶",
+    "顶",
+    "顶头没s",
+    "了头s",
+    "周杰伦",
+    "哈哈哈",
+    "真不错",
+    "可以的",
+    "快快",
+]

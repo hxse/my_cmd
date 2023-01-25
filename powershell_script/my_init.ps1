@@ -23,8 +23,9 @@ Invoke-Expression (& { (lua $zLua --init powershell) -join "`n" })
 
 function g {
 	# python terminal gui
-	cd $scriptDir\..\"python_script"
-	pdm run python main.py
+	gsdlp
+	gswsa
+	
 }
 # 修改tcp默认端口号起点,避免进程端口被占用,即使被占用了,也无法用 netstat -aon | findstr 查到哪个占用
 # [遇到“OSError: \[WinError 10013\] 以一种访问权限不允许的方式做了一个访问套接字的尝试。”的解决方法。 · Issue #13552 · XX-net/XX-Net](https://github.com/XX-net/XX-Net/issues/13552)
@@ -158,6 +159,9 @@ $ytDownload = "D:\my_repo\parrot_fashion\download"
 $overWrite="--force-overwrites"
 
 $fullSubtract = "$([System.Text.Encoding]::UTF8.GetString(([byte]226, 128, 147)))"#全角减号
+Function gsdlp {
+	echo "sdlp select -> auto yt-dlp download"
+}
 Function sdlp {
 	$commandArray = @(`
 			"ypa 'https://www.youtube.com/playlist?list=PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt' --download-archive 'BBC Learning English/6 Minute English - Vocabulary & listening PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt.txt'", `
@@ -171,6 +175,10 @@ Function sdlp {
 		echo $number
 		iex $commandArray[$number]
  }
+}
+Function gswsa {
+	echo "swsa select -> whisperx -> autosub -> .apkg"
+	echo "swsa arges example:  1 1 1 --skip --check"
 }
 Function swsa {
 	$commandArray = @(`

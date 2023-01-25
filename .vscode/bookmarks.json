@@ -1,0 +1,24 @@
+{
+	"files": [
+		{
+			"path": "python_script_test/prompt_toolkit_test.py",
+			"bookmarks": [
+				{
+					"line": 189,
+					"column": 24,
+					"label": ""
+				},
+				{
+					"line": 270,
+					"column": 51,
+					"label": "key a_z"
+				},
+				{
+					"line": 308,
+					"column": 26,
+					"label": ""
+				}
+			]
+		}
+	]
+}
