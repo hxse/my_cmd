@@ -351,25 +351,27 @@ def set_answer(event):
 
 
 def update_last():
-    global option, show_opt, show_select, offset, mode, last, selectArr
+    global option, show_opt, show_select, offset, mode, last, selectArr, history
     last["option"] = copy.deepcopy(option)
     last["show_opt"] = copy.deepcopy(show_opt)
     last["offset"] = copy.deepcopy(offset)
     last["show_select"] = copy.deepcopy(show_select)
     last["selectArr"] = copy.deepcopy(selectArr)
+    last["history"] = copy.deepcopy(history)
 
 
 def restore_last():
-    global option, show_opt, show_select, offset, mode, last, selectArr
+    global option, show_opt, show_select, offset, mode, last, selectArr, history
     option = last["option"]
     show_opt = last["show_opt"]
     offset = last["offset"]
     show_select = last["show_select"]
     selectArr = last["selectArr"]
+    history = last["history"]
 
 
 def get_sub_page(field):
-    global option, show_opt, show_select, offset, mode, last, selectArr, message
+    global option, show_opt, show_select, offset, mode, last, selectArr, message, history
     if mode == 0:
         if len(show_opt) > 0:
             result = option[show_opt[show_select + offset]]
@@ -386,6 +388,7 @@ def get_sub_page(field):
                 show_select = 0
                 selectArr = []
                 mode = 1
+                history = ""
                 message = f"{history} {selectArr} {show_opt[show_select] if len(show_opt)>0 else 'None'}"
 
     elif mode == 1:
