@@ -220,7 +220,7 @@ def space(event):
     multiple_select()
 
 
-@kb.add("s-tab", eager=True)
+# @kb.add("s-tab", eager=True)
 @kb.add("up", eager=True)
 def up(event):
     global history, option, show_opt, show_select, message, offset
@@ -249,7 +249,7 @@ def up(event):
     message = f"3 {history} {selectArr} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
 
 
-@kb.add("tab", eager=True)
+# @kb.add("tab", eager=True)
 @kb.add("down", eager=True)
 def down(event):
     # Control-I 和tab 是一个键
@@ -397,6 +397,7 @@ def get_sub_page(field):
         message = f"{history} {selectArr} {show_opt[show_select] if len(show_opt)>0 else 'None'}"
 
 
+@kb.add("tab", eager=True)
 @kb.add("c-a", eager=True)
 def get_args(event):
     get_sub_page("args")
