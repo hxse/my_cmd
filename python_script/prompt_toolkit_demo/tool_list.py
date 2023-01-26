@@ -245,7 +245,7 @@ def down(event):
 
 
 @kb.add("pageup", eager=True)
-def down(event):
+def pageup(event):
     global history, option, show_opt, show_select, message, offset
     lines = w.render_info.window_height
     if len(show_opt) <= w.render_info.window_height:
@@ -268,7 +268,7 @@ def down(event):
 
 
 @kb.add("pagedown", eager=True)
-def down(event):
+def pagedown(event):
     global history, option, show_opt, show_select, message, offset
     lines = w.render_info.window_height
     if len(show_opt) <= w.render_info.window_height:
@@ -290,12 +290,6 @@ def down(event):
 def clean_history(event):
     global history
     history = history[:-1]
-    # search(event)
-    # show_opt = [k for k, v in enumerate(word_match(option)) if history in v]
-    # show_select = 0
-    # offset = 0
-    # message = f"{history} {show_opt[show_select] if len(show_opt)>0 else 'None'}"
-
     update()
 
 
@@ -307,13 +301,6 @@ def clean_history(event):
     show_select = 0
     offset = 0
     message = f"{history} {show_opt[show_select] if len(show_opt)>0 else 'None'}"
-
-
-# @kb.add("space", eager=True)
-# def space(event):
-#     global history, show_opt, option, show_select, message, offset
-#     history = history + " "
-#     message = f"{history} {show_opt[show_select] if len(show_opt)>0 else 'None'}"
 
 
 @kb.add("enter", eager=True)

@@ -252,7 +252,7 @@ def down(event):
 
 
 @kb.add("pageup", eager=True)
-def down(event):
+def pageup(event):
     global history, option, show_opt, show_select, message, offset
     lines = w.render_info.window_height
     if len(show_opt) <= w.render_info.window_height:
@@ -275,7 +275,7 @@ def down(event):
 
 
 @kb.add("pagedown", eager=True)
-def down(event):
+def pagedown(event):
     global history, option, show_opt, show_select, message, offset
     lines = w.render_info.window_height
     if len(show_opt) <= w.render_info.window_height:
@@ -292,34 +292,11 @@ def down(event):
     message = f"2 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
     return
 
-    if show_select + offset == len(show_opt) - 1:
-        # 无需偏移,碰到底部,回到首选
-        offset = 0
-        show_select = 0
-        message = f"1 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
-        return
-    if show_select + lines >= w.render_info.window_height:
-        # 向下偏移
-        offset += lines
-        message = f"2 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
-        return
-    show_select = show_select + 1
-    if show_select >= len(show_opt):
-        # 无需偏移
-        show_select = 0
-    message = f"3 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
-
 
 @kb.add("backspace", eager=True)
 def clean_history(event):
     global history
     history = history[:-1]
-    # search(event)
-    # show_opt = [k for k, v in enumerate(word_match(option)) if history in v]
-    # show_select = 0
-    # offset = 0
-    # message = f"{history} {show_opt[show_select] if len(show_opt)>0 else 'None'}"
-
     update()
 
 
@@ -367,6 +344,10 @@ def run_app_tree():
     global option, show_opt
 
     tree = Tree(config_option)
+    print(tree.print_tree())
+    import pdb
+
+    pdb.set_trace()
 
     option = [i for i in tree.generator_list()]
     show_opt = [k for k, v in enumerate(option)]
