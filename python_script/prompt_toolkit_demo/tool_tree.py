@@ -15,14 +15,18 @@ from prompt_toolkit.formatted_text import (
 )
 from pypinyin import pinyin, lazy_pinyin
 from get_tree import Tree
-
+import copy
 
 show_select = 0
 history = ""
 state = True
 message = ""
 offset = 0
-spaceStr = "|"
+splitKey = "|"
+splitStr = "|"
+selectArr = []
+mode = 0  # 0是主页面,1是子页面(一般显示args和help的子页面)
+last = {}
 
 
 def is_all_chinese(strs):
@@ -172,12 +176,12 @@ kb = KeyBindings()
 @kb.add("~", eager=True)
 @kb.add("^", eager=True)
 @kb.add("$", eager=True)
-@kb.add("space", eager=True)
+@kb.add(splitKey, eager=True)
 def search(event):
     global history
     history = (
-        history + spaceStr
-        if event.key_sequence[0].key == " "
+        history + splitStr
+        if event.key_sequence[0].key == splitKey
         else history + event.key_sequence[0].key
     )
     update()
@@ -186,15 +190,34 @@ def search(event):
 def update():
     global history, option, show_opt, show_select, message, offset
     result = [[k, v] for k, v in enumerate(word_match([i["value"] for i in option]))]
-    if spaceStr in history:
-        for h in history.split(spaceStr):
+    if splitStr in history:
+        for h in history.split(splitStr):
             result = [[k, v] for k, v in result if h in v]
         show_opt = [k for k, v in result]
     else:
         show_opt = [k for k, v in result if history in v]
     show_select = 0
     offset = 0
-    message = f"{history} {show_opt[show_select] if len(show_opt)>0 else 'None'}"
+    message = (
+        f"{history} {selectArr} {show_opt[show_select] if len(show_opt)>0 else 'None'}"
+    )
+
+
+def multiple_select(isOnlyAdd=False):
+    global history, option, show_opt, show_select, message, offset
+    if len(show_opt) > 0:
+        i = show_opt[show_select + offset]
+        if i in selectArr:
+            if not isOnlyAdd:
+                selectArr.remove(i)
+        else:
+            selectArr.append(i)
+    message = f"{history} {selectArr}"
+
+
+@kb.add("space", eager=True)
+def space(event):
+    multiple_select()
 
 
 @kb.add("s-tab", eager=True)
@@ -205,25 +228,25 @@ def up(event):
         # 列表小于等于页面高度
         offset = 0
         show_select = len(show_opt) - 1 if show_select == 0 else show_select - 1
-        message = f"0 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
+        message = f"0 {history} {selectArr} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
         # show_select = len(show_opt) - 1
         return
     if show_select + offset == 0:
         # 无需偏移,碰到顶部,回到底部
         offset = len(show_opt) - 1 - (w.render_info.window_height - 1)
         show_select = w.render_info.window_height - 1
-        message = f"1 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
+        message = f"1 {history} {selectArr} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
         return
     if show_select - 1 < 0:
         # 向上偏移
         offset = offset - 1  # -1 if offset >= 0 else offset - 1
-        message = f"2 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
+        message = f"2 {history} {selectArr} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
         return
     show_select = show_select - 1
     if show_select < 0:
         # 无需偏移
         show_select = len(show_opt) - 1
-    message = f"3 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
+    message = f"3 {history} {selectArr} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
 
 
 @kb.add("tab", eager=True)
@@ -235,24 +258,24 @@ def down(event):
         # 列表小于等于页面高度
         offset = 0
         show_select = 0 if show_select == len(show_opt) - 1 else show_select + 1
-        message = f"0 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
+        message = f"0 {history} {selectArr} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
         return
     if show_select + offset == len(show_opt) - 1:
         # 无需偏移,碰到底部,回到首选
         offset = 0
         show_select = 0
-        message = f"1 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
+        message = f"1 {history} {selectArr} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
         return
     if show_select + 1 >= w.render_info.window_height:
         # 向下偏移
         offset += 1
-        message = f"2 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
+        message = f"2 {history} {selectArr} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
         return
     show_select = show_select + 1
     if show_select >= len(show_opt):
         # 无需偏移
         show_select = 0
-    message = f"3 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
+    message = f"3 {history} {selectArr} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
 
 
 @kb.add("pageup", eager=True)
@@ -261,7 +284,7 @@ def pageup(event):
     lines = w.render_info.window_height
     if len(show_opt) <= w.render_info.window_height:
         # 列表小于等于页面高度
-        message = f"0 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
+        message = f"0 {history} {selectArr} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
         return
     if offset - lines < 0:
         offset = (
@@ -270,11 +293,11 @@ def pageup(event):
             else len(show_opt) - (len(show_opt) % lines) - lines
         )
         show_select = 0
-        message = f"1 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
+        message = f"1 {history} {selectArr} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
         return
     offset = offset - lines
     show_select = 0
-    message = f"2 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
+    message = f"2 {history} {selectArr} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
     return
 
 
@@ -284,16 +307,16 @@ def pagedown(event):
     lines = w.render_info.window_height
     if len(show_opt) <= w.render_info.window_height:
         # 列表小于等于页面高度
-        message = f"0 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
+        message = f"0 {history} {selectArr} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
         return
     if offset + lines >= len(show_opt):
         offset = 0
         show_select = 0
-        message = f"1 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
+        message = f"1 {history} {selectArr} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
         return
     offset += lines
     show_select = 0
-    message = f"2 {history} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
+    message = f"2 {history} {selectArr} {show_select} {len(option)} {show_opt[show_select] if len(show_opt)>0 else 'None'} {offset} {w.render_info.window_height}"
     return
 
 
@@ -312,27 +335,63 @@ def clean_history(event):
     show_opt = [k for k, v in enumerate(option)]
     show_select = 0
     offset = 0
-    message = f"{history} {show_opt[show_select] if len(show_opt)>0 else 'None'}"
+    message = (
+        f"{history} {selectArr} {show_opt[show_select] if len(show_opt)>0 else 'None'}"
+    )
 
 
 @kb.add("enter", eager=True)
 def set_answer(event):
     global option, show_opt, show_select, offset
     if len(show_opt) > 0:
-        result = option[show_opt[show_select + offset]]
-        event.app.exit(result={**result})
+        multiple_select(isOnlyAdd=True)
+        result = [option[i] for i in selectArr]
+        event.app.exit(result=result)
+
+
+def update_last():
+    global option, show_opt, show_select, offset, mode, last, selectArr
+    last["option"] = copy.deepcopy(option)
+    last["show_opt"] = copy.deepcopy(show_opt)
+    last["offset"] = copy.deepcopy(offset)
+    last["show_select"] = copy.deepcopy(show_select)
+    last["selectArr"] = copy.deepcopy(selectArr)
+
+
+def restore_last():
+    global option, show_opt, show_select, offset, mode, last, selectArr
+    option = last["option"]
+    show_opt = last["show_opt"]
+    offset = last["offset"]
+    show_select = last["show_select"]
+    selectArr = last["selectArr"]
 
 
 def get_sub_page(field):
-    global option, show_opt, show_select, offset
-    result = option[show_opt[show_select + offset]]
-    if not (field not in result or result[field] == None or len(result[field]) == 0):
-        # r = [i["value"] for i in result[field]]
-        r = [{"level": 1, **i} for i in tree.get_from_index(result["index"])[field]]
-        option = r
-        show_opt = [k for k, v in enumerate(r)]
-        offset = 0
-        show_select = 0
+    global option, show_opt, show_select, offset, mode, last, selectArr, message
+    if mode == 0:
+        if len(show_opt) > 0:
+            result = option[show_opt[show_select + offset]]
+            if not (
+                field not in result or result[field] == None or len(result[field]) == 0
+            ):
+                update_last()
+                option = [
+                    {"level": 1, **i}
+                    for i in tree.get_from_index(result["index"])[field]
+                ]
+                show_opt = [k for k, v in enumerate(option)]
+                offset = 0
+                show_select = 0
+                selectArr = []
+                mode = 1
+    elif mode == 1:
+        restore_last()
+        mode = 0
+
+    message = (
+        f"{history} {selectArr} {show_opt[show_select] if len(show_opt)>0 else 'None'}"
+    )
 
 
 @kb.add("c-a", eager=True)
