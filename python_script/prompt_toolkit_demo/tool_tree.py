@@ -192,10 +192,10 @@ def update():
     result = [[k, v] for k, v in enumerate(word_match([i["value"] for i in option]))]
     if splitStr in history:
         for h in history.split(splitStr):
-            result = [[k, v] for k, v in result if h in v]
+            result = [[k, v] for k, v in result if h in v.lower()]
         show_opt = [k for k, v in result]
     else:
-        show_opt = [k for k, v in result if history in v]
+        show_opt = [k for k, v in result if history in v.lower()]
     show_select = 0
     offset = 0
     message = (
