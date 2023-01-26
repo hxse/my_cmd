@@ -330,11 +330,12 @@ def backspace(event):
 
 @kb.add("escape", eager=True)
 def clean_history(event):
-    global history, show_opt, option, show_select, message, offset
+    global history, show_opt, option, show_select, message, offset, selectArr
     history = ""
     show_opt = [k for k, v in enumerate(option)]
     show_select = 0
     offset = 0
+    selectArr = []
     message = (
         f"{history} {selectArr} {show_opt[show_select] if len(show_opt)>0 else 'None'}"
     )
@@ -385,13 +386,12 @@ def get_sub_page(field):
                 show_select = 0
                 selectArr = []
                 mode = 1
+                message = f"{history} {selectArr} {show_opt[show_select] if len(show_opt)>0 else 'None'}"
+
     elif mode == 1:
         restore_last()
         mode = 0
-
-    message = (
-        f"{history} {selectArr} {show_opt[show_select] if len(show_opt)>0 else 'None'}"
-    )
+        message = f"{history} {selectArr} {show_opt[show_select] if len(show_opt)>0 else 'None'}"
 
 
 @kb.add("c-a", eager=True)

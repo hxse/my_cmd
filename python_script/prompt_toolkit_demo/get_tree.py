@@ -29,10 +29,11 @@ class Tree(object):
         ):
             for i in self.sub_field:
                 if i in option and type(option[i]) == list:
-                    for c in option[i]:
+                    for k, c in enumerate(option[i]):
                         if type(c) == dict:
                             c["parent"] = args["index"]
                             c["isSub"] = True
+                            c["number"] = k
 
             # children = [] and isEnd = True, it is express empty dir, so chilren type is list, or remove, but not None
             isEnd = (
