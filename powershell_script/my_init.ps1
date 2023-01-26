@@ -23,8 +23,8 @@ Invoke-Expression (& { (lua $zLua --init powershell) -join "`n" })
 
 function g {
 	# python terminal gui
-	gsdlp
-	gswsa
+	cd D:\my_repo\my_cmd\python_script;
+	pdm run python .\prompt_toolkit_demo\mian.py
 	
 }
 # 修改tcp默认端口号起点,避免进程端口被占用,即使被占用了,也无法用 netstat -aon | findstr 查到哪个占用

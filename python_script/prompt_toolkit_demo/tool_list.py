@@ -340,7 +340,7 @@ def c(event):
 
 def run_app_list():
     from get_tree import Tree
-    from config_list import config_option
+    from config_list_test import config_option
 
     global option, show_opt
 

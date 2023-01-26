@@ -424,12 +424,9 @@ def c(event):
     raise KeyboardInterrupt()
 
 
-def run_app_tree():
-    from config_tree import config_option
-
+def run_app_tree(_tree):
     global option, show_opt, tree
-
-    tree = Tree(config_option)
+    tree = _tree
 
     option = [i for i in tree.generator_list()]
     show_opt = [k for k, v in enumerate(option)]
@@ -448,5 +445,8 @@ def run_app_tree():
 
 
 if __name__ == "__main__":
-    result = run_app_tree()
+    from config_tree_test import config_option
+
+    tree = Tree(config_option)
+    result = run_app_tree(tree)
     print(result)
