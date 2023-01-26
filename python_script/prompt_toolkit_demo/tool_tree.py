@@ -345,9 +345,6 @@ def run_app_tree():
 
     tree = Tree(config_option)
     print(tree.print_tree())
-    import pdb
-
-    pdb.set_trace()
 
     option = [i for i in tree.generator_list()]
     show_opt = [k for k, v in enumerate(option)]

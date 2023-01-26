@@ -20,8 +20,7 @@ class Tree(object):
         def _get_option(
             option,
             level=0,
-            number=0,
-            parent=None,
+            args={"index": 0, "number": 0, "parent": None},
         ):
             # children = [] and isEnd = True, it is express empty dir, so chilren type is list, or remove, but not None
             isEnd = (
@@ -30,26 +29,20 @@ class Tree(object):
                 or len(option["children"]) == 0
             )
             option = {
-                "index": self.index,
+                # "index": self.index,
+                **args,
                 "level": level,
-                "number": number,
-                "parent": parent,
                 "isEnd": isEnd,
                 **option,
             }
-            self.index += 1
-
             if not isEnd:
                 children = []
+                level += 1
                 for k, v in enumerate(option["children"]):
-                    children.append(
-                        _get_option(
-                            v,
-                            level=level + 1,
-                            number=k,
-                            parent=self.index - k - 1,
-                        )
-                    )
+                    args["index"] += 1
+                    args["number"] = k
+                    args["parent"] = 0 if level == 1 else args["index"] - k - 1
+                    children.append(_get_option(v, level=level, args=args))
                 option["children"] = children
             return option
 

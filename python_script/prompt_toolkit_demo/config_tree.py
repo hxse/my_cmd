@@ -35,16 +35,12 @@ config_option = {
         },
         {
             "value": "color is 2.1 9",
+            "children": [
+                {"value": "test 10"},
+                {"value": "sdft 11"},
+            ],
         },
-        {
-            "value": "color is 2.1 10",
-        },
-        {
-            "value": "color is 2.1 11",
-        },
-        {
-            "value": "color is 2.1 12",
-        },
+        {"value": "color is 2.1 12", "children": []},
         {
             "value": "color is 2.1 13",
         },
@@ -77,6 +73,9 @@ config_option = {
         },
         {
             "value": "color is 2.1 23",
+        },
+        {
+            "value": "color is 2.1 24",
         },
     ],
 }
