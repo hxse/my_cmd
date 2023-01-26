@@ -20,7 +20,7 @@ summary = "Measures the displayed width of unicode strings in a terminal"
 
 [metadata]
 lock_version = "4.1"
-content_hash = "sha256:b7cd115e18f69795374c91661d6570cd35e9bd36961874d86199eb2d29677e55"
+content_hash = "sha256:c5b6dd152d41bae97af22cf482d21e70189b0c66c3bb51b857c1a6c23208fdb4"
 
 [metadata.files]
 "prompt-toolkit 3.0.36" = [

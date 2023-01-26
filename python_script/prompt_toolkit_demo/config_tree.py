@@ -6,6 +6,35 @@ config_option = {
     "children": [
         {
             "value": "apple is 1 apple 1",
+            "args": [{"value": "--skip", "input": ""}, {"value": "--check"}],
+            "help": [
+                {"value": "help example1"},
+                {"value": "help example2"},
+                {"value": "help example3"},
+                {"value": "help example4"},
+                {"value": "help example5"},
+                {"value": "help example6"},
+                {"value": "help example7"},
+                {"value": "help example8"},
+                {"value": "help example9"},
+                {"value": "help example10"},
+                {"value": "help example11"},
+                {"value": "help example12"},
+                {"value": "help example13"},
+                {"value": "help example14"},
+                {"value": "help example15"},
+                {"value": "help example16"},
+                {"value": "help example17"},
+                {"value": "help example18"},
+                {"value": "help example19"},
+                {"value": "help example20"},
+                {"value": "help example21"},
+                {"value": "help example22"},
+                {"value": "help example23"},
+                {"value": "help example24"},
+                {"value": "help example25"},
+                {"value": "help example26"},
+            ],
             "children": [
                 {
                     "value": "apple is 1.1 banana 2",
@@ -24,6 +53,14 @@ config_option = {
                     "children": [
                         {
                             "value": "apple is 2.1 7",
+                            "args": [
+                                {"value": "--skipfd", "input": ""},
+                                {"value": "--checksd"},
+                            ],
+                            "help": [
+                                {"value": "help examplesdf"},
+                                {"value": "help example2sdf"},
+                            ],
                         },
                         {
                             "abbreviation": "banana 8",
@@ -69,7 +106,7 @@ config_option = {
             "value": "color is 2.1 21",
         },
         {
-            "value": "color is 2.1 22",
+            "value": "col22",
         },
         {
             "value": "color is 2.1 23",

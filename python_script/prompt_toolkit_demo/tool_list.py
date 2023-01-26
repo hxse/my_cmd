@@ -48,6 +48,7 @@ def get_message():
     bg = "#22a7f2"
     bg = ""
     fg = "ansiblack"
+    fg = ""
     from datetime import datetime
 
     nt = datetime.now()
@@ -287,7 +288,7 @@ def pagedown(event):
 
 
 @kb.add("backspace", eager=True)
-def clean_history(event):
+def backspace(event):
     global history
     history = history[:-1]
     update()

@@ -1,3 +1,4 @@
+from prompt_toolkit import prompt
 from prompt_toolkit.application import Application
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout.containers import Window, ScrollOffsets
@@ -13,6 +14,7 @@ from prompt_toolkit.formatted_text import (
     to_formatted_text,
 )
 from pypinyin import pinyin, lazy_pinyin
+from get_tree import Tree
 
 
 show_select = 0
@@ -48,6 +50,7 @@ def get_message():
     bg = "#22a7f2"
     bg = ""
     fg = "ansiblack"
+    fg = ""
     from datetime import datetime
 
     nt = datetime.now()
@@ -226,6 +229,7 @@ def up(event):
 @kb.add("tab", eager=True)
 @kb.add("down", eager=True)
 def down(event):
+    # Control-I 和tab 是一个键
     global history, option, show_opt, show_select, message, offset
     if len(show_opt) <= w.render_info.window_height:
         # 列表小于等于页面高度
@@ -294,7 +298,8 @@ def pagedown(event):
 
 
 @kb.add("backspace", eager=True)
-def clean_history(event):
+def backspace(event):
+    # ctrl-h 和 backspace是同一个键 https://github.com/prompt-toolkit/python-prompt-toolkit/issues/257
     global history
     history = history[:-1]
     update()
@@ -314,7 +319,30 @@ def clean_history(event):
 def set_answer(event):
     global option, show_opt, show_select, offset
     if len(show_opt) > 0:
-        event.app.exit(result={**option[show_opt[show_select + offset]]})
+        result = option[show_opt[show_select + offset]]
+        event.app.exit(result={**result})
+
+
+def get_sub_page(field):
+    global option, show_opt, show_select, offset
+    result = option[show_opt[show_select + offset]]
+    if not (field not in result or result[field] == None or len(result[field]) == 0):
+        # r = [i["value"] for i in result[field]]
+        r = [{"level": 1, **i} for i in tree.get_from_index(result["index"])[field]]
+        option = r
+        show_opt = [k for k, v in enumerate(r)]
+        offset = 0
+        show_select = 0
+
+
+@kb.add("c-a", eager=True)
+def get_args(event):
+    get_sub_page("args")
+
+
+@kb.add("c-s", eager=True)
+def get_help(event):
+    get_sub_page("help")
 
 
 @kb.add("c-d", eager=True)
@@ -338,13 +366,11 @@ def c(event):
 
 
 def run_app_tree():
-    from get_tree import Tree
     from config_tree import config_option
 
-    global option, show_opt
+    global option, show_opt, tree
 
     tree = Tree(config_option)
-    print(tree.print_tree())
 
     option = [i for i in tree.generator_list()]
     show_opt = [k for k, v in enumerate(option)]
@@ -356,6 +382,9 @@ def run_app_tree():
         # refresh_interval=1,
     )
     result = app.run()
+    if "isSub" in result and result["isSub"] == True:
+        if "input" in result:
+            result["input"] = prompt(f"{result['value']}: ")
     return result
 
 

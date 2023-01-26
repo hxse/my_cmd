@@ -11,7 +11,12 @@ class Tree(object):
     tree.print_tree()
     """
 
-    def __init__(self, option):
+    def __init__(self, option, sub_field=["args", "help"]):
+        """
+        sub_field=["args", "help"] 举例填'args'的话,会在 {'args':[]} 遍历args对应值的list对象,并添加上parent的index,并且标记isSub=True
+        sub_field, 就是一个可选列表,不支持嵌套,嵌套太复杂了
+        """
+        self.sub_field = sub_field
         self.data = self.get_option(option)
 
     def get_option(self, option):
@@ -22,6 +27,13 @@ class Tree(object):
             level=0,
             args={"index": 0, "number": 0, "parent": None},
         ):
+            for i in self.sub_field:
+                if i in option and type(option[i]) == list:
+                    for c in option[i]:
+                        if type(c) == dict:
+                            c["parent"] = args["index"]
+                            c["isSub"] = True
+
             # children = [] and isEnd = True, it is express empty dir, so chilren type is list, or remove, but not None
             isEnd = (
                 "children" not in option
@@ -112,7 +124,7 @@ class Tree(object):
 
 
 if __name__ == "__main__":
-    tree = Tree(option)
+    tree = Tree(config_option)
     result = tree.data
     tree.print_tree()
     # result = tree.get_from_index(4)
