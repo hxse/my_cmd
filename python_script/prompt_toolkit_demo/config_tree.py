@@ -2,7 +2,6 @@
 # coding: utf-8
 config_option = {
     "value": "root 0",
-    "show": False,
     "children": [
         {
             "value": "apple is 1 apple 1",
@@ -39,20 +38,27 @@ config_option = {
                 {
                     "value": "apple is 1.1 banana 2",
                 },
-                {"value": "apple is 1.2 color 3", "show": False},
+                {
+                    "value": "apple is 1.2 color 3",
+                    "children": [
+                        {
+                            "value": "2333333 4",
+                        }
+                    ],
+                },
             ],
         },
         {
-            "value": "apple is 2 color3 4",
+            "value": "apple is 2 color3 5",
             "children": [
                 {
-                    "value": "apple is 2.1 5",
+                    "value": "apple is 2.1 6",
                 },
                 {
-                    "value": "apple is 2.2 color4 6",
+                    "value": "apple is 2.2 color4 7",
                     "children": [
                         {
-                            "value": "apple is 2.1 7",
+                            "value": "apple is 2.1 8",
                             "args": [
                                 {"value": "--skipfd", "input": ""},
                                 {"value": "--checksd"},
@@ -63,24 +69,20 @@ config_option = {
                             ],
                         },
                         {
-                            "abbreviation": "banana 8",
-                            "value": "apple is 2.2 8",
+                            "value": "apple is 2.2 9",
                         },
                     ],
                 },
             ],
         },
         {
-            "value": "color is 2.1 9",
+            "value": "color is 2.1 10",
             "children": [
-                {"value": "test 10"},
-                {"value": "sdft 11"},
+                {"value": "test 11"},
+                {"value": "sdft 12"},
             ],
         },
-        {"value": "color is 2.1 12", "children": []},
-        {
-            "value": "color is 2.1 13",
-        },
+        {"value": "color is 2.1 13", "children": []},
         {
             "value": "color is 2.1 14",
         },
@@ -106,13 +108,16 @@ config_option = {
             "value": "color is 2.1 21",
         },
         {
-            "value": "col22",
+            "value": "color is 2.1 22",
+        },
+        {
+            "value": "col23",
         },
         {
             "value": "color is 2.1 23",
         },
         {
-            "value": "color is 2.1 24",
+            "value": "color is 2.1 25",
         },
     ],
 }
