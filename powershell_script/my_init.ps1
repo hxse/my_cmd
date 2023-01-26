@@ -25,7 +25,6 @@ function g {
 	# python terminal gui
 	cd D:\my_repo\my_cmd\python_script;
 	pdm run python .\prompt_toolkit_demo\mian.py
-	
 }
 # 修改tcp默认端口号起点,避免进程端口被占用,即使被占用了,也无法用 netstat -aon | findstr 查到哪个占用
 # [遇到“OSError: \[WinError 10013\] 以一种访问权限不允许的方式做了一个访问套接字的尝试。”的解决方法。 · Issue #13552 · XX-net/XX-Net](https://github.com/XX-net/XX-Net/issues/13552)

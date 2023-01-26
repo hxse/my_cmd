@@ -5,7 +5,16 @@
   * ctrl+a打开子菜单,选择args,ctrl+h打开子菜单,选择help,需要在配置文件定义好`{args:[]}`和`{help:[]}`字段,如果需要新增字段,需要在Tree里面传递, sub_field参数
   * list配置文件,只需要一串list字符串就好了
   * tree配置文件示例,参考config_tree.py
+  * 在powershell中运行
+```powershell
+function g {
+	# python terminal gui
+	cd D:\my_repo\my_cmd\python_script;
+	pdm run python .\prompt_toolkit_demo\mian.py
+}
 ```
+  * config_tree.py配置文件参考
+```python
 config_option = {
     "value": "root 0",
     "children": [
