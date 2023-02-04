@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # coding: utf-8
-
+from command import test_command
 
 config_option = {
     "value": "root",
@@ -96,6 +96,55 @@ config_option = {
                             "input": "",
                             "input_prompt": "output file: ",
                             "mode": "args",
+                            "default": True,
+                        },
+                    ],
+                },
+                {
+                    "value": r"test function command",
+                    "command": test_command,
+                    "args": [
+                        {
+                            "value": "input file path",
+                            "input": "",
+                            "input_prompt": "input file: ",
+                            "mode": "args",
+                            "default": True,
+                        },
+                        {
+                            "value": "output file path",
+                            "input": "",
+                            "input_prompt": "output file: ",
+                            "mode": "args",
+                            "default": True,
+                        },
+                        {
+                            "value": "--check <bool>",
+                            "input_key": "--check",
+                            "input_value": "",
+                            "input_value_prompt": "check <number>",
+                            "mode": "kargs",
+                            "default": True,
+                        },
+                    ],
+                },
+                {
+                    "value": r"test function command2",
+                    "command": "ping {}",
+                    "args": [
+                        {
+                            "value": "input address",
+                            "input": "",
+                            "input_prompt": "input address: ",
+                            "mode": "args",
+                            "default": True,
+                        },
+                        {
+                            "value": "-n <number>",
+                            "input_key": "-n",
+                            "input_value": "",
+                            "input_value_prompt": "-n <number>",
+                            "mode": "kargs",
                             "default": True,
                         },
                     ],
