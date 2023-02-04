@@ -5,6 +5,27 @@ import os, subprocess
 from config_tree import config_option
 
 
+def insert_args(
+    command,
+    args_obj,
+):
+    if args_obj["mode"] == "args":
+        assert "input" in args_obj, "配置文件,args对象需要有input项才行"
+        if args_obj["input"] == "":
+            args_obj["input"] = input(f'{args_obj["input_prompt"]}')
+        command = command.replace("{}", args_obj["input"], 1)
+    if args_obj["mode"] == "kargs":
+        assert "input_key" in args_obj, "配置文件,kargs对象需要有input_key项才行"
+        assert "input_value" in args_obj, "配置文件,kargs对象需要有input_value项才行"
+        if args_obj["input_key"] == "":
+            args_obj["input_key"] = input(f'{args_obj["input_key_prompt"]}')
+        if args_obj["input_value"] == "":
+            args_obj["input_value"] = input(f'{args_obj["input_value_prompt"]}')
+        command = f"{command} {args_obj['input_key']} {args_obj['input_value']}"
+    command = command.replace("\{\}", "{}")  # 处理转义花括号
+    return command
+
+
 def main():
     tree = Tree(config_option)
     result = run_app_tree(tree)
@@ -15,29 +36,23 @@ def main():
             parent_index = i0["parent"]
             parent = tree.get_from_index(parent_index)
             command = parent["command"]
-            if i0["mode"] == "args":
-                for i in result:
-                    if "input" in i:
-                        i["input"] = input(f'{i["value"]}: ')
-                        command = f"{command} {i['value']} {i['input']}"
-                    else:
-                        command = f"{command} {i['value']}"
-                print(parent["cwd"])
-                print(command)
-                # stdout, stderr = run_process(command, cwd=parent["cwd"], realMode=True)
-                # print(stdout)
-                # print(stderr)
-                subprocess.run(command, cwd=parent["cwd"])
-
+            cwd = parent["cwd"] if "cwd" in parent else None
+            for i in result:  # loop [args]
+                command = insert_args(command, i)
+            print(cwd)
+            print(command)
+            subprocess.run(command, cwd=cwd)
         else:
-            for i in result:
+            for i in result:  # loop [command]
                 command = i["command"]
-                print(i["cwd"])
+                cwd = i["cwd"] if "cwd" in i else None
+                if "args" in i:
+                    for i in i["args"]:
+                        if i["default"]:
+                            command = insert_args(command, i)
+                print(cwd)
                 print(command)
-                # stdout, stderr = run_process(command, cwd=i["cwd"], realMode=True)
-                # print(stdout)
-                # print(stderr)
-                subprocess.run(command, cwd=i["cwd"])
+                subprocess.run(command, cwd=cwd)
 
 
 if __name__ == "__main__":

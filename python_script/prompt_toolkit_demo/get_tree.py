@@ -34,7 +34,6 @@ class Tree(object):
                             c["parent"] = args["index"]
                             c["isSub"] = True
                             c["number"] = k
-                            c["mode"] = i
 
             # children = [] and isEnd = True, it is express empty dir, so chilren type is list, or remove, but not None
             isEnd = (
