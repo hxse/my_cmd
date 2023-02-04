@@ -51,7 +51,8 @@ def replace_args(command, args, kargs):
 def run_command(command, args=[], kargs={}, cwd=None):
     if type(command) == str:
         command = replace_args(command, args, kargs)
-        print(cwd)
+        if cwd:
+            print(cwd)
         print(command)
         subprocess.run(command, cwd=cwd)
     else:
@@ -61,7 +62,6 @@ def run_command(command, args=[], kargs={}, cwd=None):
 def main():
     tree = Tree(config_option)
     result = run_app_tree(tree)
-    print(result)
     if len(result) > 0:
         i0 = result[0]
         if not ("isSub" not in i0 or i0["isSub"] == False):
