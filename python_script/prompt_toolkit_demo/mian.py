@@ -59,7 +59,7 @@ def run_command(command, command_mode, args=[], kargs={}, cwd=None):
         print(command)
         subprocess.run(command, cwd=cwd)
     if command_mode == "function":
-        command_obj[command](*args, **kargs)
+        command_obj[command](cwd, *args, **kargs)
 
 
 def main(key=None):

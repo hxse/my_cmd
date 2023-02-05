@@ -10,7 +10,7 @@
     * mode,表示该参数是args还是kargs,如果是args,就需要input_value字段,如果是kargs,就需要input_key,input_value字段
     * command中的{},会被按顺序逐个替换成args,\{\}会被转义成{}
     * command_mode:
-        * 如果值是function,那么会在config_command.py中寻找和command同名的函数执行
+        * 如果值是function,那么会在config_command.py中寻找和command同名的函数执行,cwd会被自动添加到函数传参时的kargs里面
         * 如果值是command,那么会在subprocess里面直接执行命令
 # 在powershell中运行
 ```powershell
