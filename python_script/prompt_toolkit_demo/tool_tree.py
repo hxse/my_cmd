@@ -74,14 +74,44 @@ def get_text():
         if k + offset <= len(show_opt) - 1
     ]
     indentation = 4
-    get_text = (
-        lambda x, s: f"{s}{' '*(x['level']*indentation-1) }{'└'}{'─'*(3)} {'<'+x['key']+'>' if 'key' in x else ''} {x['value']}\n"
-    )
+
+    def format_text(
+        obj,
+        reverse,
+    ):
+        pre_space = " " * (obj["level"] * indentation - 1)
+        pre_symbol = f"{'└'}{'─'*(3)}"
+        pre_key = f"{'<'+obj['key']+'>' if 'key' in obj else ''}"
+        text = obj["value"]
+        result = [
+            (
+                "",
+                pre_space,
+            ),
+            (
+                "",
+                pre_symbol,
+            ),
+            (
+                "fg:#ff0066",
+                " " + pre_key + " ",
+            ),
+            (
+                "class:reverse" if reverse else "",
+                text + "\n",
+            ),
+        ]
+        return result
+
     return [
-        ("class:reverse", get_text(option[v], ">"))
-        if k == show_select
-        else ("", get_text(option[v], " "))
-        for k, v in enumerate(show_opt_offset)
+        i
+        for i in [
+            format_text(option[v], True)
+            if k == show_select
+            else format_text(option[v], False)
+            for k, v in enumerate(show_opt_offset)
+        ]
+        for i in i
     ]
 
 
