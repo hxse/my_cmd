@@ -5,7 +5,7 @@ import os, subprocess
 import fire
 
 from config_tree import config_option
-from command import command_obj
+from config_command import command_obj
 
 
 def insert_args(args_obj):
