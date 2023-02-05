@@ -103,6 +103,7 @@ config_option = {
                 {
                     "value": r"test function command",
                     "command": test_command,
+                    "key":"t",
                     "args": [
                         {
                             "value": "input file path",
@@ -131,6 +132,7 @@ config_option = {
                 {
                     "value": r"test function command2",
                     "command": "ping {}",
+                    "key":"p",
                     "args": [
                         {
                             "value": "input address",

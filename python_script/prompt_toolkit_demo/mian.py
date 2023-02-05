@@ -3,7 +3,7 @@ from tool_tree import run_app_tree
 from get_tree import Tree
 import os, subprocess
 from config_tree import config_option
-
+import fire
 
 def insert_args(args_obj):
     if args_obj["mode"] == "args":
@@ -59,10 +59,18 @@ def run_command(command, args=[], kargs={}, cwd=None):
         command(*args, **kargs)
 
 
-def main():
+def main(key=None):
     tree = Tree(config_option)
-    result = run_app_tree(tree)
-    if len(result) > 0:
+    if key ==None:
+        result = run_app_tree(tree)
+    else:
+        result=[]
+        for i in tree.generator_list():
+            if 'key' in i and i['key']==key:
+                result.append(i)
+    if len(result)<=0:
+        print('not select command')
+    else:
         i0 = result[0]
         if not ("isSub" not in i0 or i0["isSub"] == False):
             parent_index = i0["parent"]
@@ -83,4 +91,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    fire.Fire(main)
