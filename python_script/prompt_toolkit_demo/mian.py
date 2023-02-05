@@ -67,7 +67,7 @@ def add_input_from_args(result, args, kargs):
                     a["input_key"][2:]
                     if a["input_key"].startswith("--")
                     else a["input_key"]
-                )
+                ).replace("-", "_")
                 if k in kargs:
                     a["input_value"] = kargs[k]
     return result
