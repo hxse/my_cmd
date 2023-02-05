@@ -14,7 +14,7 @@ def insert_args(args_obj):
         if args_obj["input"] == "":
             args_obj["input"] = input(f'{args_obj["input_prompt"]}')
         # args.append(args_obj["input"])
-        return ["args", args_obj["input"]]
+        return ["args", [args_obj["input"]]]
         # command = command.replace("{}", args_obj["input"], 1)
     if args_obj["mode"] == "kargs":
         assert "input_key" in args_obj, "配置文件,kargs对象需要有input_key项才行"
@@ -37,7 +37,7 @@ def merge_args(args_list, enableDefault=False):
             continue
         [flag, result] = insert_args(i)
         if flag == "args":
-            args = [*args, result]
+            args = [*args, *result]
         if flag == "kargs":
             kargs = {**kargs, **result}
     return args, kargs
@@ -51,6 +51,28 @@ def replace_args(command, args, kargs):
     return command.replace("\{\}", "{}")  # 处理转义花括号
 
 
+def add_input_from_args(result, args, kargs):
+    # 把命令行参数添加到配置文件对象的input默认值里
+    for i in result:
+        if "args" not in i:
+            continue
+        n = 0
+        for a in i["args"]:
+            if a["mode"] == "args":
+                if n <= len(args) - 1:
+                    a["input"] = args[n]
+                n += 1
+            if a["mode"] == "kargs":
+                k = (
+                    a["input_key"][2:]
+                    if a["input_key"].startswith("--")
+                    else a["input_key"]
+                )
+                if k in kargs:
+                    a["input_value"] = kargs[k]
+    return result
+
+
 def run_command(command, command_mode, args=[], kargs={}, cwd=None):
     if command_mode == "command":
         command = replace_args(command, args, kargs)
@@ -62,10 +84,12 @@ def run_command(command, command_mode, args=[], kargs={}, cwd=None):
         command_obj[command](cwd, *args, **kargs)
 
 
-def main(key=None):
+def main(key=None, *args, **kargs):
     tree = Tree(config_option)
     if key == None:
         result = run_app_tree(tree)
+        args = []
+        kargs = {}
     else:
         result = []
         for i in tree.generator_list():
@@ -81,6 +105,7 @@ def main(key=None):
             command = parent["command"]
             command_mode = parent["command_mode"]
             cwd = parent["cwd"] if "cwd" in parent else None
+            result = add_input_from_args(result, args, kargs)
             [args, kargs] = merge_args(result)
             run_command(command, command_mode, args, kargs, cwd=cwd)
         else:
@@ -91,6 +116,7 @@ def main(key=None):
                 if "args" not in i or len(i["args"]) == 0:
                     run_command(command, command_mode, cwd=cwd)
                     continue
+                result = add_input_from_args(result, args, kargs)
                 [args, kargs] = merge_args(i["args"], enableDefault=True)
                 run_command(command, command_mode, args, kargs, cwd=cwd)
 
