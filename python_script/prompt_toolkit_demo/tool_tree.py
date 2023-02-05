@@ -75,7 +75,7 @@ def get_text():
     ]
     indentation = 4
     get_text = (
-        lambda x, s: f"{s}{' '*(x['level']*indentation-1) }{'└'}{'─'*(3)} {x['value']}\n"
+        lambda x, s: f"{s}{' '*(x['level']*indentation-1) }{'└'}{'─'*(3)} {'<'+x['key']+'>' if 'key' in x else ''} {x['value']}\n"
     )
     return [
         ("class:reverse", get_text(option[v], ">"))
@@ -189,7 +189,17 @@ def search(event):
 
 def update():
     global history, option, show_opt, show_select, message, offset
-    result = [[k, v] for k, v in enumerate(word_match([i["value"] for i in option]))]
+    result = [
+        [k, v]
+        for k, v in enumerate(
+            word_match(
+                [
+                    f'{i["key"]} {i["value"]}' if "key" in i else i["value"]
+                    for i in option
+                ]
+            )
+        )
+    ]
     if splitStr in history:
         for h in history.split(splitStr):
             result = [[k, v] for k, v in result if h in v.lower()]
