@@ -12,6 +12,13 @@
     * command_mode:
         * 如果值是function,那么会在config_command.py中寻找和command同名的函数执行,cwd会被自动添加到函数传参时的kargs里面
         * 如果值是command,那么会在subprocess里面直接执行命令
+    * 可以直接从命令行调用,不需要经过gui,如
+        *
+```powershell
+function gt{
+	g ypa https://www.youtube.com/playlist?list=PLnzvH6pAJKSp3NDFn_2OqsGVFpQREer3J --download-archive "archive.txt"
+}
+```
 # 在powershell中运行
 ```powershell
 function g {
