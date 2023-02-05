@@ -9,77 +9,27 @@
     * 如果default为true,那么回车就可以执行参数,不需要tab选择,
     * mode,表示该参数是args还是kargs,如果是args,就需要input_value字段,如果是kargs,就需要input_key,input_value字段
     * command中的{},会被按顺序逐个替换成args,\{\}会被转义成{}
-  * 在powershell中运行
+    * command_mode:
+        * 如果值是function,那么会在config_command.py中寻找和command同名的函数执行
+        * 如果值是command,那么会在subprocess里面直接执行命令
+# 在powershell中运行
 ```powershell
 function g {
 	# python terminal gui
 	cd D:\my_repo\my_cmd\python_script;
-	pdm run python .\prompt_toolkit_demo\mian.py
+	pdm run python .\prompt_toolkit_demo\mian.py $args
 }
 ```
-  * config_tree.py配置文件参考
+# config_tree.py配置文件参考
 ```python
 config_option = {
     "value": "root",
     "children": [
         {
-            "value": "whisper -> autosub -> anki",
-            "children": [
-                {
-                    "value": r"loop_whisper loop BBC Learning English",
-                    "command": r'pdm run python loop_whisper.py loop "D:\my_repo\parrot_fashion\download\BBC Learning English"',
-                    "cwd": r"D:\my_repo\parrot_fashion\crawler",
-                    "args": [
-                        {
-                            "value": "--skip <number>",
-                            "input_key": "--skip",
-                            "input_value": "",
-                            "input_value_prompt": "跳过文件,0为不跳过,--skip: ",
-                            "mode": "kargs",
-                            "default": True,
-                        },
-                        {
-                            "value": "--check <bool>",
-                            "input_key": "--check",
-                            "input_value": "1",
-                            "mode": "kargs",
-                            "default": False,
-                        },
-                    ],
-                    "help": [
-                        {"value": "help example1"},
-                    ],
-                },
-                {
-                    "value": r"loop_whisper loop Kurzgesagt",
-                    "command": r'pdm run python loop_whisper.py loop "D:\my_repo\parrot_fashion\download\Kurzgesagt – In a Nutshell"',
-                    "cwd": r"D:\my_repo\parrot_fashion\crawler",
-                    "args": [
-                        {
-                            "value": "--skip <number>",
-                            "input_key": "--skip",
-                            "input_value": "",
-                            "input_value_prompt": "--skip: ",
-                            "mode": "kargs",
-                            "default": True,
-                        },
-                        {
-                            "value": "--check <bool>",
-                            "input_key": "--check",
-                            "input_value": "1",
-                            "mode": "kargs",
-                            "default": False,
-                        },
-                    ],
-                    "help": [
-                        {"value": "help example1"},
-                    ],
-                },
-            ],
-        },
-        {
+            "key": "autosub",
             "value": r"tool autosub srt",
             "command": r'pdm run python D:\my_repo\parrot_fashion\crawler\autosub_tool.py ats "{}"',
+            "command_mode": "command",
             "cwd": r"D:\my_repo\parrot_fashion\crawler",
             "args": [
                 {
@@ -95,11 +45,13 @@ config_option = {
             ],
         },
         {
-            "value": r"ffmpeg tool",
+            "value": r"test",
             "children": [
                 {
-                    "value": r"ffmpeg reduceVideoSize",
-                    "command": r'ffmpeg -i "{}" -vcodec libx265 -crf 24 "{}"',
+                    "value": r"test function command",
+                    "command": "test_command",
+                    "command_mode": "function",
+                    "key": "t",
                     "args": [
                         {
                             "value": "input file path",
@@ -115,10 +67,51 @@ config_option = {
                             "mode": "args",
                             "default": True,
                         },
+                        {
+                            "value": "--check <bool>",
+                            "input_key": "--check",
+                            "input_value": "",
+                            "input_value_prompt": "check <number>",
+                            "mode": "kargs",
+                            "default": True,
+                        },
+                    ],
+                },
+                {
+                    "value": r"test function command2",
+                    "command": "ping {}",
+                    "command_mode": "command",
+                    "key": "p",
+                    "args": [
+                        {
+                            "value": "input address",
+                            "input": "",
+                            "input_prompt": "input address: ",
+                            "mode": "args",
+                            "default": True,
+                        },
+                        {
+                            "value": "-n <number>",
+                            "input_key": "-n",
+                            "input_value": "",
+                            "input_value_prompt": "-n <number>",
+                            "mode": "kargs",
+                            "default": True,
+                        },
                     ],
                 },
             ],
         },
     ],
 }
+```
+# config_command.py配置文件参考
+```python
+#!/usr/bin/env python3
+# coding: utf-8
+def test_command(*args, **kargs):
+    print(args, kargs)
+
+
+command_obj = {"test_command": test_command}
 ```
