@@ -26,8 +26,8 @@ ytDownload = r"D:\my_repo\parrot_fashion\download"
 overWrite = "--force-overwrites"
 
 
-def test_command(*args, **kargs):
-    print(args, kargs)
+def test_command(cwd, *args, **kargs):
+    print(cwd, args, kargs)
 
 
 def ydl_playlist_audio(cwd, *args, **kargs):

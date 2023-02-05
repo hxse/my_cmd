@@ -212,6 +212,7 @@ config_option = {
                     "value": r"test function command",
                     "command": "test_command",
                     "command_mode": "function",
+                    "cwd": "D:",
                     "key": "t",
                     "args": [
                         {
