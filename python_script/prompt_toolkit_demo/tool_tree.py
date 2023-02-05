@@ -89,7 +89,7 @@ def get_text():
                 pre_space,
             ),
             (
-                "",
+                "#24acf2" if "isEnd" in obj and obj["isEnd"] else "#122243",
                 pre_symbol,
             ),
             (
