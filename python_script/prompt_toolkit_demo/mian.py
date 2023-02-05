@@ -2,8 +2,11 @@ from tool_list import run_app_list
 from tool_tree import run_app_tree
 from get_tree import Tree
 import os, subprocess
-from config_tree import config_option
 import fire
+
+from config_tree import config_option
+from command import command_obj
+
 
 def insert_args(args_obj):
     if args_obj["mode"] == "args":
@@ -48,46 +51,48 @@ def replace_args(command, args, kargs):
     return command.replace("\{\}", "{}")  # 处理转义花括号
 
 
-def run_command(command, args=[], kargs={}, cwd=None):
-    if type(command) == str:
+def run_command(command, command_mode, args=[], kargs={}, cwd=None):
+    if command_mode == "command":
         command = replace_args(command, args, kargs)
         if cwd:
             print(cwd)
         print(command)
         subprocess.run(command, cwd=cwd)
-    else:
-        command(*args, **kargs)
+    if command_mode == "function":
+        command_obj[command](*args, **kargs)
 
 
 def main(key=None):
     tree = Tree(config_option)
-    if key ==None:
+    if key == None:
         result = run_app_tree(tree)
     else:
-        result=[]
+        result = []
         for i in tree.generator_list():
-            if 'key' in i and i['key']==key:
+            if "key" in i and i["key"] == key:
                 result.append(i)
-    if len(result)<=0:
-        print('not select command')
+    if len(result) <= 0:
+        print("not select command")
     else:
         i0 = result[0]
         if not ("isSub" not in i0 or i0["isSub"] == False):
             parent_index = i0["parent"]
             parent = tree.get_from_index(parent_index)
             command = parent["command"]
+            command_mode = parent["command_mode"]
             cwd = parent["cwd"] if "cwd" in parent else None
             [args, kargs] = merge_args(result)
-            run_command(command, args, kargs, cwd=cwd)
+            run_command(command, command_mode, args, kargs, cwd=cwd)
         else:
             for i in result:  # loop [command]
                 command = i["command"]
+                command_mode = i["command_mode"]
                 cwd = i["cwd"] if "cwd" in i else None
                 if "args" not in i or len(i["args"]) == 0:
-                    run_command(command, cwd=cwd)
+                    run_command(command, command_mode, cwd=cwd)
                     continue
                 [args, kargs] = merge_args(i["args"], enableDefault=True)
-                run_command(command, args, kargs, cwd=cwd)
+                run_command(command, command_mode, args, kargs, cwd=cwd)
 
 
 if __name__ == "__main__":

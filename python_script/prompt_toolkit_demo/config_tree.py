@@ -1,17 +1,49 @@
 #!/usr/bin/env python3
 # coding: utf-8
-from command import test_command
 
 config_option = {
     "value": "root",
     "children": [
         {
+            "value": "yt-dlp youtube",
+            "children": [
+                {
+                    "key": "d-bbc",
+                    "value": r"download BBC Learning English",
+                    "command": r"",
+                    "command_mode": "command",
+                    "cwd": r"D:\my_repo\parrot_fashion\download",
+                    "args": [
+                        {
+                            "value": "--skip <number>",
+                            "input_key": "--skip",
+                            "input_value": "",
+                            "input_value_prompt": "跳过文件,0为不跳过,--skip: ",
+                            "mode": "kargs",
+                            "default": True,
+                        },
+                        {
+                            "value": "--check <bool>",
+                            "input_key": "--check",
+                            "input_value": "1",
+                            "mode": "kargs",
+                            "default": False,
+                        },
+                    ],
+                    "help": [
+                        {"value": "help example1"},
+                    ],
+                },
+            ],
+        },
+        {
             "value": "whisper -> autosub -> anki",
             "children": [
                 {
-                    "key":"bbc",
+                    "key": "bbc",
                     "value": r"loop_whisper loop BBC Learning English",
                     "command": r'pdm run python loop_whisper.py loop "D:\my_repo\parrot_fashion\download\BBC Learning English"',
+                    "command_mode": "command",
                     "cwd": r"D:\my_repo\parrot_fashion\crawler",
                     "args": [
                         {
@@ -35,9 +67,10 @@ config_option = {
                     ],
                 },
                 {
-                    "key":"kur",
+                    "key": "kur",
                     "value": r"loop_whisper loop Kurzgesagt",
                     "command": r'pdm run python loop_whisper.py loop "D:\my_repo\parrot_fashion\download\Kurzgesagt – In a Nutshell"',
+                    "command_mode": "command",
                     "cwd": r"D:\my_repo\parrot_fashion\crawler",
                     "args": [
                         {
@@ -63,9 +96,10 @@ config_option = {
             ],
         },
         {
-            "key":"autosub",
+            "key": "autosub",
             "value": r"tool autosub srt",
             "command": r'pdm run python D:\my_repo\parrot_fashion\crawler\autosub_tool.py ats "{}"',
+            "command_mode": "command",
             "cwd": r"D:\my_repo\parrot_fashion\crawler",
             "args": [
                 {
@@ -87,6 +121,7 @@ config_option = {
                     "key": "reduce",
                     "value": r"ffmpeg reduceVideoSize",
                     "command": r'ffmpeg -i "{}" -vcodec libx265 -crf 24 "{}"',
+                    "command_mode": "command",
                     "args": [
                         {
                             "value": "input file path",
@@ -106,8 +141,9 @@ config_option = {
                 },
                 {
                     "value": r"test function command",
-                    "command": test_command,
-                    "key":"t",
+                    "command": "test_command",
+                    "command_mode": "function",
+                    "key": "t",
                     "args": [
                         {
                             "value": "input file path",
@@ -136,7 +172,8 @@ config_option = {
                 {
                     "value": r"test function command2",
                     "command": "ping {}",
-                    "key":"p",
+                    "command_mode": "command",
+                    "key": "p",
                     "args": [
                         {
                             "value": "input address",
