@@ -9,6 +9,7 @@ config_option = {
             "value": "whisper -> autosub -> anki",
             "children": [
                 {
+                    "key":"bbc",
                     "value": r"loop_whisper loop BBC Learning English",
                     "command": r'pdm run python loop_whisper.py loop "D:\my_repo\parrot_fashion\download\BBC Learning English"',
                     "cwd": r"D:\my_repo\parrot_fashion\crawler",
@@ -34,6 +35,7 @@ config_option = {
                     ],
                 },
                 {
+                    "key":"kur",
                     "value": r"loop_whisper loop Kurzgesagt",
                     "command": r'pdm run python loop_whisper.py loop "D:\my_repo\parrot_fashion\download\Kurzgesagt – In a Nutshell"',
                     "cwd": r"D:\my_repo\parrot_fashion\crawler",
@@ -61,6 +63,7 @@ config_option = {
             ],
         },
         {
+            "key":"autosub",
             "value": r"tool autosub srt",
             "command": r'pdm run python D:\my_repo\parrot_fashion\crawler\autosub_tool.py ats "{}"',
             "cwd": r"D:\my_repo\parrot_fashion\crawler",
@@ -81,6 +84,7 @@ config_option = {
             "value": r"ffmpeg tool",
             "children": [
                 {
+                    "key": "reduce",
                     "value": r"ffmpeg reduceVideoSize",
                     "command": r'ffmpeg -i "{}" -vcodec libx265 -crf 24 "{}"',
                     "args": [
