@@ -13,6 +13,7 @@
         * 如果值是function,那么会在config_command.py中寻找和command同名的函数执行,cwd会被自动添加到函数传参时的kargs里面
         * 如果值是command,那么会在subprocess里面直接执行命令
     * command参数中的kargs,里面的input_key,前缀带不带-或--都行
+    * "input_value_replace": `[[[""], 0], [["a"], 1], [["b"], 2]]`, 该命令表示把""替换成0,a替换成1,b替换成2 一般用来自动替换用户终端输入的留空回车键,留空时的空格会被strip()清除
 # 可以直接从命令行调用,不需要经过gui,如
 ```powershell
 function gt{
@@ -79,6 +80,7 @@ config_option = {
                             "input_key": "--check",
                             "input_value": "",
                             "input_value_prompt": "check <number>",
+                            "input_value_replace": [[[""], 0], [["a"], 1], [["b"], 2]],
                             "mode": "kargs",
                             "default": True,
                         },

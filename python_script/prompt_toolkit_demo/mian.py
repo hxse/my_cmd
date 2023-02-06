@@ -8,11 +8,26 @@ from config_tree import config_option
 from config_command import command_obj
 
 
+def replace_value(
+    args_obj,
+    key_name,
+    key_name_replace,
+):
+    if key_name_replace in args_obj:
+        for i in args_obj[key_name_replace]:
+            [replace_arr, target] = i
+            for i in replace_arr:
+                if i == args_obj[key_name].strip():
+                    return target
+    return args_obj[key_name]
+
+
 def insert_args(args_obj):
     if args_obj["mode"] == "args":
         assert "input" in args_obj, "配置文件,args对象需要有input项才行"
         if args_obj["input"] == "":
             args_obj["input"] = input(f'{args_obj["input_prompt"]}')
+            args_obj["input"] = replace_value(args_obj, "input", "input_replace")
         # args.append(args_obj["input"])
         return ["args", [args_obj["input"]]]
         # command = command.replace("{}", args_obj["input"], 1)
@@ -21,8 +36,14 @@ def insert_args(args_obj):
         assert "input_value" in args_obj, "配置文件,kargs对象需要有input_value项才行"
         if args_obj["input_key"] == "":
             args_obj["input_key"] = input(f'{args_obj["input_key_prompt"]}')
+            args_obj["input_key"] = replace_value(
+                args_obj, "input_key", "input_key_replace"
+            )
         if args_obj["input_value"] == "":
             args_obj["input_value"] = input(f'{args_obj["input_value_prompt"]}')
+            args_obj["input_value"] = replace_value(
+                args_obj, "input_value", "input_value_replace"
+            )
         # kargs[args_obj["input_key"]] = args_obj["input_value"]
         return ["kargs", {args_obj["input_key"]: args_obj["input_value"]}]
 
@@ -45,7 +66,7 @@ def merge_args(args_list, enableDefault=False):
 
 def replace_args(command, args, kargs):
     for i in args:
-        command = command.replace("{}", i, 1)
+        command = command.replace("{}", str(i), 1)
     for k, v in kargs.items():
         command = f"{command} {k} {v}"
     return command.replace("\{\}", "{}")  # 处理转义花括号
@@ -61,12 +82,14 @@ def add_input_from_args(result, args, kargs):
             if a["mode"] == "args":
                 if n <= len(args) - 1:
                     a["input"] = args[n]
+                    a["default"] = True
                 n += 1
             if a["mode"] == "kargs":
                 k = a["input_key"].lstrip("-").replace("-", "_")
 
                 if k in kargs:
                     a["input_value"] = kargs[k]
+                    a["default"] = True
     return result
 
 
