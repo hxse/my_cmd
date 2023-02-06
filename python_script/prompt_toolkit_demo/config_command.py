@@ -32,15 +32,29 @@ def test_command(cwd, *args, **kargs):
 
 def ydl_playlist_audio(cwd, *args, **kargs):
     # download playlist
+    _outPlaylist = outPlaylist
+    if "title_limit" in kargs:
+        _outPlaylist = _outPlaylist.replace(
+            "%(title)s", "%(title)" + kargs["title_limit"]
+        )
+    if "playlist_limit" in kargs:
+        _outPlaylist = _outPlaylist.replace(
+            "%(playlist)s", "%(playlist)" + kargs["playlist_limit"]
+        )
     archive = kargs["--download-archive"]
     archive = f'--download-archive "{archive}"'
-    command = f"yt-dlp {proxy} {cf} {ws} {was} {langs} {cs} {embed} {cookie} {playlist} {outPlaylist} {audio} {replace} {overWrite} {archive} {args[0]}"
+    command = f"yt-dlp {proxy} {cf} {ws} {was} {langs} {cs} {embed} {cookie} {playlist} {_outPlaylist} {audio} {replace} {overWrite} {archive} {args[0]}"
     print(command)
     subprocess.run(command, cwd=cwd)
 
 
 def ydl_video_audio(cwd, *args, **kargs):
     # download all videos
+    _outPlaylist = outPlaylist
+    if "title_limit" in kargs:
+        _outPlaylist = _outPlaylist.replace(
+            "%(title)s", "%(title)" + kargs["title_limit"]
+        )
     archive = kargs["--download-archive"]
     archive = f'--download-archive "{archive}"'
     command = f"yt-dlp {proxy} {cf} {ws} {was} {langs} {cs} {embed} {cookie} {video} {outVideo} {audio} {replace} {overWrite} {archive} {args[0]}"

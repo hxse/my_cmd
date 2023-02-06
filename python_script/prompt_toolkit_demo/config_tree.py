@@ -77,6 +77,22 @@ config_option = {
                             "mode": "kargs",
                             "default": True,
                         },
+                        {
+                            "value": "title limit size",
+                            "input_key": "title_limit",
+                            "input_value": ".35B",
+                            "input_value_prompt": "title limit size",
+                            "mode": "kargs",
+                            "default": False,
+                        },
+                        {
+                            "value": "playlist limit size",
+                            "input_key": "playlist_limit",
+                            "input_value": ".41B",
+                            "input_value_prompt": "playlist limit size",
+                            "mode": "kargs",
+                            "default": False,
+                        },
                     ],
                 },
                 {
