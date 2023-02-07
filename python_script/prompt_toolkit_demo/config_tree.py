@@ -323,7 +323,7 @@ config_option = {
                 {"value": "help example1"},
             ],
         },
-        {
+                {
             "value": r"ffmpeg tool",
             "children": [
                 {
@@ -348,6 +348,11 @@ config_option = {
                         },
                     ],
                 },
+            ],
+        },
+        {
+            "value": r"test",
+            "children": [
                 {
                     "value": r"test function command",
                     "command": "test_command",
