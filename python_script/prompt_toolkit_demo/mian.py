@@ -22,15 +22,13 @@ def replace_value(
     return args_obj[key_name]
 
 
-def insert_args(args_obj):
+def insert_args(args_obj, enableDefault):
     if args_obj["mode"] == "args":
         assert "input" in args_obj, "配置文件,args对象需要有input项才行"
-        if args_obj["input"] == "":
+        if args_obj["input"] == "" or enableDefault == False:
             args_obj["input"] = input(f'{args_obj["input_prompt"]}')
             args_obj["input"] = replace_value(args_obj, "input", "input_replace")
-        # args.append(args_obj["input"])
         return ["args", [args_obj["input"]]]
-        # command = command.replace("{}", args_obj["input"], 1)
     if args_obj["mode"] == "kargs":
         assert "input_key" in args_obj, "配置文件,kargs对象需要有input_key项才行"
         assert "input_value" in args_obj, "配置文件,kargs对象需要有input_value项才行"
@@ -39,15 +37,12 @@ def insert_args(args_obj):
             args_obj["input_key"] = replace_value(
                 args_obj, "input_key", "input_key_replace"
             )
-        if args_obj["input_value"] == "":
+        if args_obj["input_value"] == "" or enableDefault == False:
             args_obj["input_value"] = input(f'{args_obj["input_value_prompt"]}')
             args_obj["input_value"] = replace_value(
                 args_obj, "input_value", "input_value_replace"
             )
-        # kargs[args_obj["input_key"]] = args_obj["input_value"]
         return ["kargs", {args_obj["input_key"]: args_obj["input_value"]}]
-
-    # command = command.replace("\{\}", "{}")  # 处理转义花括号
 
 
 def merge_args(args_list, enableDefault=False):
@@ -56,7 +51,7 @@ def merge_args(args_list, enableDefault=False):
     for i in args_list:  # loop [args]
         if enableDefault == True and i["default"] != True:
             continue
-        [flag, result] = insert_args(i)
+        [flag, result] = insert_args(i, enableDefault=enableDefault)
         if flag == "args":
             args = [*args, *result]
         if flag == "kargs":
@@ -69,7 +64,7 @@ def replace_args(command, args, kargs):
         command = command.replace("{}", str(i), 1)
     for k, v in kargs.items():
         command = f"{command} {k} {v}"
-    return command.replace("\{\}", "{}")  # 处理转义花括号
+    return command.replace("{}", "").replace("\{\}", "{}")  # 清理花括号和处理转义花括号
 
 
 def add_input_from_args(result, args, kargs):
@@ -126,7 +121,7 @@ def main(key=None, *args, **kargs):
             command_mode = parent["command_mode"]
             cwd = parent["cwd"] if "cwd" in parent else None
             result = add_input_from_args(result, args, kargs)
-            [args, kargs] = merge_args(result)
+            [args, kargs] = merge_args(result, enableDefault=False)
             run_command(command, command_mode, args, kargs, cwd=cwd)
         else:
             for i in result:  # loop [command]
