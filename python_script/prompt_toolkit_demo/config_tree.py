@@ -168,6 +168,14 @@ config_option = {
                             "mode": "kargs",
                             "default": False,
                         },
+                        {
+                            "value": "operate mode <bool>",
+                            "input_key": "--operate-mode",
+                            "input_value": "en",
+                            "input_value_prompt": "operate mode: ",
+                            "mode": "kargs",
+                            "default": True,
+                        },
                     ],
                     "help": [
                         {"value": "help example1"},
@@ -216,6 +224,14 @@ config_option = {
                             "input_value": "1",
                             "mode": "kargs",
                             "default": False,
+                        },
+                        {
+                            "value": "operate mode <bool>",
+                            "input_key": "--operate-mode",
+                            "input_value": "en",
+                            "input_value_prompt": "operate mode: ",
+                            "mode": "kargs",
+                            "default": True,
                         },
                     ],
                     "help": [
