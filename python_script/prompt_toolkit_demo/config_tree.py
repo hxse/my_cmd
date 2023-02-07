@@ -323,7 +323,40 @@ config_option = {
                 {"value": "help example1"},
             ],
         },
+        {
+            "key": "ga",
+            "value": r"generator anki",
+            "command": r"pdm run python gen_anki.py ga {} {} {}",
+            "command_mode": "command",
+            "cwd": r"D:\my_repo\parrot_fashion\crawler",
+            "args": [
                 {
+                    "value": "input audio Path",
+                    "input": "",
+                    "input_prompt": "input audio Path: ",
+                    "mode": "args",
+                    "default": True,
+                },
+                {
+                    "value": "input srtPath",
+                    "input": "",
+                    "input_prompt": "input file srtPath: ",
+                    "mode": "args",
+                    "default": True,
+                },
+                {
+                    "value": "input srt2Path",
+                    "input": "",
+                    "input_prompt": "input file srt2Path: ",
+                    "mode": "args",
+                    "default": True,
+                },
+            ],
+            "help": [
+                {"value": "help example1"},
+            ],
+        },
+        {
             "value": r"ffmpeg tool",
             "children": [
                 {
