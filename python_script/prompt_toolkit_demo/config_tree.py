@@ -127,7 +127,7 @@ config_option = {
                 {
                     "key": "lw",
                     "value": r"loop_whisper",
-                    "command": r'pdm run python loop_whisper.py loop "{}" {} {} {}',
+                    "command": r"pdm run python loop_whisper.py loop {} {} {} {}",
                     "command_mode": "command",
                     "cwd": r"D:\my_repo\parrot_fashion\crawler",
                     "args": [
@@ -235,8 +235,24 @@ config_option = {
                         {
                             "value": "operate mode <bool>",
                             "input_key": "--operate-mode",
-                            "input_value": "en",
+                            "input_value": "en_no_comma",
                             "input_value_prompt": "operate mode: ",
+                            "mode": "kargs",
+                            "default": True,
+                        },
+                        {
+                            "value": "import anki apkg <str>",
+                            "input_key": "--import-anki",
+                            "input_value": "0",
+                            "input_value_prompt": "import anki apkg: ",
+                            "mode": "kargs",
+                            "default": True,
+                        },
+                        {
+                            "value": "anki app path <str>",
+                            "input_key": "--anki-app",
+                            "input_value": r"C:\Program Files\Anki\anki.exe",
+                            "input_value_prompt": "anki app path: ",
                             "mode": "kargs",
                             "default": True,
                         },
@@ -292,8 +308,24 @@ config_option = {
                         {
                             "value": "operate mode <bool>",
                             "input_key": "--operate-mode",
-                            "input_value": "en",
+                            "input_value": "en_no_comma",
                             "input_value_prompt": "operate mode: ",
+                            "mode": "kargs",
+                            "default": True,
+                        },
+                        {
+                            "value": "import anki apkg <str>",
+                            "input_key": "--import-anki",
+                            "input_value": "0",
+                            "input_value_prompt": "import anki apkg: ",
+                            "mode": "kargs",
+                            "default": True,
+                        },
+                        {
+                            "value": "anki app path <str>",
+                            "input_key": "--anki-app",
+                            "input_value": r"C:\Program Files\Anki\anki.exe",
+                            "input_value_prompt": "anki app path: ",
                             "mode": "kargs",
                             "default": True,
                         },
@@ -307,7 +339,7 @@ config_option = {
         {
             "key": "autosub",
             "value": r"tool autosub srt",
-            "command": r'pdm run python D:\my_repo\parrot_fashion\crawler\autosub_tool.py ats "{}"',
+            "command": r"pdm run python D:\my_repo\parrot_fashion\crawler\autosub_tool.py ats {}",
             "command_mode": "command",
             "cwd": r"D:\my_repo\parrot_fashion\crawler",
             "args": [
@@ -362,7 +394,7 @@ config_option = {
                 {
                     "key": "reduce",
                     "value": r"ffmpeg reduceVideoSize",
-                    "command": r'ffmpeg -i "{}" -vcodec libx265 -crf 24 "{}"',
+                    "command": r"ffmpeg -i {} -vcodec libx265 -crf 24 {}",
                     "command_mode": "command",
                     "args": [
                         {
