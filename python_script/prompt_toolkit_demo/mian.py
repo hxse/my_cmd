@@ -61,7 +61,7 @@ def merge_args(args_list, enableDefault=False):
 
 def replace_args(command, args, kargs):
     for i in args:
-        command = command.replace("{}", f'"str(i)"', 1)
+        command = command.replace("{}", f'"{str(i)}"', 1)
     for k, v in kargs.items():
         command = f'{command} {k} "{v}"'
     return command.replace("{}", "").replace("\{\}", "{}")  # 清理花括号和处理转义花括号
