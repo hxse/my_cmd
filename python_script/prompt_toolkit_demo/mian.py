@@ -61,10 +61,26 @@ def merge_args(args_list, enableDefault=False):
 
 def replace_args(command, args, kargs):
     for i in args:
-        command = command.replace("{}", f'"{str(i)}"', 1)
+        if "{}" in command:
+            command = command.replace("{}", f'"{str(i)}"', 1)
+        else:
+            command = f'{command} "{str(i)}"'
     for k, v in kargs.items():
-        command = f'{command} {k} "{v}"'
+        command = f'{command} {k if k.startswith("-") else "--" + k} "{v}"'
     return command.replace("{}", "").replace("\{\}", "{}")  # 清理花括号和处理转义花括号
+
+
+def sort_args(args_list, args, kargs):
+    return
+    new_args = []
+    new_kargs = []
+    for i in args_list:
+        if i["mode"] == "args":
+            new_args.append(i)
+        elif i["mode"] == "kargs":
+            new_kargs.append(i)
+    new_kargs.sort(key=lambda x: x["input_key"].index)
+    # kargs保持顺序本来就不合理啊,不弄了
 
 
 def add_input_from_args(result, args, kargs):
@@ -73,6 +89,7 @@ def add_input_from_args(result, args, kargs):
         if "args" not in i:
             continue
         n = 0
+        n_k = []
         for a in i["args"]:
             if a["mode"] == "args":
                 if n <= len(args) - 1:
@@ -85,6 +102,21 @@ def add_input_from_args(result, args, kargs):
                 if k in kargs:
                     a["input_value"] = kargs[k]
                     a["default"] = True
+                    n_k.append(k)
+
+        for a in args[n:]:
+            i["args"].append({"input": a, "default": True, "mode": "args"})
+        for k in kargs.keys():
+            if k not in n_k:
+                i["args"].append(
+                    {
+                        "input_key": k,
+                        "input_value": kargs[k],
+                        "default": True,
+                        "mode": "kargs",
+                    }
+                )
+        sort_args(i["args"], args, kargs)
     return result
 
 
