@@ -119,6 +119,30 @@ config_option = {
                         },
                     ],
                 },
+                {
+                    "key": "d_bs",
+                    "value": r"download Be Smart",
+                    "command": r"ydl_video_audio",
+                    "command_mode": "function",
+                    "cwd": r"D:\my_repo\parrot_fashion\download",
+                    "args": [
+                        {
+                            "value": "url",
+                            "input": "https://www.youtube.com/@besmart",
+                            "input_prompt": "url ",
+                            "mode": "args",
+                            "default": True,
+                        },
+                        {
+                            "value": "--download-archive <file name>",
+                            "input_key": "--download-archive",
+                            "input_value": "Be Smart/_videos.txt",
+                            "input_value_prompt": "--download-archive",
+                            "mode": "kargs",
+                            "default": True,
+                        },
+                    ],
+                },
             ],
         },
         {
