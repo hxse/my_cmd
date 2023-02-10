@@ -115,7 +115,7 @@ def get_text():
     ]
 
 
-l = FormattedTextControl(get_text, show_cursor=False, focusable=True)
+l = FormattedTextControl(get_text, show_cursor=True, focusable=True)
 w = Window(
     # height=Dimension.exact(h),
     content=l,
@@ -128,7 +128,7 @@ layout = Layout(
             ConditionalContainer(
                 content=Window(
                     height=1,
-                    content=FormattedTextControl(get_message, show_cursor=False),
+                    content=FormattedTextControl(get_message, show_cursor=True),
                 ),
                 filter=Condition(lambda: state),
             ),
