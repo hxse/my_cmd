@@ -267,7 +267,7 @@ config_option = {
                         {
                             "value": "start time offset <int>",
                             "input_key": "--start-offset",
-                            "input_value": 0,
+                            "input_value": -200,
                             "input_value_prompt": "start time offset: ",
                             "mode": "kargs",
                             "default": True,
@@ -275,7 +275,7 @@ config_option = {
                         {
                             "value": "end time offset <int>",
                             "input_key": "--end-offset",
-                            "input_value": 0,
+                            "input_value": 200,
                             "input_value_prompt": "end time offset: ",
                             "mode": "kargs",
                             "default": True,
@@ -283,7 +283,7 @@ config_option = {
                         {
                             "value": "over start <bool>",
                             "input_key": "--over-start",
-                            "input_value": 1,
+                            "input_value": 0,
                             "input_value_prompt": "over start<bool>: ",
                             "mode": "kargs",
                             "default": True,
@@ -291,7 +291,7 @@ config_option = {
                         {
                             "value": "over end <bool>",
                             "input_key": "--over-end",
-                            "input_value": 1,
+                            "input_value": 0,
                             "input_value_prompt": "over end<bool>: ",
                             "mode": "kargs",
                             "default": True,
@@ -372,7 +372,7 @@ config_option = {
                         {
                             "value": "start time offset <int>",
                             "input_key": "--start-offset",
-                            "input_value": -0,
+                            "input_value": -200,
                             "input_value_prompt": "start time offset: ",
                             "mode": "kargs",
                             "default": True,
@@ -380,7 +380,7 @@ config_option = {
                         {
                             "value": "end time offset <int>",
                             "input_key": "--end-offset",
-                            "input_value": 0,
+                            "input_value": 200,
                             "input_value_prompt": "end time offset: ",
                             "mode": "kargs",
                             "default": True,
@@ -388,7 +388,7 @@ config_option = {
                         {
                             "value": "over start <bool>",
                             "input_key": "--over-start",
-                            "input_value": 1,
+                            "input_value": 0,
                             "input_value_prompt": "over start<bool>: ",
                             "mode": "kargs",
                             "default": True,
@@ -396,7 +396,7 @@ config_option = {
                         {
                             "value": "over end <bool>",
                             "input_key": "--over-end",
-                            "input_value": 1,
+                            "input_value": 0,
                             "input_value_prompt": "over end<bool>: ",
                             "mode": "kargs",
                             "default": True,
@@ -477,7 +477,7 @@ config_option = {
                         {
                             "value": "start time offset <int>",
                             "input_key": "--start-offset",
-                            "input_value": -0,
+                            "input_value": -200,
                             "input_value_prompt": "start time offset: ",
                             "mode": "kargs",
                             "default": True,
@@ -485,7 +485,7 @@ config_option = {
                         {
                             "value": "end time offset <int>",
                             "input_key": "--end-offset",
-                            "input_value": 0,
+                            "input_value": 200,
                             "input_value_prompt": "end time offset: ",
                             "mode": "kargs",
                             "default": True,
@@ -493,7 +493,7 @@ config_option = {
                         {
                             "value": "over start <bool>",
                             "input_key": "--over-start",
-                            "input_value": 1,
+                            "input_value": 0,
                             "input_value_prompt": "over start<bool>: ",
                             "mode": "kargs",
                             "default": True,
@@ -501,7 +501,7 @@ config_option = {
                         {
                             "value": "over end <bool>",
                             "input_key": "--over-end",
-                            "input_value": 1,
+                            "input_value": 0,
                             "input_value_prompt": "over end<bool>: ",
                             "mode": "kargs",
                             "default": True,
