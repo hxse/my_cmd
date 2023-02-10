@@ -131,16 +131,16 @@ def run_command(command, command_mode, args=[], kargs={}, cwd=None):
         command_obj[command](cwd, *args, **kargs)
 
 
-def main(key=None, *args, **kargs):
+def main(_key=None, *args, **kargs):
     tree = Tree(config_option)
-    if key == None:
+    if _key == None:
         result = run_app_tree(tree)
         args = []
         kargs = {}
     else:
         result = []
         for i in tree.generator_list():
-            if "key" in i and i["key"] == key:
+            if "key" in i and i["key"] == _key:
                 result.append(i)
     if len(result) <= 0:
         print("not select command")
