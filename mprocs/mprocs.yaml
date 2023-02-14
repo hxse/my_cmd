@@ -1,0 +1,22 @@
+procs:
+  clash:
+    cmd: ['D:\App\proxy\clash-premium\clash-windows-386.exe',  '-d', 'D:\my_repo\clash-rule-providers', '-ext-ui' ,'D:\App\proxy\yacd-gh-pages\yacd-gh-pages']
+    cwd: 'D:\App\proxy\clash-premium'
+  alist:
+    cmd: ['alist', 'server']
+  active-windows-keyboard:
+    cmd: ['pdm','run','python','.\active_window.py','--path','config.json']
+    cwd: 'D:\my_repo\py-active-windows-keyboard'
+  ftp-e:
+    cmd: ['python','-m','pyftpdlib','-p','21','--username=$env:ftpName', '--password=$env:ftpPassword']
+    cwd: 'E:\'
+  ftp-f:
+    cmd: ['python','-m','pyftpdlib','-p','23','--username=$env:ftpName', '--password=$env:ftpPassword']
+    cwd: 'F:\'
+  webdav-e:
+    cmd: ['wsgidav','--host=0.0.0.0','--port=8001','--root="E:\test demo"','--auth=anonymous']
+  webdav-f:
+    cmd: ['wsgidav','--host=0.0.0.0','--port=8001','--root=F:\','--auth=anonymous']
+    # 莫名其妙mprocs会往路径里面加路径,靠,不用了
+  ping:
+    cmd: ['ping', 'www.google.com']
