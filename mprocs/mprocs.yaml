@@ -1,22 +1,125 @@
 procs:
   clash:
-    cmd: ['D:\App\proxy\clash-premium\clash-windows-386.exe',  '-d', 'D:\my_repo\clash-rule-providers', '-ext-ui' ,'D:\App\proxy\yacd-gh-pages\yacd-gh-pages']
-    cwd: 'D:\App\proxy\clash-premium'
+    shell:
+      $select: os
+      windows: "%preScript% %cwdPath% %exePath% -d %rulePath% -ext-ui %yacdPath%"
+      $else: "echo $cwdPath"
+    env:
+      preScript:
+        $select: os
+        windows: "cd /d D:/my_repo/my_cmd/mprocs && test.bat"
+        linux: Linux
+        macos: Macos
+      cwdPath:
+        $select: os
+        windows: "cd /d D:/App/proxy/clash-premium ^^^&^^^&"
+        linux: Linux
+        macos: Macos
+      exePath:
+        $select: os
+        windows: "D:/App/proxy/clash-premium/clash-windows-386.exe"
+        linux: Linux
+        macos: Macos
+      rulePath:
+        $select: os
+        windows: "D:/my_repo/clash-rule-providers"
+        linux: Linux
+        macos: Macos
+      yacdPath:
+        $select: os
+        windows: "D:/App/proxy/yacd-gh-pages/yacd-gh-pages"
+        linux: Linux
+        macos: Macos
   alist:
     cmd: ['alist', 'server']
   active-windows-keyboard:
-    cmd: ['pdm','run','python','.\active_window.py','--path','config.json']
-    cwd: 'D:\my_repo\py-active-windows-keyboard'
+    shell:
+      $select: os
+      windows: "%preScript% %cwdPath% pdm run python ./active_window.py --path config.json"
+      $else: "echo $cwdPath"
+    env:
+      preScript:
+        $select: os
+        windows: "cd /d D:/my_repo/my_cmd/mprocs && test.bat"
+        linux: Linux
+        macos: Macos
+      cwdPath:
+        $select: os
+        windows: "cd /d D:/my_repo/py-active-windows-keyboard ^^^&^^^&"
+        linux: Linux
+        macos: Macos
   ftp-e:
-    cmd: ['python','-m','pyftpdlib','-p','21','--username=$env:ftpName', '--password=$env:ftpPassword']
-    cwd: 'E:\'
+    shell:
+      $select: os
+      windows: "%preScript% %cwdPath% python -m pyftpdlib -p 21 --username=%ftpName% --password=%ftpPassword%"
+      $else: "echo $cwdPath"
+    env:
+      preScript:
+        $select: os
+        windows: "cd /d D:/my_repo/my_cmd/mprocs && test.bat"
+        linux: Linux
+        macos: Macos
+      cwdPath:
+        $select: os
+        windows: "cd /d E: ^^^&^^^&"
+        linux: Linux
+        macos: Macos
   ftp-f:
-    cmd: ['python','-m','pyftpdlib','-p','23','--username=$env:ftpName', '--password=$env:ftpPassword']
-    cwd: 'F:\'
+    shell:
+      $select: os
+      windows: "%preScript% %cwdPath% python -m pyftpdlib -p 23 --username=%ftpName% --password=%ftpPassword%"
+      $else: "echo $cwdPath"
+    env:
+      preScript:
+        $select: os
+        windows: "cd /d D:/my_repo/my_cmd/mprocs && test.bat"
+        linux: Linux
+        macos: Macos
+      cwdPath:
+        $select: os
+        windows: "cd /d F: ^^^&^^^&"
+        linux: Linux
+        macos: Macos
   webdav-e:
-    cmd: ['wsgidav','--host=0.0.0.0','--port=8001','--root="E:\test demo"','--auth=anonymous']
+    shell: '%preScript% wsgidav --host=0.0.0.0 --port=8001 --root=%rootPath% --auth=anonymous'
+    env:
+      preScript:
+        $select: os
+        windows: "cd /d D:/my_repo/my_cmd/mprocs && test.bat"
+        linux: Linux
+        macos: Macos
+      rootPath:
+        $select: os
+        windows: '"E:/"'
+        linux: Linux
+        macos: Macos
   webdav-f:
-    cmd: ['wsgidav','--host=0.0.0.0','--port=8001','--root=F:\','--auth=anonymous']
-    # 莫名其妙mprocs会往路径里面加路径,靠,不用了
-  ping:
-    cmd: ['ping', 'www.google.com']
+    shell: '%preScript% wsgidav --host=0.0.0.0 --port=8002 --root=%rootPath% --auth=anonymous'
+    env:
+      preScript:
+        $select: os
+        windows: "cd /d D:/my_repo/my_cmd/mprocs && test.bat"
+        linux: Linux
+        macos: Macos
+      rootPath:
+        $select: os
+        windows: '"F:/"'
+        linux: Linux
+        macos: Macos
+  test demo:
+    shell: '%preScript% %cwdPath% echo %TEXT%'
+    env:
+      AND: "^^^&^^^&"
+      AND1: "^^^&"
+      preScript:
+        $select: os
+        windows: "D: && cd D:\\my_repo\\my_cmd\\mprocs && test.bat"
+        linux: Linux
+        macos: Macos
+        freebsd: FreeBSD
+      cwdPath:
+        $select: os
+        windows: "cd /d F: ^^^&^^^&"
+        linux: Linux
+        macos: Macos
+      TEXT: haha
