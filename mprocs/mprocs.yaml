@@ -1,8 +1,41 @@
 procs:
   clash:
+    autostart: true
     shell:
       $select: os
       windows: "%preScript% %cwdPath% %exePath% -d %rulePath% -ext-ui %yacdPath%"
+      $else: "echo $cwdPath"
+    env:
+      preScript:
+        $select: os
+        windows: "cd /d D:/my_repo/my_cmd/mprocs && test.bat"
+        linux: Linux
+        macos: Macos
+      cwdPath:
+        $select: os
+        windows: "cd /d D:/App/proxy/clash-premium ^^^&^^^&"
+        linux: Linux
+        macos: Macos
+      exePath:
+        $select: os
+        windows: "D:/App/proxy/clash-premium/clash-windows-386.exe"
+        linux: Linux
+        macos: Macos
+      rulePath:
+        $select: os
+        windows: "D:/my_repo/clash-rule-providers"
+        linux: Linux
+        macos: Macos
+      yacdPath:
+        $select: os
+        windows: "D:/App/proxy/yacd-gh-pages/yacd-gh-pages"
+        linux: Linux
+        macos: Macos
+  clash-tun:
+    autostart: false
+    shell:
+      $select: os
+      windows: "%preScript% %cwdPath% sudo %exePath% -d %rulePath% -ext-ui %yacdPath%"
       $else: "echo $cwdPath"
     env:
       preScript:
