@@ -1,2 +1,1 @@
-echo run
 cmd /c %*
