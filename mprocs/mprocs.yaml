@@ -8,7 +8,7 @@ procs:
     env:
       enableSudo:
         $select: os
-        windows: ^ #^,^sudo
+        windows: ^sudo #^,^sudo
         linux: Linux
         macos: Macos
       preScript:

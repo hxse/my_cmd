@@ -202,7 +202,7 @@ config_option = {
                         {
                             "value": "operate mode <bool>",
                             "input_key": "--operate-mode",
-                            "input_value": "en",
+                            "input_value": "en_no_comma",
                             "input_value_prompt": "operate mode: ",
                             "mode": "kargs",
                             "default": True,
