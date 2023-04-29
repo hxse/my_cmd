@@ -23,7 +23,7 @@ procs:
         macos: Macos
       exePath:
         $select: os
-        windows: "D:/App/proxy/clash-premium/clash-windows-386.exe"
+        windows: "D:/App/proxy/clash-meta/clash.meta-windows-amd64-compatible.exe" #"D:/App/proxy/clash-premium/clash-windows-386.exe"
         linux: Linux
         macos: Macos
       rulePath:
@@ -36,6 +36,8 @@ procs:
         windows: "D:/App/proxy/yacd-gh-pages/yacd-gh-pages"
         linux: Linux
         macos: Macos
+  subconverter:
+    cmd: ['D:\App\proxy\subconverter\subconverter\subconverter.exe']
   alist:
     cmd: ['alist', 'server']
   active-windows-keyboard:
