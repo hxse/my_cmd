@@ -88,8 +88,16 @@ procs:
         windows: "cd /d F: ^^^&^^^&"
         linux: Linux
         macos: Macos
+  webdav:
+    shell: '%preScript% wsgidav --config="D:/my_repo/my_cmd/mprocs/sample_wsgidav.yaml"'
+    env:
+      preScript:
+        $select: os
+        windows: "cd /d D:/my_repo/my_cmd/mprocs && test.bat"
+        linux: Linux
+        macos: Macos
   webdav-e:
-    shell: '%preScript% wsgidav --host=0.0.0.0 --port=8001 --root=%rootPath% --auth=anonymous'
+    shell: '%preScript% wsgidav --host=127.0.0.1 --port=8001 --root=%rootPath% --auth=anonymous'
     env:
       preScript:
         $select: os
@@ -102,7 +110,7 @@ procs:
         linux: Linux
         macos: Macos
   webdav-f:
-    shell: '%preScript% wsgidav --host=0.0.0.0 --port=8002 --root=%rootPath% --auth=anonymous'
+    shell: '%preScript% wsgidav --host=127.0.0.1 --port=8002 --root=%rootPath% --auth=anonymous'
     env:
       preScript:
         $select: os
