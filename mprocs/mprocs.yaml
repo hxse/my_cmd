@@ -122,6 +122,22 @@ procs:
         windows: '"F:/"'
         linux: Linux
         macos: Macos
+  player:
+    shell:
+      $select: os
+      windows: "%preScript% %cwdPath% yarn dev"
+      $else: "echo $cwdPath"
+    env:
+      preScript:
+        $select: os
+        windows: "cd /d D:/my_repo/my_cmd/mprocs && test.bat"
+        linux: Linux
+        macos: Macos
+      cwdPath:
+        $select: os
+        windows: "cd /d D:/my_repo/webdav-demo ^^^&^^^&"
+        linux: Linux
+        macos: Macos
   test demo:
     shell: '%preScript% %cwdPath% echo %TEXT%'
     env:
