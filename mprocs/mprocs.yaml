@@ -38,6 +38,22 @@ procs:
         macos: Macos
   subconverter:
     cmd: ['D:\App\proxy\subconverter\subconverter\subconverter.exe']
+  providers:
+    shell:
+      $select: os
+      windows: "%preScript% %cwdPath% python -m http.server  25501"
+      $else: "echo $cwdPath"
+    env:
+      preScript:
+        $select: os
+        windows: "cd /d D:/my_repo/my_cmd/mprocs && test.bat"
+        linux: Linux
+        macos: Macos
+      cwdPath:
+        $select: os
+        windows: "cd /d D:/my_repo/clash-rule-providers ^^^&^^^&"
+        linux: Linux
+        macos: Macos
   alist:
     cmd: ['alist', 'server']
   active-windows-keyboard:
