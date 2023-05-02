@@ -135,7 +135,7 @@ procs:
         macos: Macos
       cwdPath:
         $select: os
-        windows: "cd /d D:/my_repo/webdav-demo ^^^&^^^&"
+        windows: "cd /d D:/my_repo/webdav-player ^^^&^^^&"
         linux: Linux
         macos: Macos
   test demo:
