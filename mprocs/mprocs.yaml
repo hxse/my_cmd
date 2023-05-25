@@ -75,7 +75,7 @@ procs:
   ftp-e:
     shell:
       $select: os
-      windows: "%preScript% %cwdPath% python -m pyftpdlib -p 21 --username=%ftpName% --password=%ftpPassword%"
+      windows: "%preScript% %cwdPath% %pythonPath% -m pyftpdlib -p 21 --username=%ftpName% --password=%ftpPassword%"
       $else: "echo $cwdPath"
     env:
       preScript:
@@ -88,10 +88,15 @@ procs:
         windows: "cd /d E: ^^^&^^^&"
         linux: Linux
         macos: Macos
+      pythonPath:
+        $select: os
+        windows: "C:/Users/hxse/scoop/apps/python310/current/python.exe"
+        linux: Linux
+        macos: Macos
   ftp-f:
     shell:
       $select: os
-      windows: "%preScript% %cwdPath% python -m pyftpdlib -p 23 --username=%ftpName% --password=%ftpPassword%"
+      windows: "%preScript% %cwdPath% %pythonPath% -m pyftpdlib -p 23 --username=%ftpName% --password=%ftpPassword%"
       $else: "echo $cwdPath"
     env:
       preScript:
@@ -102,6 +107,11 @@ procs:
       cwdPath:
         $select: os
         windows: "cd /d F: ^^^&^^^&"
+        linux: Linux
+        macos: Macos
+      pythonPath:
+        $select: os
+        windows: "C:/Users/hxse/scoop/apps/python310/current/python.exe"
         linux: Linux
         macos: Macos
   webdav:
