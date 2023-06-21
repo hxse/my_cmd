@@ -297,6 +297,14 @@ config_option = {
                             "default": True,
                         },
                         {
+                            "value": "whisper_name <string>",
+                            "input_key": "--whisper-name",
+                            "input_value": "wc2",
+                            "input_value_prompt": "whisper_name<string>(wc2 or wsx): ",
+                            "mode": "kargs",
+                            "default": True,
+                        },
+                        {
                             "value": "import anki apkg <bool>",
                             "input_key": "--import-anki",
                             "input_value": "0",
@@ -372,7 +380,7 @@ config_option = {
                         {
                             "value": "start time offset <int>",
                             "input_key": "--start-offset",
-                            "input_value": -200,
+                            "input_value": -200,  # -200
                             "input_value_prompt": "start time offset: ",
                             "mode": "kargs",
                             "default": True,
@@ -380,7 +388,7 @@ config_option = {
                         {
                             "value": "end time offset <int>",
                             "input_key": "--end-offset",
-                            "input_value": 200,
+                            "input_value": 200,  # 200
                             "input_value_prompt": "end time offset: ",
                             "mode": "kargs",
                             "default": True,
@@ -398,6 +406,14 @@ config_option = {
                             "input_key": "--over-end",
                             "input_value": 0,
                             "input_value_prompt": "over end<bool>: ",
+                            "mode": "kargs",
+                            "default": True,
+                        },
+                        {
+                            "value": "whisper_name <string>",
+                            "input_key": "--whisper-name",
+                            "input_value": "wc2",
+                            "input_value_prompt": "whisper_name<string>(wc2 or wsx): ",
                             "mode": "kargs",
                             "default": True,
                         },
@@ -503,6 +519,14 @@ config_option = {
                             "input_key": "--over-end",
                             "input_value": 0,
                             "input_value_prompt": "over end<bool>: ",
+                            "mode": "kargs",
+                            "default": True,
+                        },
+                        {
+                            "value": "whisper_name <string>",
+                            "input_key": "--whisper-name",
+                            "input_value": "wc2",
+                            "input_value_prompt": "whisper_name<string>(wc2 or wsx): ",
                             "mode": "kargs",
                             "default": True,
                         },
