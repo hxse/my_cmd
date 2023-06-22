@@ -323,7 +323,7 @@ config_option = {
                         {
                             "value": "initial_prompt <str>",
                             "input_key": "--initial-prompt",
-                            "input_value": "Please listen to dialogue and question. the example question one: What is the color of this apple? Is it, a red, b green, c yellow? the example question two: What kind of transportation did he take?  Was it, a car, b bike, c bus?",
+                            "input_value": "Please, listen to dialogue and question. the example question one: What is the color of this apple? Is it, a red, b green, c yellow? the example question two: What kind of transportation did he take?  Was it, a car, b bike, c bus?",
                             "input_value_prompt": "initial_prompt: <str>",
                             "mode": "kargs",
                             "default": True,
