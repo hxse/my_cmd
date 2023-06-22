@@ -320,6 +320,14 @@ config_option = {
                             "mode": "kargs",
                             "default": True,
                         },
+                        {
+                            "value": "initial_prompt <str>",
+                            "input_key": "--initial-prompt",
+                            "input_value": "Please listen to dialogue and question. the question like: What color is Apple? Is it, a red, b green, c yellow?",
+                            "input_value_prompt": "initial_prompt: <str>",
+                            "mode": "kargs",
+                            "default": True,
+                        },
                     ],
                     "help": [
                         {"value": "help example1"},
