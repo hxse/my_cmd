@@ -328,7 +328,7 @@ Function jable {
 	$dir = Get-Location;
 	cd "D:\my_repo\JableTVDownload"
 	pdm run python "D:\my_repo\JableTVDownload\main.py" --outPath "E:\jable download" --tempDir "C:\Users\hxse\Downloads\jable temp" $args;
-	python .\get_info.py ld;
+	pdm run python .\get_info.py ld;
 	cd $dir
 }
 
