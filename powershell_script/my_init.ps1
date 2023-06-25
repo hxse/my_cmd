@@ -11,7 +11,7 @@ $dir = Get-Location
 
 $zLua = "D:\my_repo\my_cmd\lua_script\z.lua\z.lua"
 echo $zLua
-Invoke-Expression (& { (lua $zLua --init powershell) -join "`n" })
+# Invoke-Expression (& { (lua $zLua --init powershell) -join "`n" })
 
 #Import-Module PSReadLine
 #Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
@@ -43,6 +43,15 @@ Function nstp {
 	#netsh int ipv4 set dynamicport udp start=49152 num=16384
 }
 
+function sn {
+	sudo netsh interface show interface
+}
+function dn {
+	sudo netsh interface set interface $config.dn.name disable
+}
+function en {
+	sudo netsh interface set interface $config.dn.name enable
+}
 Function py310 { . "C:\Users\hxse\scoop\apps\python310\current\python.exe" $args }
 Function pip310 { . "C:\Users\hxse\scoop\apps\python310\current\python.exe" -m "pip" $args }
 Function py37 { . "C:\Users\hxse\scoop\apps\python37\current\python.exe" $args }
