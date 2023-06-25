@@ -3,9 +3,9 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 . "$scriptDir\tool.ps1" #用.可以扩大作用域, 用&的话函数就没有副作用了 https://stackoverflow.com/questions/54661916/what-is-the-difference-between-dot-and-ampersand-in-powershell
 
 Function e {
-    $dirPath= "D:/my_repo/my_cmd/mprocs"
-    $config="D:/my_repo/my_cmd/mprocs/sample_wsgidav.yaml"
-    $command="wsgidav --config=`"$config`""
+    $dirPath = "D:/my_repo/my_cmd/mprocs"
+    $config = "D:/my_repo/my_cmd/mprocs/sample_wsgidav.yaml"
+    $command = "wsgidav --config=`"$config`""
 
     cd $dirPath
     Write-ColorOutput yellow ("---describeStart---, press ctrl-c break press e re-run")

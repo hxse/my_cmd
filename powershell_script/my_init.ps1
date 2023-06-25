@@ -28,7 +28,7 @@ function g {
 	cd D:\my_repo\my_cmd\python_script;
 	pdm run python .\prompt_toolkit_demo\mian.py $args
 }
-function gt{
+function gt {
 	g ypa https://www.youtube.com/playlist?list=PLnzvH6pAJKSp3NDFn_2OqsGVFpQREer3J --download-archive "sfd.txt"
 }
 # 修改tcp默认端口号起点,避免进程端口被占用,即使被占用了,也无法用 netstat -aon | findstr 查到哪个占用
@@ -160,7 +160,7 @@ $audio = "--extract-audio", "--audio-format", "mp3"
 $embed = "--no-embed-thumbnail", "--embed-metadata"#,"--embed-subs"#--embed-thumbnail嵌入封面会导致ffmpeg后续处理不了报错 Invalid data found when processing input
 $cookie = ""#"--cookies-from-browser","chrome"
 $ytDownload = "D:\my_repo\parrot_fashion\download"
-$overWrite="--force-overwrites"
+$overWrite = "--force-overwrites"
 
 $fullSubtract = "$([System.Text.Encoding]::UTF8.GetString(([byte]226, 128, 147)))"#全角减号
 Function gsdlp {
@@ -186,8 +186,8 @@ Function gswsa {
 }
 Function swsa {
 	$commandArray = @(`
-				"lwsa 'D:\my_repo\parrot_fashion\download\BBC Learning English'"
-				"lwsa 'D:\my_repo\parrot_fashion\download\Kurzgesagt $fullSubtract In a Nutshell'"
+			"lwsa 'D:\my_repo\parrot_fashion\download\BBC Learning English'"
+		"lwsa 'D:\my_repo\parrot_fashion\download\Kurzgesagt $fullSubtract In a Nutshell'"
 	)
 	For ($i = 0; $i -lt $commandArray.Length; $i++) {
 		Write-Host $i $commandArray[$i]

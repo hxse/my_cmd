@@ -16,8 +16,7 @@ function ReadJsonFile($path) {
 $config = (ReadJsonFile "$scriptDir\config\config.json" )
 
 
-function Write-ColorOutput($ForegroundColor)
-{
+function Write-ColorOutput($ForegroundColor) {
     # save the current color
     $fc = $host.UI.RawUI.ForegroundColor
 
@@ -35,3 +34,6 @@ function Write-ColorOutput($ForegroundColor)
     # restore the original color
     $host.UI.RawUI.ForegroundColor = $fc
 }
+
+# echo $config.full #把特殊符号放到json里面就行了, 直接写进脚本不行
+# echo "–"

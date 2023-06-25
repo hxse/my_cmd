@@ -7,10 +7,10 @@ Function e {
     # $clashPath = "D:\App\proxy\clash-premium\clash-windows-386.exe"
     $clashPathDir = "D:\App\proxy\clash-meta"
     $clashPath = "D:\App\proxy\clash-meta\clash.meta-windows-amd64-compatible.exe"
-    $clashDir="D:\my_repo\clash-rule-providers"
-    $uiPath="D:\App\proxy\yacd-gh-pages\yacd-gh-pages"
-    $sudo="C:\Users\hxse\scoop\shims\sudo.exe"
-    $command="& `"$sudo`" `"$clashPath`" -d `"$clashDir`" -ext-ui `"$uiPath`""
+    $clashDir = "D:\my_repo\clash-rule-providers"
+    $uiPath = "D:\App\proxy\yacd-gh-pages\yacd-gh-pages"
+    $sudo = "C:\Users\hxse\scoop\shims\sudo.exe"
+    $command = "& `"$sudo`" `"$clashPath`" -d `"$clashDir`" -ext-ui `"$uiPath`""
 
     cd $clashPathDir
     Write-ColorOutput yellow ("---describeStart---, press ctrl-c break press e re-run")
