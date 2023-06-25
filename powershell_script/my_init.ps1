@@ -21,6 +21,8 @@ Invoke-Expression (& { (lua $zLua --init powershell) -join "`n" })
 #oh-my-posh init pwsh | Invoke-Expression
 #oh-my-posh --init --shell pwsh --config $ompPath\kali2.omp.json | Invoke-Expression #预览参考: https://ohmyposh.dev/docs/themes
 
+. "$scriptDir\tool.ps1"
+
 function g {
 	# python terminal gui
 	cd D:\my_repo\my_cmd\python_script;
