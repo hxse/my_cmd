@@ -1,4 +1,4 @@
-$dir = Get-Location
+﻿$dir = Get-Location
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 . "$scriptDir\tool.ps1" #用.可以扩大作用域, 用&的话函数就没有副作用了 https://stackoverflow.com/questions/54661916/what-is-the-difference-between-dot-and-ampersand-in-powershell
 

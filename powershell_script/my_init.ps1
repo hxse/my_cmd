@@ -1,6 +1,8 @@
-# 用powershell如下调用来初始化工作空间
+﻿# 用powershell如下调用来初始化工作空间
 # in windows terminal: powershell -NOLogo -NoExit -File "D:\my_repo\my_cmd\powershell_script\my_init.ps1"
 # 如果出现乱码,就打开windows的系统设置,找到"更改系统区域设置",打开"Beta 版: 使用 Unicode UTF-8 提供全球语言支持"(这个可能导致打不开文华财经,谨慎使用)
+# 乱码是因为ps5默认不是utf8,把脚本文件编码改成utf8dom可以解决,或者把中文写到配置文件里,也可以解决,检查ps版本`$PSVersionTable.PSVersion`
+# 把这个加入vscode的配置文件,默认新建ps1时就会是utf8bom了"[powershell]": {"files.encoding": "utf8bom", "files.autoGuessEncoding": true}
 $OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
 #chcp 65001#解决中文乱码
 $startup = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp"

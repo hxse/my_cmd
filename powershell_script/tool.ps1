@@ -1,4 +1,4 @@
-$dir = Get-Location
+﻿$dir = Get-Location
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 function ReadFile($path) {

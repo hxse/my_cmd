@@ -1,4 +1,4 @@
-function e {
+﻿function e {
     cd D:\my_repo\my_cmd\mprocs
     mprocs -c .\mprocs.yaml
 }

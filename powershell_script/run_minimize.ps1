@@ -1,4 +1,4 @@
-# windows-terminal的路径,不能用scoop current里的快捷路径,因为没法识别真实路径
+﻿# windows-terminal的路径,不能用scoop current里的快捷路径,因为没法识别真实路径
 chcp 65001
 
 function e {
