@@ -1,0 +1,118 @@
+﻿$proxy = "--proxy", "127.0.0.1:7890"
+$cf = "--concurrent-fragments", "10"
+$video = "--no-playlist"
+$playlist = "--yes-playlist"
+$da = "--download-archive", "archive.txt"
+$da = ""
+$ws = "--write-subs"
+$was = "--write-auto-subs"
+$langs = "--sub-langs", "en,en-*,en-GB,en-en,en-us,zh-CN,zh-TW,zh-HK,ja,-live_chat"#all
+$cs = "--convert-subs", "srt"
+$outVideo = "-o", "`"%(uploader)s/_videos/%(upload_date)s %(id)s/%(upload_date)s %(title)s %(id)s.%(ext)s`""
+$outPlaylist = "-o", "`"%(uploader)s/%(playlist)s %(playlist_id)s/%(upload_date)s %(id)s/%(upload_date)s %(title)s %(id)s.%(ext)s`""
+$meta = "title,playlist,playlist_id,uploader,upload_date,id,ext"
+$replace = "--replace-in-metadata", $meta, "\&", "_"
+$replace2 = "--replace-in-metadata", $meta, "$([System.Text.Encoding]::UTF8.GetString(([byte]226, 128, 147)))", "_" #替换全角减号
+#$replace2 = "--replace-in-metadata", $meta, "\-", "_" #替换全角减号
+$replace3 = "--replace-in-metadata", $meta, "\?", "_" #替换全角问号
+$replace4 = "--replace-in-metadata", $meta, "\:", "_" #替换全角冒号
+$replaceMetadata = $replace + $replace2 + $replace3 + $replace4  # 这里一定要用加号, 不能用逗号, 因为replace,和replace2都已经是参数了
+$replaceMetadata = ""
+$audio = "--extract-audio", "--audio-format", "mp3"
+$embed = "--no-embed-thumbnail", "--embed-metadata"#,"--embed-subs"#--embed-thumbnail嵌入封面会导致ffmpeg后续处理不了报错 Invalid data found when processing input
+$cookie = ""#"--cookies-from-browser","chrome"
+$ytDownload = "D:\my_repo\parrot_fashion\download"
+$overWrite = "--force-overwrites"
+$justJson = "--write-info-json --skip-download"
+$wirteJson = "--write-info-json"
+
+$fullSubtract = "$([System.Text.Encoding]::UTF8.GetString(([byte]226, 128, 147)))"#全角减号
+
+
+Function yva {
+    $n = 2
+    if ($Args.Count -lt $n) {
+        echo "至少$n`个参数: url, archivePath"
+        return
+    }
+
+    $dir = Get-Location;
+    cd $ytDownload;
+    $a = "--download-archive", "`"$($args[1])`"", "`"$($args[0])`"", ( (skipArgsQuote $args 2 ))
+    $command = "yt-dlp $proxy $cf $ws $was $langs $cs $embed $cookie $video $outVideo $audio $replaceMetadata $overWrite $wirteJson $a";
+    echo $command
+    iex $command
+    cd $dir
+}
+
+Function ypa {
+    $n = 2
+    if ($Args.Count -lt $n) {
+        echo "至少$n`个参数,url,archivePath"
+        return
+    }
+
+    $localDir = Get-Location;
+    cd $ytDownload;
+    $a = "--download-archive", "`"$($args[1])`"", "`"$($args[0])`"", ( (skipArgsQuote $args 2 ))
+    $command = "yt-dlp $proxy $cf $ws $was $langs $cs $embed $cookie $playlist $outPlaylist $audio $replaceMetadata $overWrite $wirteJson $a"
+    echo $command
+    iex $command
+    cd $dir
+}
+
+function ypa_bbc {
+    $url = "https://www.youtube.com/playlist?list=PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt"
+    $archive = "BBC Learning English/6 Minute English - Vocabulary & listening PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt.txt"
+    ypa $url $archive
+}
+
+function ypa_kur {
+    $url = "https://www.youtube.com/playlist?list=PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt"
+    $archive = "BBC Learning English/6 Minute English - Vocabulary & listening PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt.txt"
+    ypa $url $archive
+}
+
+function ypa_bs {
+    $url = "https://www.youtube.com/@besmart"
+    $archive = "Be Smart/_videos.txt"
+    ypa $url $archive
+}
+
+function _lw($argArr, $def_args  ) {
+
+    $aArr, $kArr = mergeParamoStr $argArr $def_args
+
+    $localDir = Get-Location;
+    cd "D:\my_repo\parrot_fashion\crawler"
+    $command = "pdm run python loop_whisper.py loop $aArr $kArr"
+    echo $command
+    iex $command
+    cd $dir
+}
+
+function lw {
+    $def_args = "`"`" 1 1 1  --skip 0 --check 0 --operate-mode en_no_comma"
+    _lw $args $def_args
+}
+
+function lw_bbc {
+    $dirPath = "`"D:\my_repo\parrot_fashion\download\BBC Learning English`""
+    $offset = "--start-offset 200 --end-offset 200 --over-start 0 --over-end 0"
+    $operate = "--operate-mode en_no_comma"
+    $whisperName = "--whisper-name wc2"
+    $import = "--import-anki 0"
+    $release = "--enable-release-apkg 0"
+    $ankiPath = "--anki-app `"C:\Users\hxse\AppData\Local\Programs\Anki\anki.exe`""
+    $prompt = "--initial-prompt `"Please, listen to dialogue and question. the example question one: What is the color of this apple? Is it, a red, b green, c yellow? the example question two: What kind of transportation did he take?  Was it, a car, b bike, c bus? A final note, pay attention to the use of punctuation.`""
+    $def_args = "$dirPath 1 1 1  --skip 0 --check 0 $operate  $offset  $whisperName $import $release $ankiPath $prompt"
+
+    _lw $args $def_args
+}
+
+
+function test {
+    $aArr, $kArr = mergeParamoStr $args "a b c d e --a 1 --b 2"
+    echo $aArr
+    echo $kArr
+}

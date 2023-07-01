@@ -267,7 +267,7 @@ config_option = {
                         {
                             "value": "start time offset <int>",
                             "input_key": "--start-offset",
-                            "input_value": -200,
+                            "input_value": 200,
                             "input_value_prompt": "start time offset: ",
                             "mode": "kargs",
                             "default": True,
@@ -396,7 +396,7 @@ config_option = {
                         {
                             "value": "start time offset <int>",
                             "input_key": "--start-offset",
-                            "input_value": -200,  # -200
+                            "input_value": 200,  # 200
                             "input_value_prompt": "start time offset: ",
                             "mode": "kargs",
                             "default": True,
@@ -517,7 +517,7 @@ config_option = {
                         {
                             "value": "start time offset <int>",
                             "input_key": "--start-offset",
-                            "input_value": -200,
+                            "input_value": 200,
                             "input_value_prompt": "start time offset: ",
                             "mode": "kargs",
                             "default": True,
