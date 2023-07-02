@@ -58,6 +58,5 @@ function run_t {
 }
 
 function test {
-    $res = run_t | select -Last 2
-    Write-Host $res[0]
+
 }

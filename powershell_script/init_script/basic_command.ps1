@@ -29,8 +29,19 @@ Function py27 { . "C:\Users\hxse\scoop\apps\python27\current\python.exe" $args }
 Function pip27 { . "C:\Users\hxse\scoop\apps\python27\current\python.exe" -m "pip" $args }
 
 
-function g {
-    # python terminal gui
-    cd D:\my_repo\my_cmd\python_script;
-    pdm run python .\prompt_toolkit_demo\mian.py $args
+
+
+Function nfp { netstat -aon | findstr $args[0] } #查找端口
+Function tfp { tasklist | findstr $args[0] } #根据pid查找进程
+Function tkp { taskkill /T /F /PID $args[0] } #根据pid结束进程
+Function sd { Shutdown -s -t 30 }
+
+function mip {
+    $ytw = [regex]::Unescape("\u4ee5\u592a\u7f51")#以太网三个字的的unicode
+    $ytw = "以太网"#只要是utf8 with bom, 就能输入中文了
+    # $mip = Get-NetIPAddress |  where IPAddress -like '192.168.*' | where InterfaceAlias -like $ytw | select  -ExpandProperty "IPAddress"
+    $mip = Get-NetIPAddress |  where { ($_.InterfaceAlias -like '以太网' -or $_.InterfaceAlias -like 'WLAN' ) } | where AddressFamily -like 'IPv4'  | Select-Object   "InterfaceAlias", "IPAddress"
+    return $mip
 }
+
+Function gfh { Get-FileHash $args }
