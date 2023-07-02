@@ -79,24 +79,44 @@ function ypa_bs {
     ypa $url $archive
 }
 
-function _lw($argArr, $def_args  ) {
-
-    $aArr, $kArr = mergeParamoStr $argArr $def_args
+function _lw($argsArr, $def_argsStr  ) {
+    # 合并默认参数和用户参数, 返回str格式
+    $aArr, $kArr = getParam  $argsArr  | select -Last 2
+    $def_aArr, $def_kArr = getParam  $def_argsStr  | select -Last 2
+    $new_aArr, $new_kArr = mergerArgsStr $aArr $kArr $def_aArr $def_kArr  | select -Last 2
 
     $localDir = Get-Location;
     cd "D:\my_repo\parrot_fashion\crawler"
-    $command = "pdm run python loop_whisper.py loop $aArr $kArr"
+    $command = "pdm run python loop_whisper.py loop $new_aArr $new_kArr"
     echo $command
     iex $command
     cd $dir
 }
 
 function lw {
-    $def_args = "`"`" 1 1 1  --skip 0 --check 0 --operate-mode en_no_comma"
+    $n = 1
+    if ($Args.Count -lt $n) {
+        echo "至少$n`个参数: dirPath"
+        return
+    }
+
+    $dirPath = "" #手动覆盖
+    $offset = "--start-offset 200 --end-offset 200 --over-start 0 --over-end 0"
+    $operate = "--operate-mode en_no_comma"
+    $whisperName = "--whisper-name wc2"
+    $import = "--import-anki 0"
+    $release = "--enable-release-apkg 0"
+    $ankiPath = "--anki-app `"C:\Users\hxse\AppData\Local\Programs\Anki\anki.exe`""
+    $prompt = "--initial-prompt `"Please, listen to dialogue and question. the example question one: What is the color of this apple? Is it, a red, b green, c yellow? the example question two: What kind of transportation did he take?  Was it, a car, b bike, c bus? A final note, pay attention to the use of punctuation.`""
+    $def_args = "$dirPath 1 1 1  --skip 0 --check 0 $operate  $offset  $whisperName $import $release $ankiPath $prompt"
+
     _lw $args $def_args
 }
 
 function lw_bbc {
+    # 用例: lw_bbc
+    # 覆盖: lw_bbc "D:\my_repo\parrot_fashion\download\BBC Learning English" 0 --check 1
+    # $prompt里面别用双引号了,  可能有转义问题, powershell转义是`",但是whisper转义是"",很奇怪,算了,别用就行了
     $dirPath = "`"D:\my_repo\parrot_fashion\download\BBC Learning English`""
     $offset = "--start-offset 200 --end-offset 200 --over-start 0 --over-end 0"
     $operate = "--operate-mode en_no_comma"
@@ -111,8 +131,38 @@ function lw_bbc {
 }
 
 
-function test {
-    $aArr, $kArr = mergeParamoStr $args "a b c d e --a 1 --b 2"
-    echo $aArr
-    echo $kArr
+function lw_kur {
+    # 用例: lw_bbc
+    # 覆盖: lw_bbc "D:\my_repo\parrot_fashion\download\BBC Learning English" 0 --check 1
+
+    $dirPath = "`"D:\my_repo\parrot_fashion\download\Kurzgesagt – In a Nutshell`""
+    $offset = "--start-offset 200 --end-offset 200 --over-start 0 --over-end 0"
+    $operate = "--operate-mode en_no_comma"
+    $whisperName = "--whisper-name wc2"
+    $import = "--import-anki 0"
+    $release = "--enable-release-apkg 0"
+    $ankiPath = "--anki-app `"C:\Users\hxse\AppData\Local\Programs\Anki\anki.exe`""
+    $prompt = "--initial-prompt `"Please, listen to dialogue and question. the example question one: What is the color of this apple? Is it, a red, b green, c yellow? the example question two: What kind of transportation did he take?  Was it, a car, b bike, c bus? A final note, pay attention to the use of punctuation.`""
+    $def_args = "$dirPath 1 1 1  --skip 0 --check 0 $operate  $offset  $whisperName $import $release $ankiPath $prompt"
+
+    _lw $args $def_args
 }
+
+
+function lw_bs {
+    # 用例: lw_bbc
+    # 覆盖: lw_bbc "D:\my_repo\parrot_fashion\download\BBC Learning English" 0 --check 1
+
+    $dirPath = "`"D:\my_repo\parrot_fashion\download\Be Smart`""
+    $offset = "--start-offset 200 --end-offset 200 --over-start 0 --over-end 0"
+    $operate = "--operate-mode en_no_comma"
+    $whisperName = "--whisper-name wc2"
+    $import = "--import-anki 0"
+    $release = "--enable-release-apkg 0"
+    $ankiPath = "--anki-app `"C:\Users\hxse\AppData\Local\Programs\Anki\anki.exe`""
+    $prompt = "--initial-prompt `"Please, listen to dialogue and question. the example question one: What is the color of this apple? Is it, a red, b green, c yellow? the example question two: What kind of transportation did he take?  Was it, a car, b bike, c bus? A final note, pay attention to the use of punctuation.`""
+    $def_args = "$dirPath 1 1 1  --skip 0 --check 0 $operate  $offset  $whisperName $import $release $ankiPath $prompt"
+
+    _lw $args $def_args
+}
+
