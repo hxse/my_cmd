@@ -34,6 +34,11 @@ function replace2($text, $reg, $target) {
     return @(@(), $text)
 }
 function replaceEscapeChar($argsAll) {
+    #todo 先替换转义, 再处理双引号, 思路没问题
+    #todo 但这个的转义写法有问题, 不能想成 ```" -> `", 应该想成 `` -> ` `" -> ", 这样就能自动解决掉, `"`" -> ""
+    #todo 这样就能解决 $prompt = "--initial-prompt `"Please, listen to dialogue and question. ```"```"the example question one```"```": What is the color of this apple? Is it, a red, b green, c yellow? the example question two: What kind of transportation did he take?  Was it, a car, b bike, c bus? A final note, pay attention to the use of punctuation.`""
+    #todo 首先双引号里的```"```"会被powershell翻译成, `"`", 然后再用这个函数做一次转义处理,  因为 `" -> " 所以 `"`", -> "", 然后两个"" ""内的内容会被whisper自动处理
+    #todo 但是目前没影响, 先不用搞, 一般也用不上
     # 参数是字符串, 函数返回[string,object<key,value>]
     # 用正则循环, 把字符串中被转义字符```"包裹内容替换成特殊id
     $origin = '```"'
