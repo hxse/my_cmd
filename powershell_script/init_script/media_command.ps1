@@ -68,8 +68,8 @@ function ypa_bbc {
 }
 
 function ypa_kur {
-    $url = "https://www.youtube.com/playlist?list=PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt"
-    $archive = "BBC Learning English/6 Minute English - Vocabulary & listening PLcetZ6gSk96-FECmH9l7Vlx5VDigvgZpt.txt"
+    $url = "https://www.youtube.com/@kurzgesagt"
+    $archive = "Kurzgesagt – In a Nutshell/_videos.txt"
     ypa $url $archive
 }
 
