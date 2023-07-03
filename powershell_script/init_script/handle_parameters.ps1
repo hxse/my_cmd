@@ -26,34 +26,31 @@
     return @($r, $p)
 }
 function replace2($text, $reg, $target) {
-    while (($text -match $reg) -eq $true) {
+    while (($text -match $reg) -eq $false) {
         #替换转义字符, 把$origin替换成target
-        # Write-Host $text 2333333
         $text = $text -replace $reg, "$($matches.1)$($target)$($matches.3)"
     }
     return @(@(), $text)
 }
-function replaceEscapeChar($argsAll) {
-    #todo 先替换转义, 再处理双引号, 思路没问题
-    #todo 但这个的转义写法有问题, 不能想成 ```" -> `", 应该想成 `` -> ` `" -> ", 这样就能自动解决掉, `"`" -> ""
-    #todo 这样就能解决 $prompt = "--initial-prompt `"Please, listen to dialogue and question. ```"```"the example question one```"```": What is the color of this apple? Is it, a red, b green, c yellow? the example question two: What kind of transportation did he take?  Was it, a car, b bike, c bus? A final note, pay attention to the use of punctuation.`""
-    #todo 首先双引号里的```"```"会被powershell翻译成, `"`", 然后再用这个函数做一次转义处理,  因为 `" -> " 所以 `"`", -> "", 然后两个"" ""内的内容会被whisper自动处理
-    #todo 但是目前没影响, 先不用搞, 一般也用不上
+function replaceEscapeChar($argsAll, $enable = $true) {
+    #todo 先替换转义, 再处理双引号, `` -> ` `" -> ", 这样就能自动解决掉, `"`" -> ""
     # 参数是字符串, 函数返回[string,object<key,value>]
     # 用正则循环, 把字符串中被转义字符```"包裹内容替换成特殊id
-    $origin = '```"'
-    $target = '`"'
-    $reg = "^(.*)($origin.*$origin)(.*)$"
-    $reg2 = "^(.*)($origin)(.*)$"
+    $charArr = @()
+    if ($enable) {
+        $charArr = @(@('````', '````'), @('```"', '```"'), @('``', '``'), @('`"', '`"'), @('example', 'example'), @('apple', 'apple'))
+    }
     $dataDict = @{}
     $n = 0
-    while (($argsAll -match $reg) -eq $true) {
-        $k = "__#esc#_$($n)_#esc#__" #格式越随机越安全
-        # $dataDict[$k] = $matches.2
-        $null, $text = replace2 $matches.2 $reg2 $target |   select -Last 2
-        $dataDict[$k] = $text
-        $argsAll = $argsAll -replace $reg, "$($matches.1)$($k)$($matches.3)"
-        $n++
+    foreach ($cArr in $charArr) {
+        $origin, $target = $cArr
+        $reg = "^(.*)($origin)(.*)$"
+        while (($argsAll -match $reg) -eq $true) {
+            $k = "__esc$($n)__" #格式越随机越安全
+            $dataDict[$k] = $argsAll -replace $reg, $target
+            $argsAll = $argsAll -replace $reg, "$($matches.1)$($k)$($matches.3)"
+            $n++
+        }
     }
     return @($argsAll, $dataDict)
 }
@@ -64,7 +61,7 @@ function replaceQuota2Id ($argsAll) {
     $reg = '^(.*)(".*")(.*)$'
     $dataDict = @{}
     while (($argsAll -match $reg) -eq $true) {
-        $k = "__#id#_$($n)_#id#__" #格式越随机越安全
+        $k = "__id$($n)__" #格式越随机越安全
         $dataDict[$k] = $matches.2
         $argsAll = $argsAll -replace $reg, "$($matches.1)$($k)$($matches.3)"
         $n++
@@ -76,23 +73,17 @@ function matchDictKey($dataDict, $a) {
     foreach ($k in $dataDict.Keys  ) {
         $reg = "^(.*)($k)(.*)$"
         if (($a -match $reg ) -eq $true) {
-            return @(@(), $a -replace $reg, "$($Matches.1)$($dataDict[$k])$($Matches.3)")
+            $a = $a -replace $reg, "$($Matches.1)$($dataDict[$k])$($Matches.3)"
         }
     }
-    return @(@(), $null)
+    return @(@(), $a)
 }
 function restore ($arr, $dataDict) {
     $new_arr = [System.Collections.ArrayList]@()
     foreach ($a in $arr) {
         $null, $v = (matchDictKey $dataDict $a )  |   select -Last 2
-        if ($v -eq $null) {
-            $new_arr.Add($a)
-        }
-        else {
-            $new_arr.Add($v)
-        }
+        $new_arr.Add($v)
     }
-    # return $new_arr
     return  @( @(), $new_arr)
 }
 
@@ -111,20 +102,12 @@ function getParam_from_str($argsAll) {
         }
     }
 
+
     # 转换字符串数组, 成参数数组
     $argsArr, $kargsArr = getParam_from_array $arr4 | select -Last 2
-    # foreach ($i in $argsArr) {
-    #     Write-Host args: $i
-    # }
-    # foreach ($i in $kargsArr) {
-    #     Write-Host kargs: $i.key $i.value
-    # }
     return @($argsArr, $kargsArr)
 }
 function getParam($argsAll) {
-    # foreach ($a in $argsAll) {
-    #     Write-Host $a
-    # }
     # 当输入类型是数组时
     if ($argsAll.gettype().Name -eq 'ArrayList' -or $argsAll.gettype().Name -eq 'Object[]') {
         $argsArr, $kargsArr = getParam_from_array $argsAll  |   select -Last 2
@@ -251,9 +234,9 @@ function mergerArgsStr($aArr, $kArr, $def_aArr, $def_kArr) {
 
 function p_test {
     # 字符串的效果要跟参数数组对齐, 参数测试命令: p_test a b -p p --prompt "hello world, ```"how are you```", thank you" -kk -k "wdt"
-    # 双引号目前只支持两层转义, 转义符号"`"","``````"", 或者'"','```"'
+    # 双引号目前只支持两层转义, 第一层转义是```", ```````"
     $prompt = "--initial-prompt `"Please, listen to dialogue and question. the example question one: What is the color of this apple? Is it, a red, b green, c yellow? the example question two: What kind of transportation did he take?  Was it, a car, b bike, c bus? A final note, pay attention to the use of punctuation.`""
-    $def_args = "`"hello   world`" a   b -p p -g `"as df`" --prompt `"hello world, ```````"how are you```````", thank you`"  --g gf haha -kk `"sdf klj`"  -k `"adsf ghjk l`" -g `"haha heihei`""
+    $def_args = "`"hello  world`" a   b -p p -g `"as df`" --prompt `"hello world, ```"how are you```", thank you`"  --g gf haha -kk `"sdf klj`"  -k `"adsf ghjk l`" -g `"haha heihei`""
 
 
     # 解析默认参数, 返回数组格式

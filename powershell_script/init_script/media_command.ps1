@@ -125,6 +125,7 @@ function lw_bbc {
     $release = "--enable-release-apkg 0"
     $ankiPath = "--anki-app `"C:\Users\hxse\AppData\Local\Programs\Anki\anki.exe`""
     $prompt = "--initial-prompt `"Please, listen to dialogue and question. the example question one: What is the color of this apple? Is it, a red, b green, c yellow? the example question two: What kind of transportation did he take?  Was it, a car, b bike, c bus? A final note, pay attention to the use of punctuation.`""
+    # $prompt = "--initial-prompt `"what the fuck is the apple? \\\```"or is the banana?\\\```" i don't know`""# python 需要用\"转义
     $def_args = "$dirPath 1 1 1  --skip 0 --check 0 $operate  $offset  $whisperName $import $release $ankiPath $prompt"
 
     _lw $args $def_args
