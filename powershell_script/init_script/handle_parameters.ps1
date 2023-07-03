@@ -38,16 +38,16 @@ function replaceEscapeChar($argsAll, $enable = $true) {
     # 用正则循环, 把字符串中被转义字符```"包裹内容替换成特殊id
     $charArr = @()
     if ($enable) {
-        $charArr = @(@('````', '````'), @('```"', '```"'), @('``', '``'), @('`"', '`"'), @('example', 'example'), @('apple', 'apple'))
+        $charArr = @( @('``', '``'), @('`"', '`"'))# @('````', '````'), @('```"', '```"'), @('example', 'example'), @('apple', 'apple')
     }
     $dataDict = @{}
     $n = 0
     foreach ($cArr in $charArr) {
         $origin, $target = $cArr
-        $reg = "^(.*)($origin)(.*)$"
+        $reg = "^(.*?)($origin)(.*)$" #不加?号,```" 会匹配到中间, 比如 `_" 而不是首部, 比如 _`"
         while (($argsAll -match $reg) -eq $true) {
             $k = "__esc$($n)__" #格式越随机越安全
-            $dataDict[$k] = $argsAll -replace $reg, $target
+            $dataDict[$k] = $argsAll -replace $reg, "$($target)"
             $argsAll = $argsAll -replace $reg, "$($matches.1)$($k)$($matches.3)"
             $n++
         }
@@ -58,7 +58,7 @@ function replaceQuota2Id ($argsAll) {
     # 参数是字符串, 函数返回[string,object<key,value>]
     # 用正则循环, 把字符串中被""包裹内容替换成特殊id
     $n = 0
-    $reg = '^(.*)(".*")(.*)$'
+    $reg = '^(.*?)(".*?")(.*)$' #如果不加第一个?, 那么就会匹配后面的"", 如果不加第二个?, 那么就会匹配最外围的""
     $dataDict = @{}
     while (($argsAll -match $reg) -eq $true) {
         $k = "__id$($n)__" #格式越随机越安全
@@ -71,7 +71,7 @@ function replaceQuota2Id ($argsAll) {
 
 function matchDictKey($dataDict, $a) {
     foreach ($k in $dataDict.Keys  ) {
-        $reg = "^(.*)($k)(.*)$"
+        $reg = "^(.*?)($k)(.*)$" #不加?号,```" 会匹配到中间, 比如 `_" 而不是首部, 比如 _`"
         if (($a -match $reg ) -eq $true) {
             $a = $a -replace $reg, "$($Matches.1)$($dataDict[$k])$($Matches.3)"
         }
@@ -236,7 +236,7 @@ function p_test {
     # 字符串的效果要跟参数数组对齐, 参数测试命令: p_test a b -p p --prompt "hello world, ```"how are you```", thank you" -kk -k "wdt"
     # 双引号目前只支持两层转义, 第一层转义是```", ```````"
     $prompt = "--initial-prompt `"Please, listen to dialogue and question. the example question one: What is the color of this apple? Is it, a red, b green, c yellow? the example question two: What kind of transportation did he take?  Was it, a car, b bike, c bus? A final note, pay attention to the use of punctuation.`""
-    $def_args = "`"hello  world`" a   b -p p -g `"as df`" --prompt `"hello world, ```"how are you```", thank you`"  --g gf haha -kk `"sdf klj`"  -k `"adsf ghjk l`" -g `"haha heihei`""
+    $def_args = "`"hello  world`" a   b -p p -g `"as df`" --prompt `"hello world, ```````"how are you```````", thank you`"  --g gf haha -kk `"sdf klj`"  -k `"adsf ghjk l`" -g `"haha heihei`""
 
 
     # 解析默认参数, 返回数组格式
