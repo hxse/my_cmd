@@ -28,7 +28,6 @@ $wirteJson = "--write-info-json"
 
 $fullSubtract = "$([System.Text.Encoding]::UTF8.GetString(([byte]226, 128, 147)))"#全角减号
 
-
 Function yva {
     $n = 2
     if ($Args.Count -lt $n) {

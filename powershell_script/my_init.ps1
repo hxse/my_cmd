@@ -23,4 +23,4 @@ $localDir = Get-Location
 . "$scriptDir\init_script\basic_command.ps1"
 . "$scriptDir\init_script\media_command.ps1"
 . "$scriptDir\init_script\app_command.ps1"
-
+. "$scriptDir\init_script\pyfire_command.ps1"
