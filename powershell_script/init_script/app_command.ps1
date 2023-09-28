@@ -89,9 +89,56 @@ Function crop_ffmpeg {
 }
 
 
-Function ftm {
+Function f2mp4 {
     #ffmpeg command ts -> mp4
     $file = $args[0]
     $outFile = $file + '.mp4'
     ffmpeg -i "$file" -acodec copy -vcodec copy "$outFile"
+}
+
+Function f2mp3 {
+    #ffmpeg command ts -> mp3
+    $file = $args[0]
+    $outFile = $file + '.mp3'
+    ffmpeg -i "$file" -acodec copy -vcodec copy "$outFile"
+}
+
+
+Function d2mp4 {
+    #ffmpeg command ts -> mp3 from dir
+    if (!$args[0]) {
+        Write-Host "args[0] is null"
+        return
+    }
+
+    $files = get-childitem $args[0] -Recurse
+    foreach ($f in $files) {
+        $outFile = $f.DirectoryName + "\" + $f.BaseName + ".mp4"
+        if (!$f.PSIsContainer) {
+            if (!(($f).Extension -eq ".mp4")) {
+                $name = ($f).FullName
+                ffmpeg -i "$name" "$outFile"
+            }
+        }
+    }
+}
+
+
+Function d2mp3 {
+    #ffmpeg command ts -> mp3 from dir
+    if (!$args[0]) {
+        Write-Host "args[0] is null"
+        return
+    }
+
+    $files = get-childitem $args[0] -Recurse
+    foreach ($f in $files) {
+        $outFile = $f.DirectoryName + "\" + $f.BaseName + ".mp3"
+        if (!$f.PSIsContainer) {
+            if (!(($f).Extension -eq ".mp3")) {
+                $name = ($f).FullName
+                ffmpeg -i "$name" "$outFile"
+            }
+        }
+    }
 }
