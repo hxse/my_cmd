@@ -115,7 +115,7 @@ Function d2mp4 {
     foreach ($f in $files) {
         $outFile = $f.DirectoryName + "\" + $f.BaseName + ".mp4"
         if (!$f.PSIsContainer) {
-            if (!(($f).Extension -eq ".mp4")) {
+            if (('.mkv', '.avi', '.rmvb', '.flv', '.mov').contains(($f).Extension)) {
                 $name = ($f).FullName
                 ffmpeg -i "$name" "$outFile"
             }
@@ -135,7 +135,7 @@ Function d2mp3 {
     foreach ($f in $files) {
         $outFile = $f.DirectoryName + "\" + $f.BaseName + ".mp3"
         if (!$f.PSIsContainer) {
-            if (!(($f).Extension -eq ".mp3")) {
+            if (('.mp4', '.mkv', '.avi', '.rmvb', '.flv', '.mov').contains(($f).Extension)) {
                 $name = ($f).FullName
                 ffmpeg -i "$name" "$outFile"
             }
