@@ -207,6 +207,14 @@ config_option = {
                             "mode": "kargs",
                             "default": True,
                         },
+                        {
+                            "value": "anki app path <str>",
+                            "input_key": "--anki-app",
+                            "input_value": r"C:\Users\hxse\AppData\Local\Programs\Anki\anki.exe",
+                            "input_value_prompt": "anki app path: ",
+                            "mode": "kargs",
+                            "default": True,
+                        },
                     ],
                     "help": [
                         {"value": "help example1"},
