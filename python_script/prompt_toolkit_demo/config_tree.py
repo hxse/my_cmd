@@ -215,6 +215,14 @@ config_option = {
                             "mode": "kargs",
                             "default": True,
                         },
+                        {
+                            "value": "enable zip <str>",
+                            "input_key": "--enable_zip",
+                            "input_value": "1",
+                            "input_value_prompt": "enable_zip",
+                            "mode": "kargs",
+                            "default": False,
+                        },
                     ],
                     "help": [
                         {"value": "help example1"},
