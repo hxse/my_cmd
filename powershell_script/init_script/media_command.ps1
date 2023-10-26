@@ -166,3 +166,46 @@ function lw_bs {
     _lw $args $def_args
 }
 
+
+function z_dh {
+    cd "D:\my_repo\parrot_fashion\crawler"
+    pdm run python loop_whisper.py loop "D:\my_repo\parrot_fashion\download\影视\绝望主妇" "0" "0" "0" --skip "0" --operate-mode "en_no_comma" --anki-app "C:\Users\hxse\AppData\Local\Programs\Anki\anki.exe" --enable_zip "1"
+}
+
+function m_dh {
+    cd "D:\my_repo\parrot_fashion\crawler"
+    pdm run python .\loop_whisper.py mzf 'D:\my_repo\parrot_fashion\download\影视\绝望主妇' "C:\Users\hxse\Downloads\srs file" -regex="^.*(S01).*zip$"  -stemStart 0 -stemEnd -1
+}
+
+
+function z_bbc {
+    cd "D:\my_repo\parrot_fashion\crawler"
+    pdm run python loop_whisper.py loop "D:\my_repo\parrot_fashion\download\BBC Learning English" "0" "0" "0" --skip "0" --operate-mode "en_no_comma" --anki-app "C:\Users\hxse\AppData\Local\Programs\Anki\anki.exe" --enable_zip "1"
+}
+
+function  m_bbc {
+    cd "D:\my_repo\parrot_fashion\crawler"
+    pdm run python .\loop_whisper.py mzf 'D:\my_repo\parrot_fashion\download\BBC Learning English' "C:\Users\hxse\Downloads\srs file" -regex="^.*2023(0[123456]).*zip$"  -stemStart 0 -stemEnd -1
+}
+
+
+function z_kur {
+    cd "D:\my_repo\parrot_fashion\crawler"
+    pdm run python loop_whisper.py loop "D:\my_repo\parrot_fashion\download\Kurzgesagt  In a Nutshell\Kurzgesagt  In a Nutshell - Videos UCsXVk37bltHxD1rDPwtNM8Q" "0" "0" "0" --skip "0" --operate-mode "en_no_comma" --anki-app "C:\Users\hxse\AppData\Local\Programs\Anki\anki.exe" --enable_zip "1"
+}
+
+function m_kur {
+    cd "D:\my_repo\parrot_fashion\crawler"
+    pdm run python .\loop_whisper.py mzf 'D:\my_repo\parrot_fashion\download\Kurzgesagt  In a Nutshell\Kurzgesagt  In a Nutshell - Videos UCsXVk37bltHxD1rDPwtNM8Q' "C:\Users\hxse\Downloads\srs file" -regex="^.*2022(0[123456789]|1[012]).*zip$"  -stemStart 0 -stemEnd -1
+}
+
+
+function z_bs {
+    cd "D:\my_repo\parrot_fashion\crawler"
+    pdm run python loop_whisper.py loop "D:\my_repo\parrot_fashion\download\Be Smart\Be Smart - Videos UCH4BNI0-FOK2dMXoFtViWHw" "0" "0" "0" --skip "0" --operate-mode "en_no_comma" --anki-app "C:\Users\hxse\AppData\Local\Programs\Anki\anki.exe" --enable_zip "1"
+}
+
+function m_bs {
+    cd "D:\my_repo\parrot_fashion\crawler"
+    pdm run python .\loop_whisper.py mzf 'D:\my_repo\parrot_fashion\download\Be Smart\Be Smart - Videos UCH4BNI0-FOK2dMXoFtViWHw' "C:\Users\hxse\Downloads\srs file" -regex="^.*2022(0[123456789]|1[012]).*zip$"  -stemStart 0 -stemEnd -1
+}
