@@ -60,16 +60,30 @@ def simple_fire(data, enable_help=True):
 
     if enable_help and ("h" in kargs.keys() or "help" in kargs.keys()):
         spec = inspect.getfullargspec(callback)
-        print(f"doc: {callback.__doc__}")
-        for i in spec.args[: len(spec.args) - len(spec.defaults)]:
+        print(f"show doc: {callback.__doc__}\n")
+
+        args_length = len(spec.args) if spec.args else 0
+        d_args_length = len(spec.defaults) if spec.defaults else 0
+        if len(spec.args) == 0:
+            return
+            # print("current function args is empty, check up function args.")
+            # callback = data[
+            #     "_".join(sys.argv[1].split("_")[0 : len(sys.argv[1].split("_")) - 1])
+            # ]
+            # spec = inspect.getfullargspec(callback)
+            # if len(spec.args) == 0:
+            #     return
+
+        for i in spec.args[: args_length - d_args_length]:
             print("args: ", i)
-        for k, v in enumerate(spec.args[len(spec.args) - len(spec.defaults) :]):
+        for k, v in enumerate(spec.args[args_length - d_args_length :]):
             print("kargs: ", v, spec.defaults[k])
         return
     try:
         callback(*args, **kargs)
     except TypeError as e:
-        raise RuntimeError(f"{e} \n {callback.__doc__}")
+        print(f"{e}")
+        print(f"show doc: {callback.__doc__}\n")
 
 
 if __name__ == "__main__":

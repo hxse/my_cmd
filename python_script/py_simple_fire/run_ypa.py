@@ -1,11 +1,6 @@
 from simple_fire import simple_fire
+from tool import r_add_quota
 import subprocess
-
-
-def r_add_quota(text):
-    if " " not in text:
-        return text
-    return f"{' '.join(text.split(' ')[:1])} \"{' '.join(text.split(' ')[1:])}\""
 
 
 def ytdl_playlist_audio(
@@ -50,5 +45,30 @@ def ytdl_playlist_audio_bbc(
     ytdl_playlist_audio(url, archive, *args, **kargs)
 
 
+def ytdl_playlist_audio_kur(
+    url="https://www.youtube.com/@kurzgesagt",
+    archive="Kurzgesagt – In a Nutshell/_videos.txt",
+    *args,
+    **kargs,
+):
+    ytdl_playlist_audio(url, archive, *args, **kargs)
+
+
+def ytdl_playlist_audio_bs(
+    url="https://www.youtube.com/@besmart",
+    archive="Be Smart/_videos.txt",
+    *args,
+    **kargs,
+):
+    ytdl_playlist_audio(url, archive, *args, **kargs)
+
+
 if __name__ == "__main__":
-    simple_fire({"ypa": ytdl_playlist_audio, "ypa_bbc": ytdl_playlist_audio_bbc})
+    simple_fire(
+        {
+            "ypa": ytdl_playlist_audio,
+            "ypa_bbc": ytdl_playlist_audio_bbc,
+            "ypa_kur": ytdl_playlist_audio_kur,
+            "ypa_bs": ytdl_playlist_audio_bs,
+        }
+    )
