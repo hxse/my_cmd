@@ -21,13 +21,20 @@ def loop_whisper(
     ankiPath=r"C:\Users\hxse\AppData\Local\Programs\Anki\anki.exe",
     prompt="Hello, welcome to my lecture. Separate sentences with punctuation symbols, use punctuation symbols to shorten sentences, mandatory use of punctuation symbols.",
     enable_zip=True,
+    lang="en",
 ):
+    """
+    enable1 run whisper
+    enable2 run translate
+    enable3 run create apkg
+    --lang {en,ja}
+    """
     dirPath = r_add_quota_warp(dirPath)
     ankiPath = r_add_quota_warp(ankiPath)
     prompt = r_add_quota_warp(prompt)
     command = f"pdm run python loop_whisper.py loop {dirPath} {enable1} {enable2} {enable3} --skip {skip} --check {check} "
     command += f"--operate-mode {operate} --start-offset {start_offset} --end-offset {end_offset} --over-start {over_start} --over-end {over_end} "
-    command += f"--whisper-name {whisperName} --import-anki {import_anki} --enable-release-apkg {import_anki} --anki-app {ankiPath} --initial-prompt {prompt} --enable_zip {enable_zip}"
+    command += f"--whisper-name {whisperName} --import-anki {import_anki} --enable-release-apkg {import_anki} --anki-app {ankiPath} --initial-prompt {prompt} --enable_zip {enable_zip} --lang {lang}"
     print(command)
     cwd = "D:\my_repo\parrot_fashion\crawler"
     subprocess.run(command, cwd=cwd)
