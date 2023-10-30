@@ -1,5 +1,11 @@
 ﻿
 
+function py_yva {
+    # 替换参数示例: py_ypa newUrl --proxy '--proxy \"new proxy\"'
+    cd "D:\my_repo\my_cmd\python_script"
+    pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_ypa.py" ypa $args --video "no-playlist"
+}
+
 function py_ypa {
     # 替换参数示例: py_ypa newUrl --proxy '--proxy \"new proxy\"'
     cd "D:\my_repo\my_cmd\python_script"

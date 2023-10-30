@@ -49,7 +49,6 @@ def simple_fire(data, enable_help=True):
         try:
             callback = data[sys.argv[1]]
             args, kargs = convert_args(sys.argv[2:])
-
         except IndexError:
             raise RuntimeError(f"检测到缺少key,{data.keys()}")
         except KeyError:

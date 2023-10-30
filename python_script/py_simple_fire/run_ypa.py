@@ -14,7 +14,7 @@ def ytdl_playlist_audio(
     cs="--convert-subs srt",
     embed="--no-embed-thumbnail --embed-metadata",  # ,"--embed-subs"#--embed-thumbnail嵌入封面会导致ffmpeg后续处理不了报错 Invalid data found when processing inpu
     cookie="",  # "--cookies-from-browser","chrome
-    video="--yes-playlist",
+    video="yes-playlist",
     outVideo='-o "%(uploader)s/_videos/%(upload_date)s %(id)s/%(upload_date)s %(title)s %(id)s.%(ext)s"',
     outPlaylist='-o "%(uploader)s/%(playlist)s %(playlist_id)s/%(upload_date)s %(id)s/%(upload_date)s %(title)s %(id)s.%(ext)s"',
     audio="--extract-audio --audio-format mp3",
@@ -23,6 +23,7 @@ def ytdl_playlist_audio(
     wirteJson="--write-info-json",
     cwd=r"D:/my_repo/parrot_fashion/download",
 ):
+    video = f"--{video}"
     archive = r_add_quota(f"--download-archive {archive}")
     # proxy = r_add_quota(proxy)
     ws = "--write-subs" if was else ""
