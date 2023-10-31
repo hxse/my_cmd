@@ -94,3 +94,11 @@ function py_mzf_dh {
     cd "D:\my_repo\my_cmd\python_script"
     pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_mzf.py" mzf_dh $args
 }
+
+
+
+function py_ff {
+    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+    cd "D:\my_repo\my_cmd\python_script"
+    pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_ffmpeg.py" $args
+}

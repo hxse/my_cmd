@@ -50,9 +50,11 @@ def simple_fire(data, enable_help=True):
             callback = data[sys.argv[1]]
             args, kargs = convert_args(sys.argv[2:])
         except IndexError:
-            raise RuntimeError(f"检测到缺少key,{data.keys()}")
+            print(f"error: not found key,{data.keys()}")
+            return
         except KeyError:
-            raise RuntimeError(f"检测到key不正确,{data.keys()}")
+            print(f"error: key is incorrect,{data.keys()}")
+            return
     else:
         callback = data
         args, kargs = convert_args(sys.argv[1:])
