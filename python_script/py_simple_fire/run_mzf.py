@@ -1,3 +1,8 @@
+import sys, os
+
+sys.path.append(
+    os.path.dirname(os.path.abspath(__file__)) + "/.."
+)  # import tool from parent dir
 from tool import r_add_quota_warp
 from simple_fire import simple_fire
 import subprocess
