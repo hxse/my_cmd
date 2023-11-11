@@ -70,6 +70,7 @@ def ytdl_playlist_audio_bs(
 
 
 if __name__ == "__main__":
+    # todo "ypa_bbc": [ytdl_playlist_audio, "bbc_url", "bbc_archive"]
     simple_fire(
         {
             "ypa": ytdl_playlist_audio,
