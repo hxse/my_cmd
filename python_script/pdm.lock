@@ -2,6 +2,15 @@
 # It is not intended for manual editing.
 
 [[package]]
+name = "arguably"
+version = "1.2.5"
+requires_python = ">=3.8,<4.0"
+summary = "The best Python CLI library, arguably."
+dependencies = [
+    "docstring-parser<0.16,>=0.15",
+]
+
+[[package]]
 name = "asttokens"
 version = "2.2.1"
 summary = "Annotate AST trees with source code positions"
@@ -14,6 +23,12 @@ name = "colorama"
 version = "0.4.6"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 summary = "Cross-platform colored terminal text."
+
+[[package]]
+name = "docstring-parser"
+version = "0.15"
+requires_python = ">=3.6,<4.0"
+summary = "Parse Python docstrings in reST, Google and Numpydoc format"
 
 [[package]]
 name = "executing"
@@ -149,9 +164,13 @@ summary = "Measures the displayed width of unicode strings in a terminal"
 lock_version = "4.2"
 cross_platform = true
 groups = ["default", "dev"]
-content_hash = "sha256:774833b42af93b37a08bacb157382302e085d3bed3af59ff68ed5d7a2b574c36"
+content_hash = "sha256:44546001f954c846887c6d7443eaebf7cc80a6cb1fd359a154c4107ec4699780"
 
 [metadata.files]
+"arguably 1.2.5" = [
+    {url = "https://pypi.tuna.tsinghua.edu.cn/packages/27/b4/f5277af855a1a06e2106fbc72bcd937e2856f159e7d4e12f7e2bff872862/arguably-1.2.5-py3-none-any.whl", hash = "sha256:ab6667a0c6762fd79e78fae38eafe61dcf2295ebccef24a350298cd1068b4994"},
+    {url = "https://pypi.tuna.tsinghua.edu.cn/packages/ff/87/a11fd8a613f4da31057a7408d4eb257e7bec87254a4ed46d2944ea36a6cf/arguably-1.2.5.tar.gz", hash = "sha256:d55963abbab823b8ad1da798216cd6a7106b3238178855d6ad495beed60ab423"},
+]
 "asttokens 2.2.1" = [
     {url = "https://pypi.tuna.tsinghua.edu.cn/packages/c8/e3/b0b4f32162621126fbdaba636c152c6b6baec486c99f48686e66343d638f/asttokens-2.2.1.tar.gz", hash = "sha256:4622110b2a6f30b77e1473affaa97e711bc2f07d3f10848420ff1898edbe94f3"},
     {url = "https://pypi.tuna.tsinghua.edu.cn/packages/f3/e1/64679d9d0759db5b182222c81ff322c2fe2c31e156a59afd6e9208c960e5/asttokens-2.2.1-py2.py3-none-any.whl", hash = "sha256:6b0ac9e93fb0335014d382b8fa9b3afa7df546984258005da0b9e7095b3deb1c"},
@@ -159,6 +178,10 @@ content_hash = "sha256:774833b42af93b37a08bacb157382302e085d3bed3af59ff68ed5d7a2
 "colorama 0.4.6" = [
     {url = "https://pypi.tuna.tsinghua.edu.cn/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {url = "https://pypi.tuna.tsinghua.edu.cn/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
+]
+"docstring-parser 0.15" = [
+    {url = "https://pypi.tuna.tsinghua.edu.cn/packages/89/e3/32e272db7adcf90e93f73e9a98fd763049ed7c641fb57ab26cb8f3e7e79c/docstring_parser-0.15-py3-none-any.whl", hash = "sha256:d1679b86250d269d06a99670924d6bce45adc00b08069dae8c47d98e89b667a9"},
+    {url = "https://pypi.tuna.tsinghua.edu.cn/packages/e8/2d/ea1dfc15b909cc660f657a3a9d698a2916b7f3b05535a2d72e8d7ea3ad5b/docstring_parser-0.15.tar.gz", hash = "sha256:48ddc093e8b1865899956fcc03b03e66bb7240c310fac5af81814580c55bf682"},
 ]
 "executing 1.2.0" = [
     {url = "https://pypi.tuna.tsinghua.edu.cn/packages/28/3c/bc3819dd8b1a1588c9215a87271b6178cc5498acaa83885211f5d4d9e693/executing-1.2.0-py2.py3-none-any.whl", hash = "sha256:0314a69e37426e3608aada02473b4161d4caf5a4b244d1d0c48072b8fee7bacc"},
