@@ -7,7 +7,7 @@ function g {
 Function js {
     $localDir = Get-Location;
     cd "D:\my_repo\94_crawler"
-    pdm run python ".\94.py" md --outPath "E:/91porn" $args
+    pdm run python ".\94.py" md --outPath "F:/91porn" $args
     cd $localDir
 }
 
