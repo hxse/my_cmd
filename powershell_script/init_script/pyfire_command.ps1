@@ -96,7 +96,6 @@ function py_mzf_dh {
 }
 
 
-
 function py_ff {
     # use ffmpeg for media file
     cd "D:\my_repo\my_cmd\python_script"
