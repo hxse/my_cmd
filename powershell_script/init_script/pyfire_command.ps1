@@ -98,7 +98,7 @@ function py_mzf_dh {
 
 
 function py_ff {
-    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+    # use ffmpeg for media file
     cd "D:\my_repo\my_cmd\python_script"
     pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_ffmpeg.py" $args
 }

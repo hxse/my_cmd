@@ -9,10 +9,10 @@ import subprocess
 from pathlib import Path
 
 
-def convertFile(filePath, suffix=".mp4"):
+def convertFile(filePath, suffix=".mp4", enableCopy=True):
     filePath = Path(filePath)
     outPath = filePath.parent / (filePath.stem + suffix)
-    command = f'ffmpeg -i "{filePath}" -acodec copy -vcodec copy "{outPath}"'
+    command = f'ffmpeg -i "{filePath}" {"-acodec copy -vcodec copy"if enableCopy else ""} "{outPath}"'
     print(command)
     subprocess.run(command, cwd=filePath.parent)
 
