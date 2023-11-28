@@ -9,6 +9,7 @@ Function e {
     # $clashPath = "D:\App\proxy\clash-premium\clash-windows-386.exe"
     $clashPathDir = "D:\App\proxy\clash-meta"
     $clashPath = "D:\App\proxy\clash-meta\clash.meta-windows-amd64-compatible.exe"
+
     $clashDir = "D:\my_repo\clash-rule-providers"
     $uiPath = "D:\App\proxy\yacd-gh-pages\yacd-gh-pages"
     # $uiPath = "D:\App\proxy\clash-dashboard\dist"
