@@ -40,6 +40,12 @@ function py_lw {
     pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw $args
 }
 
+function py_lw_ja {
+    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+    cd "D:\my_repo\my_cmd\python_script"
+    pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw --lang ja $args
+}
+
 
 function py_lw_bbc {
     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
