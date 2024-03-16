@@ -4,7 +4,7 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 Function e {
     $dirPath = "D:\Note\logseq_note"
-    $command = ". `".\auto sync logseq_note.bat`" 180"
+    $command = ". `".\auto sync logseq_note.bat`" 600"
 
     cd $dirPath
     Write-ColorOutput yellow ("---describeStart---, press ctrl-c break press e re-run")

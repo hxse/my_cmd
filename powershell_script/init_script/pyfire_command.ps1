@@ -71,6 +71,12 @@ function py_lw_dh {
     pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw_dh $args
 }
 
+function py_lw_vt {
+    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+    cd "D:\my_repo\my_cmd\python_script"
+    pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw_vt $args
+}
+
 function py_mzf {
     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
     cd "D:\my_repo\my_cmd\python_script"

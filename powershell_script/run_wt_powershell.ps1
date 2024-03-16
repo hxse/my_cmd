@@ -6,8 +6,8 @@ if ($code -eq 0) {
     return
 }
 
-powershell -Command "Start-Sleep -Seconds 0.6"
-wt -w 0 new-tab --title "sync_note" -p "powershell" powershell -NOLogo -NoExit -Command ". D:\my_repo\my_cmd\powershell_script\my_init.ps1\;. D:\my_repo\my_cmd\powershell_script\run_sync_note.ps1"
+# powershell -Command "Start-Sleep -Seconds 0.6"
+# wt -w 0 new-tab --title "sync_note" -p "powershell" powershell -NOLogo -NoExit -Command ". D:\my_repo\my_cmd\powershell_script\my_init.ps1\;. D:\my_repo\my_cmd\powershell_script\run_sync_note.ps1"
 
 powershell -Command "Start-Sleep -Seconds 0.6"
 wt -w 0 new-tab --title "subcovert" -p "powershell" powershell -NOLogo -NoExit -Command ". D:\my_repo\my_cmd\powershell_script\my_init.ps1\;. D:\my_repo\my_cmd\powershell_script\run_subcovert.ps1"

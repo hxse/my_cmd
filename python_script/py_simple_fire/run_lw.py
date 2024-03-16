@@ -77,6 +77,14 @@ def loop_whisper_dh(
     loop_whisper(dirPath, *args, **kargs)
 
 
+def loop_whisper_vt(
+    *args,
+    **kargs,
+):
+    dirPath = "D:\my_repo\parrot_fashion\download\Veritasium"
+    loop_whisper(dirPath, *args, **kargs)
+
+
 if __name__ == "__main__":
     simple_fire(
         {
@@ -85,5 +93,6 @@ if __name__ == "__main__":
             "py_lw_kur": loop_whisper_kur,
             "py_lw_bs": loop_whisper_bs,
             "py_lw_dh": loop_whisper_dh,
+            "py_lw_vt": loop_whisper_vt,
         }
     )
