@@ -36,11 +36,11 @@ wt -w 0 new-tab --title "alist" -p "powershell" powershell -NOLogo -NoExit -Comm
 powershell -Command "Start-Sleep -Seconds 0.6"
 wt -w 0 new-tab --title "active_windows_keyboard" -p "powershell" powershell -NOLogo -NoExit -Command ". D:\my_repo\my_cmd\powershell_script\my_init.ps1\;. D:\my_repo\my_cmd\powershell_script\active_windows_keyboard.ps1"
 
-powershell -Command "Start-Sleep -Seconds 0.6"
-wt -w 0 new-tab --title "run_clash_providers" -p "powershell" powershell -NOLogo -NoExit -Command ". D:\my_repo\my_cmd\powershell_script\my_init.ps1\;. D:\my_repo\my_cmd\powershell_script\run_clash_providers.ps1"
+# powershell -Command "Start-Sleep -Seconds 0.6"
+# wt -w 0 new-tab --title "run_clash_providers" -p "powershell" powershell -NOLogo -NoExit -Command ". D:\my_repo\my_cmd\powershell_script\my_init.ps1\;. D:\my_repo\my_cmd\powershell_script\run_clash_providers.ps1"
 
-powershell -Command "Start-Sleep -Seconds 0.6"
-wt -w 0 new-tab --title "run_clash" -p "powershell" powershell -NOLogo -NoExit -Command ". D:\my_repo\my_cmd\powershell_script\my_init.ps1\;. D:\my_repo\my_cmd\powershell_script\run_clash.ps1"
+# powershell -Command "Start-Sleep -Seconds 0.6"
+# wt -w 0 new-tab --title "run_clash" -p "powershell" powershell -NOLogo -NoExit -Command ". D:\my_repo\my_cmd\powershell_script\my_init.ps1\;. D:\my_repo\my_cmd\powershell_script\run_clash.ps1"
 
 $code = (Start-Process -FilePath "autohotkey.exe" -Args "D:\my_repo\my_cmd\ahk_script\check_exist.ahk `"^.*run_clash$`" `"^C:\\Users\\hxse\\scoop\\apps\\windows-terminal\\.*\\WindowsTerminal.exe$`" 180"  -PassThru -Wait  -WindowStyle Minimized).exitCode
 
