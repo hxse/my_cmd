@@ -1,8 +1,7 @@
 import sys, os
 
-sys.path.append(
-    os.path.dirname(os.path.abspath(__file__)) + "/.."
-)  # import tool from parent dir
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
+                "/..")  # import tool from parent dir
 from tool import r_add_quota
 from simple_fire import simple_fire
 import subprocess
@@ -20,8 +19,8 @@ def ytdl_playlist_audio(
     embed="--no-embed-thumbnail --embed-metadata",  # ,"--embed-subs"#--embed-thumbnail嵌入封面会导致ffmpeg后续处理不了报错 Invalid data found when processing inpu
     cookie="",  # "--cookies-from-browser","chrome
     video="yes-playlist",
-    outVideo='-o "%(uploader)s/_videos/%(upload_date)s %(id)s/%(upload_date)s %(title)s %(id)s.%(ext)s"',
-    outPlaylist='-o "%(uploader)s/%(playlist)s %(playlist_id)s/%(upload_date)s %(id)s/%(upload_date)s %(title)s %(id)s.%(ext)s"',
+    outVideo='-o "%(uploader)s/_videos/%(upload_date)s %(id)s/%(upload_date.0:4)s/%(upload_date)s %(title)s %(id)s.%(ext)s"',
+    outPlaylist='-o "%(uploader)s/%(playlist)s %(playlist_id)s/%(upload_date.0:4)s/%(upload_date)s %(id)s/%(upload_date)s %(title)s %(id)s.%(ext)s"',
     audio="--extract-audio --audio-format mp3",
     replaceMetadata="",  # "--replace-in-metadata", "title,playlist,playlist_id,uploader,upload_date,id,ext", "\-", "_" #替换全角减
     overWrite="--force-overwrites",
@@ -71,11 +70,9 @@ def ytdl_playlist_audio_bs(
 
 if __name__ == "__main__":
     # todo "ypa_bbc": [ytdl_playlist_audio, "bbc_url", "bbc_archive"]
-    simple_fire(
-        {
-            "ypa": ytdl_playlist_audio,
-            "ypa_bbc": ytdl_playlist_audio_bbc,
-            "ypa_kur": ytdl_playlist_audio_kur,
-            "ypa_bs": ytdl_playlist_audio_bs,
-        }
-    )
+    simple_fire({
+        "ypa": ytdl_playlist_audio,
+        "ypa_bbc": ytdl_playlist_audio_bbc,
+        "ypa_kur": ytdl_playlist_audio_kur,
+        "ypa_bs": ytdl_playlist_audio_bs,
+    })
