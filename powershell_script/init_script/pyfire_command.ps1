@@ -34,6 +34,12 @@ function py_ypa_bs {
 }
 
 
+function anki_loop {
+    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+    cd "D:\my_repo\parrot_fashion\recorder"
+    pdm run python loop.py loop $args
+}
+
 function py_lw {
     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
     cd "D:\my_repo\my_cmd\python_script"
