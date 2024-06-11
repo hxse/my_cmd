@@ -19,13 +19,15 @@ def ytdl_playlist_audio(
     embed="--no-embed-thumbnail --embed-metadata",  # ,"--embed-subs"#--embed-thumbnail嵌入封面会导致ffmpeg后续处理不了报错 Invalid data found when processing inpu
     cookie="",  # "--cookies-from-browser","chrome
     video="yes-playlist",
-    outVideo='-o "%(uploader)s/_videos/%(upload_date)s %(id)s/%(upload_date.0:4)s/%(upload_date)s %(title)s %(id)s.%(ext)s"',
-    outPlaylist='-o "%(uploader)s/%(playlist)s %(playlist_id)s/%(upload_date.0:4)s/%(upload_date)s %(id)s/%(upload_date)s %(title)s %(id)s.%(ext)s"',
+    outVideo='-o "%(uploader)s/_videos/%(upload_date)s %(id)s/%(upload_date.0:4)s/%(upload_date)s %(id)s.%(ext)s"',
+    outPlaylist='-o "%(uploader)s/%(playlist)s %(playlist_id)s/%(upload_date.0:4)s/%(upload_date)s %(id)s/%(upload_date)s %(id)s.%(ext)s"',
     audio="--extract-audio --audio-format mp3",
     replaceMetadata="",  # "--replace-in-metadata", "title,playlist,playlist_id,uploader,upload_date,id,ext", "\-", "_" #替换全角减
     overWrite="--force-overwrites",
     wirteJson="--write-info-json",
     cwd=r"D:/my_repo/parrot_fashion/download",
+    dateafter="",
+    max_downloads="",
 ):
     video = f"--{video}"
     archive = r_add_quota(f"--download-archive {archive}")
@@ -37,6 +39,7 @@ def ytdl_playlist_audio(
     command += f" {proxy} {cf} {ws} {was} {langs} {cs}"
     command += f" {embed} {cookie} {video} {outVideo} {audio}"
     command += f" {replaceMetadata} {overWrite} {wirteJson}"
+    command += f" {dateafter} {max_downloads}"
     print(command)
     subprocess.run(command, cwd=cwd)
 
@@ -68,6 +71,39 @@ def ytdl_playlist_audio_bs(
     ytdl_playlist_audio(url, archive, *args, **kargs)
 
 
+def ytdl_playlist_audio_wb(
+    url="https://www.youtube.com/@wisdombread",
+    archive="Wisdom Bread 智慧麵包/Wisdom Bread 智慧麵包.txt",
+    *args,
+    **kargs,
+):
+    ytdl_playlist_audio(url, archive, *args, **kargs)
+
+
+def ytdl_playlist_audio_vt(
+    url="https://www.youtube.com/@veritasium",
+    archive="Veritasium/Veritasium.txt",
+    *args,
+    **kargs,
+):
+    ytdl_playlist_audio(url, archive, *args, **kargs)
+
+
+def ytdl_playlist_audio_ted(
+    url="https://www.youtube.com/@TED",
+    archive="TED/TED.txt",
+    *args,
+    **kargs,
+):
+    ytdl_playlist_audio(
+        url,
+        archive,
+        # dateafter="--dateafter 20230101",
+        max_downloads="--max-downloads 1",
+        *args,
+        **kargs)
+
+
 if __name__ == "__main__":
     # todo "ypa_bbc": [ytdl_playlist_audio, "bbc_url", "bbc_archive"]
     simple_fire({
@@ -75,4 +111,7 @@ if __name__ == "__main__":
         "ypa_bbc": ytdl_playlist_audio_bbc,
         "ypa_kur": ytdl_playlist_audio_kur,
         "ypa_bs": ytdl_playlist_audio_bs,
+        "ypa_wb": ytdl_playlist_audio_wb,
+        "ypa_vt": ytdl_playlist_audio_vt,
+        "ypa_ted": ytdl_playlist_audio_ted,
     })

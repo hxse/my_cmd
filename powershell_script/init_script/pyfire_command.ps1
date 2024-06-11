@@ -34,6 +34,26 @@ function py_ypa_bs {
 }
 
 
+function py_ypa_wb {
+    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+    cd "D:\my_repo\my_cmd\python_script"
+    pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_ypa.py" ypa_wb $args
+}
+
+
+function py_ypa_vt {
+    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+    cd "D:\my_repo\my_cmd\python_script"
+    pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_ypa.py" ypa_vt $args
+}
+
+# function py_ypa_ted {
+#     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+      # 视频太多了,还是手动下吧
+#     cd "D:\my_repo\my_cmd\python_script"
+#     pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_ypa.py" ypa_ted $args
+# }
+
 function anki_loop {
     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
     cd "D:\my_repo\parrot_fashion\recorder"
