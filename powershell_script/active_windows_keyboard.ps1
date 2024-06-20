@@ -4,7 +4,7 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 Function e {
     $dirPath = "D:\my_repo\py-active-windows-keyboard"
-    $configPath = ".\config.json"
+    $configPath = ".\config\config.json"
     $command = "pdm run python `".\active_window.py`" --path `"$configPath`""
 
     cd $dirPath
