@@ -31,7 +31,7 @@ server: cheroot
 
 # Server hostname (default: localhost, use --host on command line)
 # host: 127.0.0.1
-host: 192.168.56.1
+host: 192.168.101.9
 
 # Server port (default: 8080, use --port on command line)
 port: 8085

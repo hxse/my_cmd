@@ -73,7 +73,7 @@ Function reduceVideoSize {
         #echo $f.BaseName
         #echo $f.Extension
         #echo $f.Name
-        break
+        #break
     }
 }
 
