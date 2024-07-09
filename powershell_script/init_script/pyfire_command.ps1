@@ -49,7 +49,7 @@ function py_ypa_vt {
 
 # function py_ypa_ted {
 #     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
-      # 视频太多了,还是手动下吧
+# 视频太多了,还是手动下吧
 #     cd "D:\my_repo\my_cmd\python_script"
 #     pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_ypa.py" ypa_ted $args
 # }
@@ -132,7 +132,6 @@ function py_mzf_dh {
     cd "D:\my_repo\my_cmd\python_script"
     pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_mzf.py" mzf_dh $args
 }
-
 
 function py_ff {
     # use ffmpeg for media file

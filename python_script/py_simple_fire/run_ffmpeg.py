@@ -17,11 +17,14 @@ def convertFile(filePath, suffix=".mp4", enableCopy=True):
     subprocess.run(command, cwd=filePath.parent)
 
 
-def convertDir(dirPath, suffix=".mp4"):
+def convertDir(dirPath, suffix=".mp4", enableCopy=True):
+    """
+    convert all file in dir
+    """
     dirPath = Path(dirPath)
     for i in dirPath.glob("**/*"):
         if i.suffix != suffix:
-            file2mp4(i, suffix=suffix)
+            convertFile(i, suffix=suffix, enableCopy=enableCopy)
 
 
 def reduceVideo(filePath, size=1.97):

@@ -40,6 +40,7 @@ Function tud { python "D:\my_repo\tg-upload\tg_upload.py" ud $args }
 # Function cwa { & $cwaDir\cwa.bat $args }
 # Function cwas { cat $cwaDir\config\config.json | jq '.origin' }
 
+# don't use this, use py_ff
 
 Function cut_mp4 {
     #ffmpeg command
@@ -98,9 +99,37 @@ Function f2mp4 {
 
 Function f2mp3 {
     #ffmpeg command ts -> mp3
-    $file = $args[0]
-    $outFile = $file + '.mp3'
-    ffmpeg -i "$file" -acodec copy -vcodec copy "$outFile"
+    # $file = $args[0]
+    # $outFile = $file + '.mp3'
+    # ffmpeg -i "$file" -acodec copy -vcodec copy "$outFile"
+    if ($args.Count -eq 1) {
+        Write-Host "1"
+        convert_file $args[0] ".mp3"
+    }
+    if ($args.Count -eq 2) {
+        Write-Host "2"
+        convert_file $args[0] $args[1]
+    }
+}
+
+
+Function convert_dir {
+    #ffmpeg command ts -> mp3 from dir
+    if (!$args[0]) {
+        Write-Host "args[0] is null"
+        return
+    }
+
+    $files = get-childitem $args[0] -Recurse
+    foreach ($f in $files) {
+        $outFile = $f.DirectoryName + "\" + $f.BaseName + ".mp4"
+        if (!$f.PSIsContainer) {
+            if (('.mkv', '.avi', '.rmvb', '.flv', '.mov').contains(($f).Extension)) {
+                $name = ($f).FullName
+                ffmpeg -i "$name" "$outFile"
+            }
+        }
+    }
 }
 
 
