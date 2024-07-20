@@ -35,8 +35,8 @@ def audioVolumeDir(dirPath, db="10dB", overFile=False, suffix=".mp3"):
             print(i.suffix)
             audioVolume(
                 i,
-                db="10dB",
-                overFile=False,
+                db=db,
+                overFile=overFile,
             )
 
 
