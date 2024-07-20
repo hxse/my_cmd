@@ -11,6 +11,7 @@ from pathlib import Path
 
 def audioVolume(filePath, db="10dB"):
     """
+    filePath: input file path
     db: 3dB, -3dB
     """
     filePath = Path(filePath)
