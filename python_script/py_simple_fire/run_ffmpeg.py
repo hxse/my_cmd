@@ -24,6 +24,22 @@ def audioVolume(filePath, db="10dB", overFile=False):
         Path(outPath).replace(filePath)
 
 
+def audioVolumeDir(dirPath, db="10dB", overFile=False, suffix=".mp3"):
+    """
+    dirPath: input dir path
+    db: 3dB, -3dB
+    overFile: bool
+    """
+    for i in Path(dirPath).glob("**/*"):
+        if i.suffix == suffix:
+            print(i.suffix)
+            audioVolume(
+                i,
+                db="10dB",
+                overFile=False,
+            )
+
+
 def convertFile(filePath, suffix=".mp4", enableCopy=True):
     filePath = Path(filePath)
     outPath = filePath.parent / (filePath.stem + suffix)
@@ -69,5 +85,6 @@ if __name__ == "__main__":
             "reduceVideo": reduceVideo,
             "reduceDir": reduceDir,
             "audioVolume": audioVolume,
+            "audioVolumeDir": audioVolumeDir,
         }
     )
