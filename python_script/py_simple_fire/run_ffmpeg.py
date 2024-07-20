@@ -9,16 +9,19 @@ import subprocess
 from pathlib import Path
 
 
-def audioVolume(filePath, db="10dB"):
+def audioVolume(filePath, db="10dB", overFile=False):
     """
     filePath: input file path
     db: 3dB, -3dB
+    overFile: bool
     """
     filePath = Path(filePath)
     outPath = filePath.parent / ("_" + filePath.name)
     command = f'ffmpeg -i "{filePath}"  -vcodec copy -af "volume={db}" "{outPath}"'
     print(command)
     subprocess.run(command, cwd=filePath.parent)
+    if overFile:
+        Path(outPath).replace(filePath)
 
 
 def convertFile(filePath, suffix=".mp4", enableCopy=True):
