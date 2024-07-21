@@ -40,22 +40,22 @@ def audioVolumeDir(dirPath, db="10dB", overFile=False, suffix=".mp3"):
             )
 
 
-def convertFile(filePath, suffix=".mp4", enableCopy=True):
+def convertFile(filePath, outSuffix=".mp3", enableCopy=True):
     filePath = Path(filePath)
-    outPath = filePath.parent / (filePath.stem + suffix)
-    command = f'ffmpeg -i "{filePath}" {"-vn" if suffix==".ogg" else ""} {"-acodec copy -vcodec copy" if enableCopy in [True, "1", 1] else ""} "{outPath}"'
+    outPath = filePath.parent / (filePath.stem + outSuffix)
+    command = f'ffmpeg -i "{filePath}" {"-vn" if outSuffix==".ogg" else ""} {"-acodec copy -vcodec copy" if enableCopy in [True, "1", 1] else ""} "{outPath}"'
     print(command)
     subprocess.run(command, cwd=filePath.parent)
 
 
-def convertDir(dirPath, suffix=".mp4", enableCopy=True):
+def convertDir(dirPath, inSuffix=".mp4", outSuffix=".mp3", enableCopy=True):
     """
     convert all file in dir
     """
     dirPath = Path(dirPath)
     for i in dirPath.glob("**/*"):
-        if i.suffix != suffix:
-            convertFile(i, suffix=suffix, enableCopy=enableCopy)
+        if i.suffix == inSuffix:
+            convertFile(i, outSuffix=outSuffix, enableCopy=enableCopy)
 
 
 def reduceVideo(filePath, size=1.97):
