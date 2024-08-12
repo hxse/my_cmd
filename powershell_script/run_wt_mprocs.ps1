@@ -1,4 +1,4 @@
-﻿wt -w 0 new-tab --title "cat" -p "powershell" powershell -NOLogo -NoExit -Command ". D:\my_repo\my_cmd\powershell_script\my_init.ps1\;& 'D:\my_repo\my_cmd\powershell_script\run_cat.ps1' 'D:\my_repo\my_cmd\powershell_script\run_wt_powershell.bat'"
+﻿wt -w 0 new-tab --title "cat" -p "powershell" powershell -NOLogo -NoExit -Command ". D:\my_repo\my_cmd\powershell_script\my_init.ps1\;& 'D:\my_repo\my_cmd\powershell_script\run_cat.ps1' 'D:\my_repo\my_cmd\mprocs\mprocs.yaml'"
 
 $code = (Start-Process -FilePath "autohotkey.exe" -Args "D:\my_repo\my_cmd\ahk_script\check_exist.ahk `"^cat$`" `"^C:\\Users\\hxse\\scoop\\apps\\windows-terminal\\.*\\WindowsTerminal.exe$`" 180"  -PassThru -Wait  -WindowStyle Minimized).exitCode
 
