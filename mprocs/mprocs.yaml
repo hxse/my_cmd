@@ -23,4 +23,7 @@ procs:
     shell:
       $select: os
       windows: 'wsgidav --config="D:/my_repo/my_cmd/mprocs/sample_wsgidav.yaml"'
-
+  player:
+    shell:
+      $select: os
+      windows: 'D: && cd D:/my_repo/webdav-player && yarn dev'
