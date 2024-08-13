@@ -4,8 +4,8 @@ chcp 65001
 function e {
     # 变量后缀是regex的参数需要\\转义, 因为格式是正则表达式
     $mode = "hidden"
-    $iconPath = "C:\Users\hxse\scoop\apps\windows-terminal\1.15.3465.0\WindowsTerminal.exe"
-    $pathRegex = "^C:\\Users\\hxse\\scoop\\apps\\windows-terminal\\.*\\WindowsTerminal.exe$"
+    $iconPath = "default"
+    $pathRegex = "^.*\\WindowsTerminal.exe$"
     $titleRegex = "^mprocs$", "^run_clash$", "^.*run_clash$", "^run_clash_providers$", "^active_windows_keyboard$", "^alist$", "^player$", "^webdav$", "^ftp$", "^subcovert$", "^SubConverter.*$", "^cat$", "^sync_note$"
 
     autohotkey /restart "D:\my_repo\my_cmd\ahk_script\run_minimize.ahk" $mode $iconPath $pathRegex $titleRegex

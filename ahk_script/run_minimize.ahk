@@ -13,6 +13,8 @@ path := A_Args[3] ;正则表达式 需要转义\
 title := A_Args[4] ;正则表达式 需要转义\
 ; MsgBox "变量列表" join([mode, iconPath, path, title])
 
+icon_flag := 0
+
 titleArr := Array()
 for k, v in A_Args
     if (k > 3) {
@@ -31,11 +33,6 @@ join(strArray)
 
 Persistent ; 阻止脚本自动退出.
 
-if not FileExist(iconPath) {
-    MsgBox "图标路径不存在,请输入绝对路径" iconPath
-    ExitApp
-}
-
 set_icon(path) {
     fileinfo := Buffer(fisize := A_PtrSize + 688) ; 为 SHFILEINFOW 结构体申请内存.
     if DllCall("shell32\SHGetFileInfoW", "WStr", path
@@ -46,7 +43,21 @@ set_icon(path) {
         ; 因为我们使用了 ":" 而不是 ":*", 在程序退出或菜单被删除时, 这些图标也会被自动释放.
     }
 }
-set_icon(iconPath)
+set_icon_automatic(p_path, i_path) {
+    global icon_flag
+    if (icon_flag == 0) {
+        if not FileExist(i_path) {
+            ; MsgBox "图标路径不存在,请输入绝对路径" i_path
+            ; ExitApp
+            set_icon(p_path)
+            icon_flag := 1
+        }
+        else {
+            set_icon(i_path)
+            icon_flag := 1
+        }
+    }
+}
 
 OnExit ExitFunc
 
@@ -75,19 +86,21 @@ loop_list(title, path, callback) {
             ; if this_title == title and this_pPath == path {
             callback(this_id, this_title, this_class, this_pPath, this_pName)
             ; }
+
+            set_icon_automatic(this_pPath, iconPath)
         }
     }
 }
 ActivateWindows() {
     Try {
         callback(this_id, this_title, this_class, this_pPath, this_pName) {
-            winShow this_id
-            Sleep 100
-            WinActivate this_id
-        }
-        for t in titleArr {
-            loop_list(t, path, callback)
-        }
+        winShow this_id
+        Sleep 100
+        WinActivate this_id
+    }
+    for t in titleArr {
+        loop_list(t, path, callback)
+    }
     }
     catch Error as err {
         ; ListVars
@@ -100,11 +113,11 @@ HiddenWindows() {
     Try
     {
         callback(this_id, this_title, this_class, this_pPath, this_pName) {
-            WinHide this_id
-        }
-        for t in titleArr {
-            loop_list(t, path, callback)
-        }
+        WinHide this_id
+    }
+    for t in titleArr {
+        loop_list(t, path, callback)
+    }
     }
     catch Error as err {
         ; ListVars

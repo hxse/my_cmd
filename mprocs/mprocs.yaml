@@ -14,11 +14,11 @@ procs:
   ftp1:
     shell:
       $select: os
-      windows: 'E: && "C:/Users/hxse/scoop/apps/python310/current/python.exe" -m pyftpdlib -p 21 --username=hxse --password=asdf'
+      windows: 'E: && "%userprofile%/scoop/apps/python310/current/python.exe" -m pyftpdlib -p 21 --username=hxse --password=asdf'
   ftp2:
     shell:
       $select: os
-      windows: 'F: && "C:/Users/hxse/scoop/apps/python310/current/python.exe" -m pyftpdlib -p 23 --username=hxse --password=asdf'
+      windows: 'F: && "%userprofile%/scoop/apps/python310/current/python.exe" -m pyftpdlib -p 23 --username=hxse --password=asdf'
   webdav:
     shell:
       $select: os

@@ -23,11 +23,12 @@ if WinWait(title, , waitTime) != 0 {
     this_pName := WinGetProcessName(this_id)
     this_pPath := WinGetProcessPath(this_id)
     if RegExMatch(this_pPath, path) > 0 {
-        ExitApp(1)
+        ExitApp 1
+
     }
 }
 MsgBox("`n" join(["未检测到窗口", title, path, waitTime]))
-ExitApp(0)
+ExitApp 0
 
 
 join(strArray)
