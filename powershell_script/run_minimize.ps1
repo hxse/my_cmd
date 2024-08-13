@@ -13,4 +13,3 @@ function e {
 Set-PSDebug -Trace 1
 e
 Set-PSDebug -Trace 0
-
