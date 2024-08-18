@@ -21,14 +21,6 @@ function dn {
 function en {
     sudo netsh interface set interface $config.dn.name enable
 }
-Function py310 { . "C:\Users\hxse\scoop\apps\python310\current\python.exe" $args }
-Function pip310 { . "C:\Users\hxse\scoop\apps\python310\current\python.exe" -m "pip" $args }
-Function py37 { . "C:\Users\hxse\scoop\apps\python37\current\python.exe" $args }
-Function pip37 { . "C:\Users\hxse\scoop\apps\python37\current\python.exe" -m "pip" $args }
-Function py27 { . "C:\Users\hxse\scoop\apps\python27\current\python.exe" $args }
-Function pip27 { . "C:\Users\hxse\scoop\apps\python27\current\python.exe" -m "pip" $args }
-
-
 
 
 Function nfp { netstat -aon | findstr $args[0] } #查找端口

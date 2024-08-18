@@ -11,7 +11,6 @@ Function e {
     Write-ColorOutput green ($command)
     Write-ColorOutput yellow ("---describeEnd---")
     iex $command
-
 }
 # Set-PSDebug -Trace 1
 e

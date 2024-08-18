@@ -85,6 +85,12 @@ def loop_whisper_vt(
     loop_whisper(dirPath, *args, **kargs)
 
 
+def tts(in_file):
+    dirPath = r"D:\my_repo\parrot_fashion\recorder"
+    command = f'pdm run ./tts_deck.py "{in_file}"'
+    subprocess.run(command, cwd=dirPath)
+
+
 if __name__ == "__main__":
     simple_fire(
         {
@@ -94,5 +100,6 @@ if __name__ == "__main__":
             "py_lw_bs": loop_whisper_bs,
             "py_lw_dh": loop_whisper_dh,
             "py_lw_vt": loop_whisper_vt,
+            "py_tts": tts,
         }
     )

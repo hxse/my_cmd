@@ -54,10 +54,16 @@ function py_ypa_vt {
 #     pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_ypa.py" ypa_ted $args
 # }
 
-function anki_loop {
+function loop_anki {
     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
     cd "D:\my_repo\parrot_fashion\recorder"
     pdm run python loop.py loop $args
+}
+
+function tts_anki {
+    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+    cd "D:\my_repo\parrot_fashion\recorder"
+    pdm run python tts_deck.py $args
 }
 
 function py_lw {

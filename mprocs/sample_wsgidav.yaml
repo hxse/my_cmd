@@ -125,8 +125,8 @@ mount_path: null
 #:     <share_path>: { 'class': <class_path>, args: [<arg>, ...], kwargs: {<arg>: <val>, ...} }
 
 provider_mapping:
-    '/e': 'E:'
-    '/f': 'F:'
+    '/e': 'E://'
+    '/f': 'F://'
     #     root: '/path/to/share2'
     #     readonly: true
     # '/share3':
@@ -229,7 +229,7 @@ cors:
     add_always:
       'X-Foo-Header': 'qux'
     #   'Access-Control-Allow-Origin': 'no-cors'
-    #   'Access-Control-Allow-Methods': '*'
+      'Access-Control-Allow-Methods': '*'
     #   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With'
 
 # ----------------------------------------------------------------------------
