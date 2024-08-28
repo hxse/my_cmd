@@ -1,3 +1,4 @@
+#Requires AutoHotkey >=2.0
 ; 这个脚本是推galgame用的没,直接双击运行
 MsgBox("按f自动滚动,再按f暂停滚动,e向上滚动,d向下滚动,z退出脚本")
 
