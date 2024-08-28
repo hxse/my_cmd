@@ -1,4 +1,5 @@
 import sys, os
+from pathlib import Path
 
 sys.path.append(
     os.path.dirname(os.path.abspath(__file__)) + "/.."
@@ -29,14 +30,14 @@ def ytdl_playlist_audio(
     cwd=r"D:/my_repo/parrot_fashion/download",
     dateafter="",
     max_downloads="",
+    exe=Path.home() / "scoop/apps/yt-dlp/current/yt-dlp.exe",
 ):
     video = f"--{video}"
     archive = r_add_quota(f"--download-archive {archive}")
     # proxy = r_add_quota(proxy)
     ws = "--write-subs" if was else ""
     outVideo = outPlaylist
-    exe = r'"D:/App/app/yt-dlp/yt-dlp.exe"'
-    command = f"{exe} {url} {archive}"
+    command = f'"{exe}" {url} {archive}'
     command += f" {proxy} {cf} {ws} {was} {langs} {cs}"
     command += f" {embed} {cookie} {video} {outVideo} {audio}"
     command += f" {replaceMetadata} {overWrite} {wirteJson}"
