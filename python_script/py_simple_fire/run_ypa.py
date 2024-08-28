@@ -1,7 +1,8 @@
 import sys, os
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
-                "/..")  # import tool from parent dir
+sys.path.append(
+    os.path.dirname(os.path.abspath(__file__)) + "/.."
+)  # import tool from parent dir
 from tool import r_add_quota
 from simple_fire import simple_fire
 import subprocess
@@ -42,6 +43,19 @@ def ytdl_playlist_audio(
     command += f" {dateafter} {max_downloads}"
     print(command)
     subprocess.run(command, cwd=cwd)
+
+
+def ytdl_playlist_audio_title(
+    url,
+    archive,
+    outVideo='-o "%(uploader)s/_videos/%(upload_date)s %(id)s/%(upload_date.0:4)s/%(upload_date)s %(title)s.%(ext)s"',
+    outPlaylist='-o "%(uploader)s/%(playlist)s %(playlist_id)s/%(upload_date.0:4)s/%(upload_date)s %(id)s/%(upload_date)s %(title)s.%(ext)s"',
+    *args,
+    **kargs,
+):
+    ytdl_playlist_audio(
+        url, archive, outVideo=outVideo, outPlaylist=outPlaylist, *args, **kargs
+    )
 
 
 def ytdl_playlist_audio_bbc(
@@ -101,17 +115,21 @@ def ytdl_playlist_audio_ted(
         # dateafter="--dateafter 20230101",
         max_downloads="--max-downloads 1",
         *args,
-        **kargs)
+        **kargs,
+    )
 
 
 if __name__ == "__main__":
     # todo "ypa_bbc": [ytdl_playlist_audio, "bbc_url", "bbc_archive"]
-    simple_fire({
-        "ypa": ytdl_playlist_audio,
-        "ypa_bbc": ytdl_playlist_audio_bbc,
-        "ypa_kur": ytdl_playlist_audio_kur,
-        "ypa_bs": ytdl_playlist_audio_bs,
-        "ypa_wb": ytdl_playlist_audio_wb,
-        "ypa_vt": ytdl_playlist_audio_vt,
-        "ypa_ted": ytdl_playlist_audio_ted,
-    })
+    simple_fire(
+        {
+            "ypa": ytdl_playlist_audio,
+            "ypa_title": ytdl_playlist_audio_title,
+            "ypa_bbc": ytdl_playlist_audio_bbc,
+            "ypa_kur": ytdl_playlist_audio_kur,
+            "ypa_bs": ytdl_playlist_audio_bs,
+            "ypa_wb": ytdl_playlist_audio_wb,
+            "ypa_vt": ytdl_playlist_audio_vt,
+            "ypa_ted": ytdl_playlist_audio_ted,
+        }
+    )
