@@ -31,7 +31,15 @@ def ytdl_playlist_audio(
     dateafter="",
     max_downloads="",
     exe=Path.home() / "scoop/apps/yt-dlp/current/yt-dlp.exe",
+    enable_gpu='--postprocessor-args "-c:v h265_nvenc"',
+    enable_subtitle=True,
 ):
+    if enable_subtitle in ["0", 0, None, "False", False]:
+        ws = ""
+        was = ""
+        langs = ""
+        cs = ""
+        embed = ""
     video = f"--{video}"
     archive = r_add_quota(f"--download-archive {archive}")
     # proxy = r_add_quota(proxy)
@@ -42,6 +50,7 @@ def ytdl_playlist_audio(
     command += f" {embed} {cookie} {video} {outVideo} {audio}"
     command += f" {replaceMetadata} {overWrite} {wirteJson}"
     command += f" {dateafter} {max_downloads}"
+    command += f" {enable_gpu}"
     print(command)
     subprocess.run(command, cwd=cwd)
 
