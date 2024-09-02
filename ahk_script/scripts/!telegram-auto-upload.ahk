@@ -1,4 +1,5 @@
 ﻿#Requires AutoHotkey >=2.0
+sleepTime:=250
 F3::
 {
 
@@ -12,78 +13,71 @@ F3::
         Return
     }
 
-    Sleep 3000
+    Sleep 2000
 
     Loop loopNum
     {
-        Send "{Ctrl down}"
-        Send "{c}"
-        Send "{Ctrl up}"
-        Sleep 200
+        Send "^{c}"
+        Sleep sleepTime
 
-        Send "{ALT down}"
-        Send "{TAB}"
-        Send "{ALT up}"
-        Sleep 200
+        Send "!{TAB}"
+        Sleep sleepTime
 
-        Send "{Ctrl down}"
-        Send "{v}"
-        Send "{Ctrl up}"
-        Sleep 200
+        Send "^{v}"
+        Sleep sleepTime
 
 
         If (skipCopyEnter = 0)
         {
             If (skipCopyName = 0)
             {
-                Send "{ALT down}"
-                Send "{TAB}"
-                Send "{ALT up}"
-                Sleep 200
+                Send "!{TAB}"
+                Sleep sleepTime
 
                 Send "{F2}"
-                Sleep 200
+                Sleep sleepTime
 
-
-                Send "{Ctrl down}"
                 If (skipCopyFullName = 0)
                 {
-                    Send "{a}"
-                    Sleep 200
+                    Send "^{a}"
+                    Sleep sleepTime
                 }
-                Send "{c}"
-                Send "{Ctrl up}"
-                Sleep 200
+                Send "^{c}"
+                Sleep sleepTime
             }
 
-            Send "{ALT down}"
-            Send "{TAB}"
-            Send "{ALT up}"
-            Sleep 200
+            Send "!{TAB}"
+            Sleep sleepTime
 
-            Send "{Ctrl down}"
-            Send "{v}"
-            Send "{Ctrl up}"
-            Sleep 200
+            Send "^{v}"
+            Sleep sleepTime
 
             Send "{Enter}"
-            Sleep 200
+            Sleep sleepTime
         }
 
-        Send "{ALT down}"
-        Send "{TAB}"
-        Send "{ALT up}"
-        Sleep 200
+        Send "!{TAB}"
+        Sleep sleepTime
 
         Send "{Down}"
-        Sleep 200
-
-
+        Sleep sleepTime
     }
-
 }
 
+F12::
+{
+    Loop
+    {
+		Click
+        Sleep sleepTime
 
-F4:: ExitApp
+        Send "^{Enter}"
+        Sleep sleepTime
+	}
+}
 
-F5::Pause
+F4:: Reload
+
+F5:: ExitApp
+
+F6::Pause
