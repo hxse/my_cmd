@@ -1,5 +1,5 @@
 ﻿#Requires AutoHotkey >=2.0
-sleepTime:=250
+sleepTime := 250
 F3::
 {
 
@@ -68,16 +68,16 @@ F12::
 {
     Loop
     {
-		Click
+        Click
         Sleep sleepTime
 
         Send "^{Enter}"
         Sleep sleepTime
-	}
+    }
 }
 
 F4:: Reload
 
 F5:: ExitApp
 
-F6::Pause
+F6:: Pause
