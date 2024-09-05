@@ -27,3 +27,8 @@ procs:
     shell:
       $select: os
       windows: 'D: && cd D:/my_repo/webdav-player && yarn dev'
+  frp:
+    shell:
+      $select: os
+      windows: 'D: && cd D:\App\proxy\frp\frp_0.60.0_windows_amd64 && .\frpc.exe -c frpc.toml'
+
