@@ -9,6 +9,15 @@ from simple_fire import simple_fire
 import subprocess
 
 
+def get_kargs(kargs):
+    command = ""
+    _k = [(k, v) for k, v in kargs.items()]
+    for k, v in _k:
+        k = f"-{k}" if len(k) == 1 else f"--{k}"
+        command += f" {k} {v}"
+    return command
+
+
 def ytdl_playlist_audio(
     url,
     archive,
@@ -33,6 +42,8 @@ def ytdl_playlist_audio(
     exe=Path.home() / "scoop/apps/yt-dlp/current/yt-dlp.exe",
     enable_gpu='--postprocessor-args "-c:v h265_nvenc"',
     enable_subtitle=True,
+    *args,
+    **kargs,
 ):
     if enable_subtitle in ["0", 0, None, "False", False]:
         ws = ""
@@ -51,6 +62,7 @@ def ytdl_playlist_audio(
     command += f" {replaceMetadata} {overWrite} {wirteJson}"
     command += f" {dateafter} {max_downloads}"
     command += f" {enable_gpu}"
+    command += get_kargs(kargs)
     print(command)
     subprocess.run(command, cwd=cwd)
 
