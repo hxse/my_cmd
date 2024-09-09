@@ -3,7 +3,7 @@ import sys, os
 sys.path.append(
     os.path.dirname(os.path.abspath(__file__)) + "/.."
 )  # import tool from parent dir
-from tool import r_add_quota
+from tool import convert2d, convert2dIndex
 from simple_fire import simple_fire
 import subprocess
 from pathlib import Path
@@ -77,6 +77,54 @@ def reduceDir(dirPath, suffix=".mp4"):
             reduceVideo(i)
 
 
+def concatAudio(
+    dirPath=r"C:\Users\qmlib\Downloads\诡秘之主_多人有声剧丨西方奇幻克苏鲁（乌贼原著）",
+    inputSuffix=".m4a",
+    outputSuffix=".mp3",
+    sort_mode="default",
+    step=10,
+    *args,
+    **kargs,
+):
+    arr = []
+    for i in Path(dirPath).glob(f"*{inputSuffix}"):
+        if i.parent.name == "_cache":
+            continue
+        if i.suffix == ".txt":
+            continue
+        if i.name.startswith("!"):
+            continue
+        arr.append(i)
+
+    if sort_mode == "default":
+        arr = sorted(arr, key=lambda x: int(x.name.split(".")[0]))
+
+    for [start, end] in convert2dIndex(len(arr), step):
+        inputPath = Path(dirPath) / "_cache" / f"input {start+1} {end}.txt"
+        _outPath = Path(dirPath) / "_cache" / f"output {start+1} {end}{inputSuffix}"
+        outPath = _outPath.parent / (_outPath.stem + outputSuffix)
+        outPath.parent.mkdir(parents=True, exist_ok=True)
+
+        # if outPath.is_file() and outPath.stat().st_size > 0:
+        # 不要用这个, 因为有时候转换到一半也跳过了
+        #     print(f"skip {outPath}")
+        #     continue
+
+        with open(inputPath, "w", encoding="utf8") as f:
+            f.writelines([f"file '../{i.name}'\n" for i in arr[start:end]])
+
+        command = f'ffmpeg -f concat -safe 0 -i "{inputPath}" -c copy "{_outPath}"'
+        print(command)
+        subprocess.run(command, cwd=dirPath)
+
+        if inputSuffix != outputSuffix:
+            command = f'ffmpeg -i "{_outPath}" "{outPath}"'
+            print(command)
+            subprocess.run(command, cwd=dirPath)
+        if outPath.is_file():
+            _outPath.unlink(missing_ok=True)
+
+
 if __name__ == "__main__":
     simple_fire(
         {
@@ -86,5 +134,8 @@ if __name__ == "__main__":
             "reduceDir": reduceDir,
             "audioVolume": audioVolume,
             "audioVolumeDir": audioVolumeDir,
+            "concatAudio": concatAudio,
+            "convert2d": convert2d,
+            "convert2dIndex": convert2dIndex,
         }
     )
