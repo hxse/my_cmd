@@ -78,7 +78,7 @@ def reduceDir(dirPath, suffix=".mp4"):
 
 
 def concatAudio(
-    dirPath=r"C:\Users\qmlib\Downloads\诡秘之主_多人有声剧丨西方奇幻克苏鲁（乌贼原著）",
+    dirPath,
     inputSuffix=".m4a",
     outputSuffix=".mp3",
     sort_mode="default",
