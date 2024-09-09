@@ -1,6 +1,10 @@
 from simple_fire import simple_fire
 
 
+def z_fill(x, n):
+    return str(x).zfill(n)
+
+
 def convert2dIndex(
     number=3,
     step=1,

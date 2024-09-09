@@ -3,7 +3,7 @@ import sys, os
 sys.path.append(
     os.path.dirname(os.path.abspath(__file__)) + "/.."
 )  # import tool from parent dir
-from tool import convert2d, convert2dIndex
+from tool import convert2d, convert2dIndex, z_fill
 from simple_fire import simple_fire
 import subprocess
 from pathlib import Path
@@ -100,8 +100,17 @@ def concatAudio(
         arr = sorted(arr, key=lambda x: int(x.name.split(".")[0]))
 
     for [start, end] in convert2dIndex(len(arr), step):
-        inputPath = Path(dirPath) / "_cache" / f"input {start+1} {end}.txt"
-        _outPath = Path(dirPath) / "_cache" / f"output {start+1} {end}{inputSuffix}"
+        n = len(f"{len(arr)}")
+        inputPath = (
+            Path(dirPath)
+            / "_cache"
+            / f"input {  z_fill(start+1,n)} {z_fill(end,n)}.txt"
+        )
+        _outPath = (
+            Path(dirPath)
+            / "_cache"
+            / f"output {z_fill(start+1,n)} {z_fill(end,n)}{inputSuffix}"
+        )
         outPath = _outPath.parent / (_outPath.stem + outputSuffix)
         outPath.parent.mkdir(parents=True, exist_ok=True)
 
