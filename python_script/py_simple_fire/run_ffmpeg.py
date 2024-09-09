@@ -102,16 +102,15 @@ def concatAudio(
     for [start, end] in convert2dIndex(len(arr), step):
         n = len(f"{len(arr)}")
         inputPath = (
-            Path(dirPath)
-            / "_cache"
-            / f"input {  z_fill(start+1,n)} {z_fill(end,n)}.txt"
+            Path(dirPath) / "_log" / f"input {  z_fill(start+1,n)} {z_fill(end,n)}.txt"
         )
         _outPath = (
             Path(dirPath)
-            / "_cache"
+            / "_output"
             / f"output {z_fill(start+1,n)} {z_fill(end,n)}{inputSuffix}"
         )
         outPath = _outPath.parent / (_outPath.stem + outputSuffix)
+        inputPath.parent.mkdir(parents=True, exist_ok=True)
         outPath.parent.mkdir(parents=True, exist_ok=True)
 
         if outPath.is_file() and outPath.stat().st_size > 0 and not _outPath.is_file():
