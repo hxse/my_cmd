@@ -105,10 +105,9 @@ def concatAudio(
         outPath = _outPath.parent / (_outPath.stem + outputSuffix)
         outPath.parent.mkdir(parents=True, exist_ok=True)
 
-        # if outPath.is_file() and outPath.stat().st_size > 0:
-        # 不要用这个, 因为有时候转换到一半也跳过了
-        #     print(f"skip {outPath}")
-        #     continue
+        if outPath.is_file() and outPath.stat().st_size > 0 and not _outPath.is_file():
+            print(f"skip {outPath}")
+            continue
 
         with open(inputPath, "w", encoding="utf8") as f:
             f.writelines([f"file '../{i.name}'\n" for i in arr[start:end]])
