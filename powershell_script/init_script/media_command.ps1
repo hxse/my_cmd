@@ -209,3 +209,14 @@ function m_bs {
     cd "D:\my_repo\parrot_fashion\crawler"
     pdm run python .\loop_whisper.py mzf 'D:\my_repo\parrot_fashion\download\Be Smart\Be Smart - Videos UCH4BNI0-FOK2dMXoFtViWHw' "$env:USERPROFILE\Downloads\srs file" -regex="^.*2022(0[123456789]|1[012]).*zip$"  -stemStart 0 -stemEnd -1
 }
+
+function xmly {
+    $loopTime = 60 * 60 * 24
+    $sleepTime = 60 * 20
+    cd "D:\App\download\ximalaya_downloader"
+    for ($i = 0; $i -lt $loopTime; $i++) {
+        node xmd.js -a $args
+        echo Get-Date "sleep $sleepTime"
+        Start-Sleep $sleepTime
+    }
+}
