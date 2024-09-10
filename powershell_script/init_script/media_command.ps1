@@ -211,12 +211,12 @@ function m_bs {
 }
 
 function xmly {
-    echo "下载完成后用这个命令合并: py_ff concatAudio"
     $loopTime = 60 * 60 * 24
     $sleepTime = 60 * 20
     cd "D:\App\download\ximalaya_downloader"
     for ($i = 0; $i -lt $loopTime; $i++) {
         node xmd.js -a $args
+        echo "下载完成后用这个命令合并: py_ff concatAudio"
         echo Get-Date "sleep $sleepTime"
         Start-Sleep $sleepTime
     }
