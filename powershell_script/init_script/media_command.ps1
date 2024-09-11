@@ -221,3 +221,11 @@ function xmly {
         Start-Sleep $sleepTime
     }
 }
+
+function missav {
+    miyuki -ffmpeg -urls $args
+}
+
+function missav_plist {
+    miyuki -ffmpeg -plist $args
+}
