@@ -223,9 +223,11 @@ function xmly {
 }
 
 function missav {
+    cd "C:\Users\qmlib\Downloads"
     miyuki -ffmpeg -urls $args
 }
 
 function missav_plist {
+    cd "C:\Users\qmlib\Downloads"
     miyuki -ffmpeg -plist $args
 }
