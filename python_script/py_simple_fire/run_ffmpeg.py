@@ -132,6 +132,17 @@ def concatAudio(
             _outPath.unlink(missing_ok=True)
 
 
+def splitVideo(
+    inputPath,
+    segment="00:40:00",
+    *args,
+    **kargs,
+):
+    command = f"ffmpeg -i {inputPath} -c copy -map 0 -segment_time {segment} -f segment  -reset_timestamps 1 -segment_start_number 1 {inputPath}_%02d.mp4"
+    print(command)
+    subprocess.run(command)
+
+
 if __name__ == "__main__":
     simple_fire(
         {
@@ -142,6 +153,7 @@ if __name__ == "__main__":
             "audioVolume": audioVolume,
             "audioVolumeDir": audioVolumeDir,
             "concatAudio": concatAudio,
+            "splitVideo": splitVideo,
             "convert2d": convert2d,
             "convert2dIndex": convert2dIndex,
         }
