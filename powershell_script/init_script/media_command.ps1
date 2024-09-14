@@ -217,7 +217,7 @@ function xmly {
     for ($i = 0; $i -lt $loopTime; $i++) {
         node xmd.js -a $args
         echo "下载完成后用这个命令合并: py_ff concatAudio"
-        echo "用这个命令转换格式: py_ff convertDir --inSuffix ".mp4" --outSuffix ".m4a" "dirPath"
+        echo '用这个命令转换格式: py_ff convertDir --inSuffix ".mp4" --outSuffix ".m4a" "dirPath"'
         echo Get-Date "sleep $sleepTime"
         Start-Sleep $sleepTime
     }
