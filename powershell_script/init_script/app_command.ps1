@@ -1,9 +1,9 @@
-﻿
-function g {
+﻿function g {
     # python terminal gui
     cd D:\my_repo\my_cmd\python_script;
     pdm run python .\prompt_toolkit_demo\mian.py $args
 }
+
 Function js {
     $localDir = Get-Location;
     cd "D:\my_repo\94_crawler"
@@ -15,7 +15,7 @@ Function jable {
     $localDir = Get-Location;
     cd "D:\my_repo\JableTVDownload"
     pdm run python "D:\my_repo\JableTVDownload\main.py" --outPath "E:\jable download" --tempDir "$env:USERPROFILE\Downloads\jable temp" $args;
-    pdm run python .\get_info.py ld;
+    pdm run python .\get_info.py ld $args;
     cd $localDir
 }
 
