@@ -214,13 +214,20 @@ function xmly {
     $loopTime = 60 * 60 * 24
     $sleepTime = 60 * 40
     cd "D:\App\download\ximalaya_downloader"
-    for ($i = 0; $i -lt $loopTime; $i++) {
-        node xmd.js -a $args
-        echo "下载完成后用这个命令合并: py_ff concatAudio"
-        echo '用这个命令转换格式: py_ff convertDir --inSuffix ".mp4" --outSuffix ".m4a" "dirPath"'
-        echo Get-Date "sleep $sleepTime"
-        Start-Sleep $sleepTime
+
+    if ($args -like "-*" ) {
+        node xmd.js $args
     }
+    else {
+        for ($i = 0; $i -lt $loopTime; $i++) {
+            node xmd.js -a $args
+            echo "下载完成后用这个命令合并: py_ff concatAudio"
+            echo '用这个命令转换格式: py_ff convertDir --inSuffix ".mp4" --outSuffix ".m4a" "dirPath"'
+            echo Get-Date "sleep $sleepTime"
+            Start-Sleep $sleepTime
+        }
+    }
+
 }
 
 function missav {
