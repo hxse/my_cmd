@@ -79,6 +79,7 @@ def reduceDir(dirPath, suffix=".mp4"):
 
 def concatAudio(
     dirPath,
+    name="output",
     inputSuffix=".m4a",
     outputSuffix=".mp3",
     sort_mode="default",
@@ -89,6 +90,8 @@ def concatAudio(
     arr = []
     for i in Path(dirPath).glob(f"*{inputSuffix}"):
         if i.parent.name == "_cache":
+            continue
+        if i.parent.name == "_output":
             continue
         if i.suffix == ".txt":
             continue
@@ -104,32 +107,44 @@ def concatAudio(
         inputPath = (
             Path(dirPath) / "_log" / f"input {  z_fill(start+1,n)} {z_fill(end,n)}.txt"
         )
-        _outPath = (
+        outPath = (
             Path(dirPath)
             / "_output"
-            / f"output {z_fill(start+1,n)} {z_fill(end,n)}{inputSuffix}"
+            / f"{name} {z_fill(start+1,n)} {z_fill(end,n)}{outputSuffix}"
         )
-        outPath = _outPath.parent / (_outPath.stem + outputSuffix)
+        cachePath = Path(dirPath) / "_cache"
         inputPath.parent.mkdir(parents=True, exist_ok=True)
         outPath.parent.mkdir(parents=True, exist_ok=True)
+        cachePath.mkdir(parents=True, exist_ok=True)
 
-        if outPath.is_file() and outPath.stat().st_size > 0 and not _outPath.is_file():
+        if outPath.is_file() and outPath.stat().st_size > 0:
             print(f"skip {outPath}")
             continue
 
-        with open(inputPath, "w", encoding="utf8") as f:
-            f.writelines([f"file '../{i.name}'\n" for i in arr[start:end]])
+        def getCacheFilePath(i):
+            return cachePath / (f"{i.stem}{outputSuffix}")
 
-        command = f'ffmpeg -f concat -safe 0 -i "{inputPath}" -c copy "{_outPath}"'
+        with open(inputPath, "w", encoding="utf8") as f:
+            for i in range(start, end):
+                cacheNamePath = getCacheFilePath(arr[i])
+                f.write(f"file '../_cache/{cacheNamePath.name}'\n")
+
+        for i in range(start, end):
+            cacheInPath = Path(dirPath) / arr[i].name
+            cacheNamePath = getCacheFilePath(arr[i])
+
+            command = f'ffmpeg -i "{cacheInPath}" "{cacheNamePath}"'
+            print(command)
+            subprocess.run(command, cwd=dirPath)
+
+        command = f'ffmpeg -f concat -safe 0 -i "{inputPath}" -c:a copy "{outPath}"'
         print(command)
         subprocess.run(command, cwd=dirPath)
 
-        if inputSuffix != outputSuffix:
-            command = f'ffmpeg -i "{_outPath}" "{outPath}"'
-            print(command)
-            subprocess.run(command, cwd=dirPath)
         if outPath.is_file():
-            _outPath.unlink(missing_ok=True)
+            for i in range(start, end):
+                cacheNamePath = getCacheFilePath(arr[i])
+                cacheNamePath.unlink(missing_ok=True)
 
 
 def splitVideo(
