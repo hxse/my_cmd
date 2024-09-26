@@ -84,6 +84,7 @@ def concatAudio(
     outputSuffix=".mp3",
     sort_mode="default",
     step=10,
+    clearCache=True,
     *args,
     **kargs,
 ):
@@ -141,7 +142,7 @@ def concatAudio(
         print(command)
         subprocess.run(command, cwd=dirPath)
 
-        if outPath.is_file():
+        if outPath.is_file() and clearCache:
             for i in range(start, end):
                 cacheNamePath = getCacheFilePath(arr[i])
                 cacheNamePath.unlink(missing_ok=True)
