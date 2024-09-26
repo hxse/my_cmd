@@ -9,6 +9,10 @@ import subprocess
 from pathlib import Path
 
 
+def check_arg(i):
+    return i not in [False, "False", 0, "0", None, "None", ""]
+
+
 def audioVolume(filePath, db="10dB", overFile=False):
     """
     filePath: input file path
@@ -84,6 +88,7 @@ def concatAudio(
     outputSuffix=".mp3",
     sort_mode="default",
     step=10,
+    enableCopy=True,
     clearCache=True,
     *args,
     **kargs,
@@ -138,11 +143,11 @@ def concatAudio(
             print(command)
             subprocess.run(command, cwd=dirPath)
 
-        command = f'ffmpeg -f concat -safe 0 -i "{inputPath}" -c:a copy "{outPath}"'
+        command = f'ffmpeg -f concat -safe 0 -i "{inputPath}" {"-c:a copy" if check_arg(enableCopy) else ""} "{outPath}"'
         print(command)
         subprocess.run(command, cwd=dirPath)
 
-        if outPath.is_file() and clearCache:
+        if outPath.is_file() and check_arg(clearCache):
             for i in range(start, end):
                 cacheNamePath = getCacheFilePath(arr[i])
                 cacheNamePath.unlink(missing_ok=True)
