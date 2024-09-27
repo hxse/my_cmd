@@ -84,7 +84,7 @@ def reduceDir(dirPath, suffix=".mp4"):
 def concatAudio(
     dirPath,
     name="output",
-    inputSuffix=".m4a",
+    inputSuffix="[.m4a,.mp4]",
     outputSuffix=".aac",
     sort_mode="default",
     step=10,
