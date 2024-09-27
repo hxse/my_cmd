@@ -85,10 +85,11 @@ def concatAudio(
     dirPath,
     name="output",
     inputSuffix=".m4a",
-    outputSuffix=".mp3",
+    outputSuffix=".aac",
     sort_mode="default",
     step=10,
-    enableCopy=True,
+    enableCopy1=True,
+    enableCopy2=False,
     clearCache=True,
     *args,
     **kargs,
@@ -139,11 +140,11 @@ def concatAudio(
             cacheInPath = Path(dirPath) / arr[i].name
             cacheNamePath = getCacheFilePath(arr[i])
 
-            command = f'ffmpeg -i "{cacheInPath}" "{cacheNamePath}"'
+            command = f'ffmpeg -i "{cacheInPath}" {"-c:a copy" if check_arg(enableCopy1) else ""} "{cacheNamePath}"'
             print(command)
             subprocess.run(command, cwd=dirPath)
 
-        command = f'ffmpeg -f concat -safe 0 -i "{inputPath}" {"-c:a copy" if check_arg(enableCopy) else ""} "{outPath}"'
+        command = f'ffmpeg -f concat -safe 0 -i "{inputPath}" {"-c:a copy" if check_arg(enableCopy2) else ""} "{outPath}"'
         print(command)
         subprocess.run(command, cwd=dirPath)
 
