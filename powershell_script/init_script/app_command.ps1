@@ -14,8 +14,8 @@ Function js {
 Function jable {
     $localDir = Get-Location;
     cd "D:\my_repo\JableTVDownload"
-    pdm run python "D:\my_repo\JableTVDownload\main.py" --outPath "E:\jable download" --tempDir "$env:USERPROFILE\Downloads\jable temp" $args;
-    pdm run python .\get_info.py ld $args;
+    uv run python "D:\my_repo\JableTVDownload\main.py" --outPath "E:\jable download" --tempDir "$env:USERPROFILE\Downloads\jable temp" $args;
+    uv run python .\get_info.py ld $args;
     cd $localDir
 }
 
