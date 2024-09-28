@@ -32,4 +32,11 @@ procs:
       $select: os
       windows: 'D: && cd D:\App\proxy\frp\frp_0.60.0_windows_amd64 && .\frpc.exe -c frpc.toml'
     autostart: false
-
+  dufs-e:
+    shell:
+      $select: os
+      windows: 'dufs -p 5640 -a hxse:asdf@/:rw E:/'
+  dufs-f:
+    shell:
+      $select: os
+      windows: 'dufs -p 5641 -a hxse:asdf@/:rw F:/'
