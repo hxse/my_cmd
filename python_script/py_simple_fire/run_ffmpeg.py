@@ -9,6 +9,13 @@ import subprocess
 from pathlib import Path
 
 
+def indexOf(value, array):
+    try:
+        return array.index(value)
+    except ValueError:
+        return -1
+
+
 def check_arg(i):
     return i not in [False, "False", 0, "0", None, "None", ""]
 
@@ -81,6 +88,29 @@ def reduceDir(dirPath, suffix=".mp4"):
             reduceVideo(i)
 
 
+def clear_duplication(arr):
+    """
+    清理文件名相同但扩展名不同的重复文件,比如test.mp4 test.m4a, 会比较大小, 然后留下最大的文件
+    """
+    history_stem = []
+    history_path = []
+    for i in arr:
+        num = indexOf(i.stem, history_stem)
+        if num == -1:
+            history_stem.append(i.stem)
+            history_path.append([i])
+        else:
+            history_path[num].append(i)
+
+    for _arr in history_path:
+        if len(_arr) > 1:
+            _arr = [[i, i.stat().st_size] for i in _arr]
+            _p = max(_arr, key=lambda x: x[1])
+            _res = [i for i in _arr if _p[0] != i[0]]
+            for _path, _size in _res:
+                _path.unlink(missing_ok=True)
+
+
 def concatAudio(
     dirPath,
     name="output",
@@ -92,6 +122,7 @@ def concatAudio(
     enableCacheCopy=True,
     enableOutputCopy=False,
     clearCache=True,
+    clearMode=False,
     *args,
     **kargs,
 ):
@@ -109,6 +140,10 @@ def concatAudio(
 
     if sort_mode == "default":
         arr = sorted(arr, key=lambda x: int(x.name.split(".")[0]))
+
+    if check_arg(clearMode):
+        clear_duplication(arr)
+        return
 
     for [start, end] in convert2dIndex(len(arr), step):
         n = len(f"{len(arr)}")
