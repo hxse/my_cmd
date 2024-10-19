@@ -69,57 +69,57 @@ function py_ypa_vt {
 function loop_anki {
     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
     cd "D:\my_repo\parrot_fashion\recorder"
-    pdm run python loop.py loop $args
+    uv run python loop.py loop $args
 }
 
 function tts_anki {
     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
     cd "D:\my_repo\parrot_fashion\recorder"
-    pdm run python tts_deck.py $args
+    uv run python tts_deck.py $args
 }
 
-function py_lw {
-    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
-    cd "D:\my_repo\my_cmd\python_script"
-    pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw $args
-}
+# function py_lw {
+#     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+#     cd "D:\my_repo\my_cmd\python_script"
+#     pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw $args
+# }
 
-function py_lw_ja {
-    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
-    cd "D:\my_repo\my_cmd\python_script"
-    pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw --lang ja $args
-}
+# function py_lw_ja {
+#     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+#     cd "D:\my_repo\my_cmd\python_script"
+#     pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw --lang ja $args
+# }
 
 
-function py_lw_bbc {
-    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
-    cd "D:\my_repo\my_cmd\python_script"
-    pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw_bbc $args
-}
+# function py_lw_bbc {
+#     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+#     cd "D:\my_repo\my_cmd\python_script"
+#     pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw_bbc $args
+# }
 
-function py_lw_kur {
-    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
-    cd "D:\my_repo\my_cmd\python_script"
-    pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw_kur $args
-}
+# function py_lw_kur {
+#     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+#     cd "D:\my_repo\my_cmd\python_script"
+#     pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw_kur $args
+# }
 
-function py_lw_bs {
-    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
-    cd "D:\my_repo\my_cmd\python_script"
-    pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw_bs $args
-}
+# function py_lw_bs {
+#     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+#     cd "D:\my_repo\my_cmd\python_script"
+#     pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw_bs $args
+# }
 
-function py_lw_dh {
-    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
-    cd "D:\my_repo\my_cmd\python_script"
-    pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw_dh $args
-}
+# function py_lw_dh {
+#     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+#     cd "D:\my_repo\my_cmd\python_script"
+#     pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw_dh $args
+# }
 
-function py_lw_vt {
-    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
-    cd "D:\my_repo\my_cmd\python_script"
-    pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw_vt $args
-}
+# function py_lw_vt {
+#     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+#     cd "D:\my_repo\my_cmd\python_script"
+#     pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_lw.py" py_lw_vt $args
+# }
 
 function py_mzf {
     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
