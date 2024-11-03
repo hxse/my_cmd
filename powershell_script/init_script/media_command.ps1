@@ -211,7 +211,6 @@ function m_bs {
 }
 
 function xmly {
-    $loopTime = 60 * 60 * 24
     $sleepTime = 60 * 40
     cd "D:\App\download\ximalaya_downloader"
 
@@ -219,7 +218,7 @@ function xmly {
         node xmd.js $args
     }
     else {
-        for ($i = 0; $i -lt $loopTime; $i++) {
+        while (1) {
             node xmd.js -a $args
             echo "下载完成后用这个命令合并: py_ff concatAudio"
             echo '用这个命令转换格式: py_ff convertDir --inSuffix ".mp4" --outSuffix ".m4a" "dirPath"'
@@ -228,6 +227,17 @@ function xmly {
         }
     }
 
+}
+
+
+function ting {
+    $sleepTime = 60 * 10
+    cd "D:\my_repo\ting13"
+    while (1) {
+        uv run python main.py $args
+        echo Get-Date "sleep $sleepTime"
+        Start-Sleep $sleepTime
+    }
 }
 
 function missav {
