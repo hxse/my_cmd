@@ -139,7 +139,8 @@ def concatAudio(
         arr.append(i)
 
     if sort_mode == "default":
-        arr = sorted(arr, key=lambda x: int(x.name.split(".")[0]))
+        _s = " " if arr[0].name.count(".") == 1 else "."
+        arr = sorted(arr, key=lambda x: int(x.name.split(_s)[0]))
 
     if check_arg(clearMode):
         clear_duplication(arr)
