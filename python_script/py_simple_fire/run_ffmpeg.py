@@ -7,6 +7,8 @@ from tool import convert2d, convert2dIndex, z_fill
 from simple_fire import simple_fire
 import subprocess
 from pathlib import Path
+import shutil
+import hashlib
 
 
 def indexOf(value, array):
@@ -111,21 +113,42 @@ def clear_duplication(arr):
                 _path.unlink(missing_ok=True)
 
 
+def get_md5(name):
+    hash_md5 = hashlib.md5()
+    with open(name, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
+
+
 def check_repeat(arr):
     """
     清除大小为0的文件
     清除大小相同的重复文件
     """
-    _l = []
-    for i in arr:
-        if i.is_dir():
+
+    def check(path, obj, data):
+        data[obj] = [*data.get(obj, []), path]
+        return [len(data[obj]) > 1, data[obj]]
+
+    d = {}
+    for path in arr:
+        if path.is_dir():
             continue
-        size = i.stat().st_size
-        if size in _l:
-            raise RuntimeError(f"有大小相同的重复文件 {i}")
+        size = path.stat().st_size
         if size == 0:
-            raise RuntimeError(f"有大小为0的文件 {i}")
-        _l.append(size)
+            raise RuntimeError(f"有大小为0的文件 {path}")
+
+        size_flag, size_list = check(path, path.stat().st_size, d)
+        if size_flag:
+            # path_list = "\n".join([i.as_posix() for i in size_list])
+            # raise RuntimeError(f"检测到大小相同的重复文件\n{path_list}")
+            d2 = {}
+            for _p in size_list:
+                md5_flag, md5_list = check(_p, get_md5(_p), d2)
+                if md5_flag:
+                    path_list = "\n".join([i.as_posix() for i in md5_list])
+                    raise RuntimeError(f"检测到md5相同的重复文件\n{path_list}")
 
 
 def concatAudio(
@@ -133,16 +156,27 @@ def concatAudio(
     name="output",
     inputSuffix="[.m4a,.mp4]",
     cacheSuffix=".aac",
-    outputSuffix=".mp3",
+    outputSuffix=".m4a",
+    enableCacheCopy=True,
+    enableOutputCopy=True,
     sort_mode="default",
     step=10,
-    enableCacheCopy=True,
-    enableOutputCopy=False,
     clearCache=True,
     clearMode=False,
     *args,
     **kargs,
 ):
+    """
+    cacheSuffix=".aac",
+    outputSuffix=".mp3",
+    enableCacheCopy=True,
+    enableOutputCopy=False,
+    ----
+    cacheSuffix=".aac",
+    outputSuffix=".m4a",
+    enableCacheCopy=True,
+    enableOutputCopy=True,
+    """
     arr = []
     for i in Path(dirPath).glob(f"*{inputSuffix}"):
         if i.parent.name == "_cache":
@@ -195,10 +229,12 @@ def concatAudio(
         for i in range(start, end):
             cacheInPath = Path(dirPath) / arr[i].name
             cacheNamePath = getCacheFilePath(arr[i])
-
-            command = f'ffmpeg -i "{cacheInPath}" {"-c:a copy" if check_arg(enableCacheCopy) else ""} "{cacheNamePath}"'
-            print(command)
-            subprocess.run(command, cwd=dirPath)
+            if cacheInPath.name == cacheNamePath.name:
+                shutil.copy(cacheInPath, cacheNamePath)
+            else:
+                command = f'ffmpeg -i "{cacheInPath}" {"-c:a copy" if check_arg(enableCacheCopy) else ""} "{cacheNamePath}"'
+                print(command)
+                subprocess.run(command, cwd=dirPath)
 
         command = f'ffmpeg -f concat -safe 0 -i "{inputPath}" {"-c:a copy" if check_arg(enableOutputCopy) else ""} "{outPath}"'
         print(command)
