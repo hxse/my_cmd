@@ -118,9 +118,6 @@ def check_repeat(arr):
     """
     _l = []
     for i in arr:
-        import pdb
-
-        pdb.set_trace()
         if i.is_dir():
             continue
         size = i.stat().st_size
