@@ -190,12 +190,14 @@ def concatAudio(
         arr.append(i)
 
     if sort_mode == "default":
+
+        def sort_arr(arr, _s):
+            return sorted(arr, key=lambda x: int(x.name.split(_s)[0]))
+
         try:
-            _s = " "
-            arr = sorted(arr, key=lambda x: int(x.name.split(_s)[0]))
+            arr = sort_arr(arr, " ")
         except ValueError:
-            _s = "."
-            arr = sorted(arr, key=lambda x: int(x.name.split(_s)[0]))
+            arr = sort_arr(arr, ".")
 
     if check_arg(clearMode):
         clear_duplication(arr)
