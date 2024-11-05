@@ -111,6 +111,26 @@ def clear_duplication(arr):
                 _path.unlink(missing_ok=True)
 
 
+def check_repeat(arr):
+    """
+    清除大小为0的文件
+    清除大小相同的重复文件
+    """
+    _l = []
+    for i in arr:
+        import pdb
+
+        pdb.set_trace()
+        if i.is_dir():
+            continue
+        size = i.stat().st_size
+        if size in _l:
+            raise RuntimeError(f"有大小相同的重复文件 {i}")
+        if size == 0:
+            raise RuntimeError(f"有大小为0的文件 {i}")
+        _l.append(size)
+
+
 def concatAudio(
     dirPath,
     name="output",
@@ -145,6 +165,8 @@ def concatAudio(
     if check_arg(clearMode):
         clear_duplication(arr)
         return
+
+    check_repeat(arr)
 
     for [start, end] in convert2dIndex(len(arr), step):
         n = len(f"{len(arr)}")
