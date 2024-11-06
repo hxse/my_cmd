@@ -154,7 +154,7 @@ def check_repeat(arr):
 def concatAudio(
     dirPath,
     name="output",
-    inputSuffix="[.m4a,.mp4]",
+    inputSuffix="[.m4a,.mp4,.mp3]",
     cacheSuffix=".aac",
     outputSuffix=".m4a",
     enableCacheCopy=True,
@@ -177,6 +177,18 @@ def concatAudio(
     enableCacheCopy=True,
     enableOutputCopy=True,
     """
+    if inputSuffix == ".mp3":
+        cacheSuffix = ".mp3"
+        outputSuffix = ".mp3"
+        enableCacheCopy = True
+        enableOutputCopy = False
+
+    if inputSuffix == ".m4a":
+        cacheSuffix = ".aac"
+        outputSuffix = ".m4a"
+        enableCacheCopy = True
+        enableOutputCopy = True
+
     arr = []
     for i in Path(dirPath).glob(f"*{inputSuffix}"):
         if i.parent.name == "_cache":
