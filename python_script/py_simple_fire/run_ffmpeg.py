@@ -181,7 +181,7 @@ def concatAudio(
         cacheSuffix = ".mp3"
         outputSuffix = ".mp3"
         enableCacheCopy = True
-        enableOutputCopy = False
+        enableOutputCopy = True
 
     if inputSuffix == ".m4a":
         cacheSuffix = ".aac"
