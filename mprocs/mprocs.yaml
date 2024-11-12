@@ -35,8 +35,8 @@ procs:
   dufs-e:
     shell:
       $select: os
-      windows: 'dufs -p 5640 -a hxse:asdf@/:rw E:/'
+      windows: 'dufs -p 5640 -a hxse:asdf@/:rw --enable-cors E:/'
   dufs-f:
     shell:
       $select: os
-      windows: 'dufs -p 5641 -a hxse:asdf@/:rw F:/'
+      windows: 'dufs -p 5641 -a hxse:asdf@/:rw --enable-cors F:/'
