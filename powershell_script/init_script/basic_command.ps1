@@ -41,3 +41,13 @@ Function gfh { Get-FileHash $args }
 function osc {
     CMD.EXE /C "powershell (Add-Type '[DllImport(\`"user32.dll\`")]^public static extern int PostMessage(int hWnd, int hMsg, int wParam, int lParam);' -Name a -Pas)::PostMessage(-1, 0x0112, 0xF170, 2)"
 }
+
+function sd {
+    $t = 60 * $args[0]
+    echo "$t second"
+    echo "Cancel Shutdown: shutdown /a or alias sa"
+    shutdown -s -t $t
+}
+function sa {
+    shutdown /a
+}
