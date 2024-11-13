@@ -11,6 +11,14 @@ Function js {
     cd $localDir
 }
 
+
+Function js_dir {
+    $localDir = Get-Location;
+    cd "D:\my_repo\94_crawler"
+    pdm run python ".\94.py" dir --outPath "F:/91porn" $args
+    cd $localDir
+}
+
 Function jable {
     $localDir = Get-Location;
     cd "D:\my_repo\JableTVDownload"
