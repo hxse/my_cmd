@@ -4,7 +4,7 @@
     pdm run python .\prompt_toolkit_demo\mian.py $args
 }
 
-Function js {
+Function jiuse {
     $localDir = Get-Location;
     cd "D:\my_repo\94_crawler"
     pdm run python ".\94.py" md --outPath "F:/91porn" $args
@@ -12,7 +12,7 @@ Function js {
 }
 
 
-Function js_dir {
+Function jiuse_dir {
     $localDir = Get-Location;
     cd "D:\my_repo\94_crawler"
     pdm run python ".\94.py" dir --outPath "F:/91porn" $args
