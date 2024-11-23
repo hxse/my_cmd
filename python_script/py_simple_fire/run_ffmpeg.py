@@ -163,6 +163,7 @@ def concatAudio(
     step=10,
     clearCache=True,
     clearMode=False,
+    fix=False,
     *args,
     **kargs,
 ):
@@ -188,6 +189,10 @@ def concatAudio(
         outputSuffix = ".m4a"
         enableCacheCopy = True
         enableOutputCopy = True
+
+    if fix:
+        cacheSuffix = inputSuffix
+        enableOutputCopy = False
 
     arr = []
     for i in Path(dirPath).glob(f"*{inputSuffix}"):
