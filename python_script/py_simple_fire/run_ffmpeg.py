@@ -157,6 +157,7 @@ def concatAudio(
     inputSuffix="[.m4a,.mp4,.mp3]",
     cacheSuffix=".aac",
     outputSuffix=".m4a",
+    bitrate="",
     enableCacheCopy=True,
     enableOutputCopy=True,
     sort_mode="default",
@@ -191,7 +192,9 @@ def concatAudio(
         enableOutputCopy = True
 
     if fix:
-        cacheSuffix = inputSuffix
+        cacheSuffix = ".mp3"
+        outputSuffix = ".mp3"
+        enableCacheCopy = False
         enableOutputCopy = False
 
     arr = []
@@ -255,11 +258,11 @@ def concatAudio(
             if cacheInPath.name == cacheNamePath.name:
                 shutil.copy(cacheInPath, cacheNamePath)
             else:
-                command = f'ffmpeg -i "{cacheInPath}" {"-c:a copy" if check_arg(enableCacheCopy) else ""} "{cacheNamePath}"'
+                command = f'ffmpeg -i "{cacheInPath}" {"-c:a copy" if check_arg(enableCacheCopy) else ""} {bitrate if bitrate else ""} "{cacheNamePath}"'
                 print(command)
                 subprocess.run(command, cwd=dirPath)
 
-        command = f'ffmpeg -f concat -safe 0 -i "{inputPath}" {"-c:a copy" if check_arg(enableOutputCopy) else ""} "{outPath}"'
+        command = f'ffmpeg -f concat -safe 0 -i "{inputPath}" {"-c:a copy" if check_arg(enableOutputCopy) else ""} {bitrate if bitrate else ""} "{outPath}"'
         print(command)
         subprocess.run(command, cwd=dirPath)
 
