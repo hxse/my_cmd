@@ -7,7 +7,7 @@
 Function jiuse {
     $localDir = Get-Location;
     cd "D:\my_repo\jiuse-crawler"
-    pdm run python ".\main.py" --output-dir "F:/91porn" $args
+    pdm run python ".\main.py" main --output-dir "F:/91porn" $args
     cd $localDir
 }
 
