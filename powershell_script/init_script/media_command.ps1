@@ -233,10 +233,12 @@ function xmly {
 function ting {
     $sleepTime = 60 * 10
     cd "D:\my_repo\ting13"
+    uv run python main.py $args
+
     while (1) {
-        uv run python main.py $args
         echo Get-Date "sleep $sleepTime"
         Start-Sleep $sleepTime
+        uv run python main.py $args --no-refresh
     }
 }
 
