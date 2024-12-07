@@ -231,7 +231,7 @@ function xmly {
 
 
 function ting {
-    $sleepTime = 60 * 10
+    $sleepTime = 60 * 3
     cd "D:\my_repo\ting13"
     uv run python main.py $args
 

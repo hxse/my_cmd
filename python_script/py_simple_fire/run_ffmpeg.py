@@ -121,7 +121,32 @@ def get_md5(name):
     return hash_md5.hexdigest()
 
 
-def check_repeat(arr):
+def get_idx(path):
+    try:
+        idx = int(path.split(" ")[0])
+    except ValueError:
+        idx = int(path.split(".")[0])
+    return idx
+
+
+def patch_file(dirPath, patch, path):
+    for i in (dirPath / patch).glob("*"):
+        idx_patch = get_idx(i.name)
+        idx = get_idx(path.name)
+        if idx == idx_patch:
+            if i.suffix == path.suffix:
+                shutil.copy(i, path)
+            else:
+                cache_path = dirPath / f"{patch} cache"
+                cache_path.mkdir(parents=True, exist_ok=True)
+                command = f'ffmpeg -y -i "{i}" "{cache_path}"'
+                print(command)
+                subprocess.run(command)
+                shutil.copy(cache_path, path)
+            return True
+
+
+def check_repeat(dirPath, arr, patch="patch"):
     """
     清除大小为0的文件
     清除大小相同的重复文件
@@ -137,7 +162,8 @@ def check_repeat(arr):
             continue
         size = path.stat().st_size
         if size == 0:
-            raise RuntimeError(f"有大小为0的文件 {path}")
+            if not patch_file(dirPath, patch, path):
+                raise RuntimeError(f"有大小为0的文件 {path}")
 
         size_flag, size_list = check(path, path.stat().st_size, d)
         if size_flag:
@@ -179,6 +205,7 @@ def concatAudio(
     enableCacheCopy=True,
     enableOutputCopy=True,
     """
+    dirPath = Path(dirPath)
     if inputSuffix == ".mp3":
         cacheSuffix = ".mp3"
         outputSuffix = ".mp3"
@@ -223,7 +250,7 @@ def concatAudio(
         clear_duplication(arr)
         return
 
-    check_repeat(arr)
+    check_repeat(dirPath, arr)
 
     for [start, end] in convert2dIndex(len(arr), step):
         n = len(f"{len(arr)}")
