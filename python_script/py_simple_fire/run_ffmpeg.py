@@ -137,8 +137,9 @@ def patch_file(dirPath, patch, path):
             if i.suffix == path.suffix:
                 shutil.copy(i, path)
             else:
-                cache_path = dirPath / f"{patch} cache"
-                cache_path.mkdir(parents=True, exist_ok=True)
+                cache_dir = dirPath / f"{patch} cache"
+                cache_dir.mkdir(parents=True, exist_ok=True)
+                cache_path = cache_dir / path.name
                 command = f'ffmpeg -y -i "{i}" "{cache_path}"'
                 print(command)
                 subprocess.run(command)
