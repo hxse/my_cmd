@@ -181,57 +181,33 @@ def check_repeat(dirPath, arr, patch="patch"):
 def concatAudio(
     dirPath,
     name="output",
-    inputSuffix="[.m4a,.mp4,.mp3]",
-    cacheSuffix=".aac",
-    outputSuffix=".m4a",
+    # inputSuffix="[.m4a,.mp4,.mp3]",
+    # cacheSuffix=".aac",
+    outputSuffix=".mp3",
     bitrate="",
-    enableCacheCopy=True,
-    enableOutputCopy=True,
+    overCacheCopy=False,
+    overOutputCopy=True,
     sort_mode="default",
     step=10,
     clearCache=True,
     clearMode=False,
-    fix=False,
     *args,
     **kargs,
 ):
-    """
-    cacheSuffix=".aac",
-    outputSuffix=".mp3",
-    enableCacheCopy=True,
-    enableOutputCopy=False,
-    ----
-    cacheSuffix=".aac",
-    outputSuffix=".m4a",
-    enableCacheCopy=True,
-    enableOutputCopy=True,
-    """
+    """ """
     dirPath = Path(dirPath)
-    if inputSuffix == ".mp3":
-        cacheSuffix = ".mp3"
-        outputSuffix = ".mp3"
-        enableCacheCopy = True
-        enableOutputCopy = True
 
-    if inputSuffix == ".m4a":
-        cacheSuffix = ".aac"
-        outputSuffix = ".m4a"
-        enableCacheCopy = True
-        enableOutputCopy = True
-
-    if fix:
-        cacheSuffix = ".mp3"
-        outputSuffix = ".mp3"
-        enableCacheCopy = False
-        enableOutputCopy = False
+    cache_list = [[".mp3", ".mp3", "mp3"], [".m4a", ".aac", ".m4a"]]
 
     arr = []
-    for i in Path(dirPath).glob(f"*{inputSuffix}"):
+    for i in Path(dirPath).glob("*"):
         if i.parent.name == "_cache":
             continue
         if i.parent.name == "_output":
             continue
         if i.suffix == ".txt":
+            continue
+        if i.suffix == ".json":
             continue
         if i.name.startswith("!"):
             continue
@@ -273,7 +249,16 @@ def concatAudio(
             continue
 
         def getCacheFilePath(i):
-            return cachePath / (f"{i.stem}{cacheSuffix}")
+            for c in cache_list:
+                if outputSuffix == c[2]:
+                    return cachePath / (f"{i.stem}{c[1]}")
+            return cachePath / (f"{i.stem}{cache_list[0][1]}")
+
+        def check_copy(cacheInPath, cacheNamePath):
+            for c in cache_list:
+                if cacheInPath.suffix == c[0] and cacheNamePath.suffix == c[1]:
+                    return True
+            return False
 
         with open(inputPath, "w", encoding="utf8") as f:
             for i in range(start, end):
@@ -283,14 +268,15 @@ def concatAudio(
         for i in range(start, end):
             cacheInPath = Path(dirPath) / arr[i].name
             cacheNamePath = getCacheFilePath(arr[i])
+            copy = check_copy(cacheInPath, cacheNamePath)
             if cacheInPath.name == cacheNamePath.name:
                 shutil.copy(cacheInPath, cacheNamePath)
             else:
-                command = f'ffmpeg -i "{cacheInPath}" {"-c:a copy" if check_arg(enableCacheCopy) else ""} {bitrate if bitrate else ""} "{cacheNamePath}"'
+                command = f'ffmpeg -i "{cacheInPath}" {"-c:a copy" if check_arg(overCacheCopy) or copy else ""} {bitrate if bitrate else ""} "{cacheNamePath}"'
                 print(command)
                 subprocess.run(command, cwd=dirPath)
 
-        command = f'ffmpeg -f concat -safe 0 -i "{inputPath}" {"-c:a copy" if check_arg(enableOutputCopy) else ""} {bitrate if bitrate else ""} "{outPath}"'
+        command = f'ffmpeg -f concat -safe 0 -i "{inputPath}" {"-c:a copy" if check_arg(overOutputCopy) else ""} {bitrate if bitrate else ""} "{outPath}"'
         print(command)
         subprocess.run(command, cwd=dirPath)
 
