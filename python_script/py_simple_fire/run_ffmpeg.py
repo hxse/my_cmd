@@ -54,7 +54,7 @@ def audioVolumeDir(dirPath, db="10dB", overFile=False, suffix=".mp3"):
 
 
 def file2dir(dirPath, outSuffix=None):
-    _ = f"*{outSuffix}" if outSuffix else "*"
+    _ = f"**/*{outSuffix}" if outSuffix else "**/*"
     for i in Path(dirPath).glob(_):
         if i.is_file():
             d = i.parent / i.stem
