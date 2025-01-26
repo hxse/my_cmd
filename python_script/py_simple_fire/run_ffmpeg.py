@@ -53,10 +53,20 @@ def audioVolumeDir(dirPath, db="10dB", overFile=False, suffix=".mp3"):
             )
 
 
+def file2dir(dirPath, outSuffix=None):
+    _ = f"*{outSuffix}" if outSuffix else "*"
+    for i in Path(dirPath).glob(_):
+        if i.is_file():
+            d = i.parent / i.stem
+            d.mkdir(parents=True, exist_ok=True)
+            Path(i).rename(d / i.name)
+            print(f"success {d / i.name}")
+
+
 def convertFile(filePath, outSuffix=".mp3", enableCopy=True):
     filePath = Path(filePath)
     outPath = filePath.parent / (filePath.stem + outSuffix)
-    command = f'ffmpeg -i "{filePath}" {"-vn" if outSuffix==".ogg" else ""} {"-acodec copy -vcodec copy" if enableCopy in [True, "1", 1] else ""} "{outPath}"'
+    command = f'ffmpeg -i "{filePath}" {"-vn" if outSuffix == ".ogg" else ""} {"-acodec copy -vcodec copy" if enableCopy in [True, "1", 1] else ""} "{outPath}"'
     print(command)
     subprocess.run(command, cwd=filePath.parent)
 
@@ -232,12 +242,14 @@ def concatAudio(
     for [start, end] in convert2dIndex(len(arr), step):
         n = len(f"{len(arr)}")
         inputPath = (
-            Path(dirPath) / "_log" / f"input {  z_fill(start+1,n)} {z_fill(end,n)}.txt"
+            Path(dirPath)
+            / "_log"
+            / f"input {z_fill(start + 1, n)} {z_fill(end, n)}.txt"
         )
         outPath = (
             Path(dirPath)
             / "_output"
-            / f"{name} {z_fill(start+1,n)} {z_fill(end,n)}{outputSuffix}"
+            / f"{name} {z_fill(start + 1, n)} {z_fill(end, n)}{outputSuffix}"
         )
         cachePath = Path(dirPath) / "_cache"
         inputPath.parent.mkdir(parents=True, exist_ok=True)
@@ -310,5 +322,6 @@ if __name__ == "__main__":
             "splitVideo": splitVideo,
             "convert2d": convert2d,
             "convert2dIndex": convert2dIndex,
+            "file2dir": file2dir,
         }
     )
