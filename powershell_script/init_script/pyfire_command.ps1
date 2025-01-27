@@ -72,6 +72,22 @@ function loop_anki {
     uv run python loop.py loop $args
 }
 
+function py_gs {
+    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+    cd "D:\my_repo\parrot_fashion\recorder"
+    $outDir = "D:\my_repo\parrot_fashion\download\影视\破产姐妹\字幕"
+    $archiveDir = "D:\BaiduNetdiskDownload\人人存档\字幕备份"
+    $archiveCsv = "D:\BaiduNetdiskDownload\人人存档\人人影视字幕查询总表(2012-2024)_IT豪哥整理.csv"
+    uv run python .\get_srt.py gs $outDir $archiveDir $archiveCsv $args
+}
+
+function py_as {
+    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+    cd "D:\my_repo\parrot_fashion\recorder"
+    uv run python .\get_srt.py as $args
+}
+
+
 function tts_anki {
     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
     cd "D:\my_repo\parrot_fashion\recorder"
