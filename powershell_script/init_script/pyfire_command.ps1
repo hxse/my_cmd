@@ -87,6 +87,12 @@ function py_as {
 }
 
 
+function py_as_dir {
+    # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
+    cd "D:\my_repo\parrot_fashion\recorder"
+    uv run python .\get_srt.py as_dir $args
+}
+
 function tts_anki {
     # 替换参数示例: py_ypa_bbc newUrl --proxy '--proxy \"new proxy\"'
     cd "D:\my_repo\parrot_fashion\recorder"
