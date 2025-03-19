@@ -193,6 +193,8 @@ function py_ff {
 
 function py_tool {
     # use ffmpeg for media file
+    $p = $PWD
     cd "D:\my_repo\my_cmd\python_script"
-    pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_tool.py" $args
+    pdm run python "D:\my_repo\my_cmd\python_script\py_simple_fire\run_tool.py" $args --output_file "$p\output.txt"
+    cd $p
 }
