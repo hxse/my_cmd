@@ -1,0 +1,3204 @@
+D:\my_repo\lightweight_chart_demo\frontend\src\indicators\macd.ts
+D:\my_repo\lightweight_chart_demo\frontend\src\indicators\ema.ts
+D:\my_repo\lightweight_chart_demo\frontend\src\indicators\rsi.ts
+D:\my_repo\lightweight_chart_demo\frontend\src\indicators\sma.ts
+D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartControls.tsx
+D:\my_repo\lightweight_chart_demo\frontend\src\components\FollowSettingsModal.tsx
+D:\my_repo\lightweight_chart_demo\frontend\src\store\chartState.ts
+D:\my_repo\lightweight_chart_demo\frontend\src\utils\dataUtils.ts
+D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartSettingsModal.tsx
+D:\my_repo\lightweight_chart_demo\frontend\src\store\chartActions.ts
+D:\my_repo\lightweight_chart_demo\frontend\src\App.tsx
+D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartResizer.tsx
+D:\my_repo\lightweight_chart_demo\frontend\src\components\IndicatorModal.tsx
+D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartContainer.tsx
+D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartStyles.ts
+D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartTypeSettingsModal.tsx
+D:\my_repo\lightweight_chart_demo\frontend\src\components\IndicatorSettingsModal.tsx
+D:\my_repo\lightweight_chart_demo\frontend\src\utils\modalUtils.ts
+D:\my_repo\lightweight_chart_demo\frontend\src\store\chartSync.ts
+D:\my_repo\lightweight_chart_demo\frontend\src\main.tsx
+D:\my_repo\lightweight_chart_demo\frontend\src\components\PositionManagement.tsx
+D:\my_repo\lightweight_chart_demo\frontend\src\utils\chartLayouts.ts
+D:\my_repo\lightweight_chart_demo\frontend\src\vite-env.d.ts
+D:\my_repo\lightweight_chart_demo\frontend\src\store\chartSettings.ts
+D:\my_repo\lightweight_chart_demo\frontend\src\store\chartStore.ts
+D:\my_repo\lightweight_chart_demo\frontend\src\store\chartData.ts
+D:\my_repo\lightweight_chart_demo\frontend\src\store\followSettings.ts
+
+下面是代码内容, 请检查是否读取到了全部 27 个文件内容
+
+D:\my_repo\lightweight_chart_demo\frontend\src\indicators\macd.ts
+```
+import { IChartApi, ISeriesApi, LineSeries, HistogramSeries } from 'lightweight-charts';
+import { ChartState } from '../store/chartState';
+import { calculateEMA } from './ema';
+import { FollowMode } from '../store/followSettings';
+
+export const calculateMACD = (data: any[], fastPeriod: number, slowPeriod: number, signalPeriod: number) => {
+    const emaFast = calculateEMA(data, fastPeriod);
+    const emaSlow = calculateEMA(data, slowPeriod);
+    const macd = emaFast.map((eFast, i) => ({ time: eFast.time, value: eFast.value - emaSlow[i].value }));
+    const signal = calculateEMA(macd.map((m) => ({ time: m.time, close: m.value })), signalPeriod);
+    const histogram = macd.map((m, i) => ({ time: m.time, value: m.value - signal[i].value }));
+    return { macd, signal, histogram };
+};
+
+// 根据跟随模式确定需要更新的图表索引
+const getTargetChartIndices = (
+    chartIndex: number,
+    mode: FollowMode,
+    get: () => ChartState
+): number[] => {
+    const { charts, followSettings, symbol, timeFrames } = get();
+    const currentSymbol = symbol;
+    const currentTimeFrame = timeFrames[chartIndex];
+
+    switch (mode) {
+        case FollowMode.Global:
+            return Array.from({ length: charts.length }, (_, i) => i);
+        case FollowMode.Window:
+            return [chartIndex];
+        case FollowMode.Symbol:
+            return Array.from({ length: charts.length }, (_, i) => i).filter(
+                () => symbol === currentSymbol
+            );
+        case FollowMode.TimeFrame:
+            return Array.from({ length: charts.length }, (_, i) => i).filter(
+                (i) => timeFrames[i] === currentTimeFrame
+            );
+        case FollowMode.SymbolAndTimeFrame:
+            return Array.from({ length: charts.length }, (_, i) => i).filter(
+                (i) => symbol === currentSymbol && timeFrames[i] === currentTimeFrame
+            );
+        default:
+            return [chartIndex];
+    }
+};
+
+export const toggleMACD = (
+    chartIndex: number,
+    enabled: boolean,
+    get: () => ChartState,
+    set: (partial: Partial<ChartState>) => void
+) => {
+    const { followSettings } = get();
+    const targetIndices = getTargetChartIndices(chartIndex, followSettings.indicatorFollow, get);
+
+    targetIndices.forEach((idx) => {
+        const { charts, seriesByChart, macdSeries, indicatorParams, rsiSeries } = get();
+        const chart = charts[idx];
+        if (!chart || !seriesByChart[idx]?.[0]) return;
+
+        // 保存当前时间轴范围
+        const currentRange = chart.timeScale().getVisibleLogicalRange();
+
+        const activeIndicators = [rsiSeries[idx], macdSeries[idx]?.macd].filter(Boolean).length;
+        const totalHeight = chart.options().height || 400;
+        const HEIGHT_RATIOS = {
+            1: [0.7, 0.3],
+            2: [0.6, 0.2, 0.2],
+            3: [0.7, 0.1, 0.1, 0.1],
+        };
+
+        if (enabled) {
+            if (!macdSeries[idx]?.macd) {
+                const candlestickData = seriesByChart[idx][0].data() as any[];
+                const macdData = calculateMACD(
+                    candlestickData,
+                    indicatorParams.macdFastPeriod,
+                    indicatorParams.macdSlowPeriod,
+                    indicatorParams.macdSignalPeriod
+                );
+                const macdPaneIndex = chart.panes().length;
+                const macd = chart.addSeries(LineSeries, { color: '#ff00ff' }, macdPaneIndex);
+                const signal = chart.addSeries(LineSeries, { color: '#ffa500' }, macdPaneIndex);
+                const histogram = chart.addSeries(HistogramSeries, { color: '#000000' }, macdPaneIndex);
+                macd.setData(macdData.macd);
+                signal.setData(macdData.signal);
+                histogram.setData(macdData.histogram);
+                const ratios = HEIGHT_RATIOS[activeIndicators + 1] || HEIGHT_RATIOS[1];
+                chart.panes().forEach((pane, i) => {
+                    if (i < ratios.length) pane.setHeight(totalHeight * ratios[i]);
+                });
+                set((state) => {
+                    const newMacdSeries = [...state.macdSeries];
+                    newMacdSeries[idx] = { macd, signal, histogram };
+                    const newIndicators = [...state.indicators];
+                    newIndicators[idx] = { ...newIndicators[idx], macd: true };
+                    return { macdSeries: newMacdSeries, indicators: newIndicators };
+                });
+            }
+        } else {
+            const currentMacd = macdSeries[idx];
+            if (currentMacd?.macd) {
+                if (currentMacd.macd) chart.removeSeries(currentMacd.macd);
+                if (currentMacd.signal) chart.removeSeries(currentMacd.signal);
+                if (currentMacd.histogram) chart.removeSeries(currentMacd.histogram);
+                set((state) => {
+                    const newMacdSeries = [...state.macdSeries];
+                    newMacdSeries[idx] = { macd: null, signal: null, histogram: null };
+                    const newIndicators = [...state.indicators];
+                    newIndicators[idx] = { ...newIndicators[idx], macd: false };
+                    return { macdSeries: newMacdSeries, indicators: newIndicators };
+                });
+                const panes = chart.panes();
+                const macdPaneIndex = panes.findIndex((pane) =>
+                    pane.getSeries().some((series) => series === currentMacd.macd || series === currentMacd.signal || series === currentMacd.histogram)
+                );
+                if (macdPaneIndex > 0 && panes.length > 1) {
+                    chart.removePane(macdPaneIndex);
+                    const newActiveIndicators = activeIndicators - 1;
+                    const newRatios = HEIGHT_RATIOS[newActiveIndicators] || [1];
+                    chart.panes().forEach((pane, i) => {
+                        if (i < newRatios.length) pane.setHeight(totalHeight * newRatios[i]);
+                    });
+                }
+            }
+        }
+
+        // 恢复时间轴范围
+        if (currentRange) {
+            chart.timeScale().setVisibleLogicalRange(currentRange);
+        }
+    });
+};
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\indicators\macd.ts
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\indicators\ema.ts
+```
+import { IChartApi, ISeriesApi, LineSeries } from 'lightweight-charts';
+import { ChartState } from '../store/chartState';
+import { FollowMode } from '../store/followSettings';
+
+export const calculateEMA = (data: any[], period: number) => {
+    const k = 2 / (period + 1);
+    const ema = [{ time: data[0].time, value: data[0].close }];
+    for (let i = 1; i < data.length; i++) {
+        const value = data[i].close * k + ema[i - 1].value * (1 - k);
+        ema.push({ time: data[i].time, value });
+    }
+    return ema;
+};
+
+// 根据跟随模式确定需要更新的图表索引
+const getTargetChartIndices = (
+    chartIndex: number,
+    mode: FollowMode,
+    get: () => ChartState
+): number[] => {
+    const { charts, followSettings, symbol, timeFrames } = get();
+    const currentSymbol = symbol;
+    const currentTimeFrame = timeFrames[chartIndex];
+
+    switch (mode) {
+        case FollowMode.Global:
+            return Array.from({ length: charts.length }, (_, i) => i);
+        case FollowMode.Window:
+            return [chartIndex];
+        case FollowMode.Symbol:
+            return Array.from({ length: charts.length }, (_, i) => i).filter(
+                () => symbol === currentSymbol
+            );
+        case FollowMode.TimeFrame:
+            return Array.from({ length: charts.length }, (_, i) => i).filter(
+                (i) => timeFrames[i] === currentTimeFrame
+            );
+        case FollowMode.SymbolAndTimeFrame:
+            return Array.from({ length: charts.length }, (_, i) => i).filter(
+                (i) => symbol === currentSymbol && timeFrames[i] === currentTimeFrame
+            );
+        default:
+            return [chartIndex];
+    }
+};
+
+export const toggleEMA = (
+    chartIndex: number,
+    enabled: boolean,
+    get: () => ChartState,
+    set: (partial: Partial<ChartState>) => void
+) => {
+    const { followSettings } = get();
+    const targetIndices = getTargetChartIndices(chartIndex, followSettings.indicatorFollow, get);
+
+    targetIndices.forEach((idx) => {
+        const { charts, seriesByChart, emaSeries, indicatorParams } = get();
+        const chart = charts[idx];
+        if (!chart || !seriesByChart[idx]?.[0]) return;
+
+        // 保存当前时间轴范围
+        const currentRange = chart.timeScale().getVisibleLogicalRange();
+
+        if (enabled) {
+            if (!emaSeries[idx]) {
+                const candlestickData = seriesByChart[idx][0].data() as any[];
+                const emaData = calculateEMA(candlestickData, indicatorParams.emaPeriod);
+                const ema = chart.addSeries(LineSeries, { color: '#00ff00' }, 0);
+                ema.setData(emaData);
+                set((state) => {
+                    const newEmaSeries = [...state.emaSeries];
+                    newEmaSeries[idx] = ema;
+                    const newIndicators = [...state.indicators];
+                    newIndicators[idx] = { ...newIndicators[idx], ema: true };
+                    return { emaSeries: newEmaSeries, indicators: newIndicators };
+                });
+            }
+        } else {
+            if (emaSeries[idx]) {
+                chart.removeSeries(emaSeries[idx]!);
+                set((state) => {
+                    const newEmaSeries = [...state.emaSeries];
+                    newEmaSeries[idx] = null;
+                    const newIndicators = [...state.indicators];
+                    newIndicators[idx] = { ...newIndicators[idx], ema: false };
+                    return { emaSeries: newEmaSeries, indicators: newIndicators };
+                });
+            }
+        }
+
+        // 恢复时间轴范围
+        if (currentRange) {
+            chart.timeScale().setVisibleLogicalRange(currentRange);
+        }
+    });
+};
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\indicators\ema.ts
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\indicators\rsi.ts
+```
+import { IChartApi, ISeriesApi, LineSeries } from 'lightweight-charts';
+import { ChartState } from '../store/chartState';
+import { FollowMode } from '../store/followSettings';
+
+export const calculateRSI = (data: any[], period: number) => {
+    const gains: number[] = [];
+    const losses: number[] = [];
+    for (let i = 1; i < data.length; i++) {
+        const diff = data[i].close - data[i - 1].close;
+        gains.push(diff > 0 ? diff : 0);
+        losses.push(diff < 0 ? -diff : 0);
+    }
+    const rsi: { time: number; value: number }[] = [];
+    let avgGain = gains.slice(0, period).reduce((sum, val) => sum + val, 0) / period;
+    let avgLoss = losses.slice(0, period).reduce((sum, val) => sum + val, 0) / period;
+    for (let i = period; i < data.length; i++) {
+        if (i > period) {
+            const newGain = gains[i - 1];
+            const newLoss = losses[i - 1];
+            avgGain = (avgGain * (period - 1) + newGain) / period;
+            avgLoss = (avgLoss * (period - 1) + newLoss) / period;
+        }
+        const rs = avgLoss === 0 ? Infinity : avgGain / avgLoss;
+        const rsiValue = rs === Infinity ? 100 : 100 - (100 / (1 + rs));
+        rsi.push({ time: data[i].time, value: rsiValue });
+    }
+    return rsi;
+};
+
+// 根据跟随模式确定需要更新的图表索引
+const getTargetChartIndices = (
+    chartIndex: number,
+    mode: FollowMode,
+    get: () => ChartState
+): number[] => {
+    const { charts, followSettings, symbol, timeFrames } = get();
+    const currentSymbol = symbol;
+    const currentTimeFrame = timeFrames[chartIndex];
+
+    switch (mode) {
+        case FollowMode.Global:
+            return Array.from({ length: charts.length }, (_, i) => i);
+        case FollowMode.Window:
+            return [chartIndex];
+        case FollowMode.Symbol:
+            return Array.from({ length: charts.length }, (_, i) => i).filter(
+                () => symbol === currentSymbol
+            );
+        case FollowMode.TimeFrame:
+            return Array.from({ length: charts.length }, (_, i) => i).filter(
+                (i) => timeFrames[i] === currentTimeFrame
+            );
+        case FollowMode.SymbolAndTimeFrame:
+            return Array.from({ length: charts.length }, (_, i) => i).filter(
+                (i) => symbol === currentSymbol && timeFrames[i] === currentTimeFrame
+            );
+        default:
+            return [chartIndex];
+    }
+};
+
+export const toggleRSI = (
+    chartIndex: number,
+    enabled: boolean,
+    get: () => ChartState,
+    set: (partial: Partial<ChartState>) => void
+) => {
+    const { followSettings } = get();
+    const targetIndices = getTargetChartIndices(chartIndex, followSettings.indicatorFollow, get);
+
+    targetIndices.forEach((idx) => {
+        const { charts, seriesByChart, rsiSeries, macdSeries, indicatorParams } = get();
+        const chart = charts[idx];
+        if (!chart || !seriesByChart[idx]?.[0]) return;
+
+        // 保存当前时间轴范围
+        const currentRange = chart.timeScale().getVisibleLogicalRange();
+
+        const activeIndicators = [rsiSeries[idx], macdSeries[idx]?.macd].filter(Boolean).length;
+        const totalHeight = chart.options().height || 400;
+        const HEIGHT_RATIOS = {
+            1: [0.7, 0.3],
+            2: [0.6, 0.2, 0.2],
+            3: [0.7, 0.1, 0.1, 0.1],
+        };
+
+        if (enabled) {
+            if (!rsiSeries[idx]) {
+                const candlestickData = seriesByChart[idx][0].data() as any[];
+                const rsiData = calculateRSI(candlestickData, indicatorParams.rsiPeriod);
+                const rsiPaneIndex = chart.panes().length;
+                const rsi = chart.addSeries(LineSeries, { color: '#0000ff' }, rsiPaneIndex);
+                rsi.setData(rsiData);
+                const ratios = HEIGHT_RATIOS[activeIndicators + 1] || HEIGHT_RATIOS[1];
+                chart.panes().forEach((pane, i) => {
+                    if (i < ratios.length) pane.setHeight(totalHeight * ratios[i]);
+                });
+                set((state) => {
+                    const newRsiSeries = [...state.rsiSeries];
+                    newRsiSeries[idx] = rsi;
+                    const newIndicators = [...state.indicators];
+                    newIndicators[idx] = { ...newIndicators[idx], rsi: true };
+                    return { rsiSeries: newRsiSeries, indicators: newIndicators };
+                });
+            }
+        } else {
+            const currentRsi = rsiSeries[idx];
+            if (currentRsi) {
+                chart.removeSeries(currentRsi);
+                set((state) => {
+                    const newRsiSeries = [...state.rsiSeries];
+                    newRsiSeries[idx] = null;
+                    const newIndicators = [...state.indicators];
+                    newIndicators[idx] = { ...newIndicators[idx], rsi: false };
+                    return { rsiSeries: newRsiSeries, indicators: newIndicators };
+                });
+                const panes = chart.panes();
+                const rsiPaneIndex = panes.findIndex((pane) => pane.getSeries().includes(currentRsi));
+                if (rsiPaneIndex > 0 && panes.length > 1) {
+                    chart.removePane(rsiPaneIndex);
+                    const newActiveIndicators = activeIndicators - 1;
+                    const newRatios = HEIGHT_RATIOS[newActiveIndicators] || [1];
+                    chart.panes().forEach((pane, i) => {
+                        if (i < newRatios.length) pane.setHeight(totalHeight * newRatios[i]);
+                    });
+                }
+            }
+        }
+
+        // 恢复时间轴范围
+        if (currentRange) {
+            chart.timeScale().setVisibleLogicalRange(currentRange);
+        }
+    });
+};
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\indicators\rsi.ts
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\indicators\sma.ts
+```
+import { IChartApi, ISeriesApi, LineSeries } from 'lightweight-charts';
+import { ChartState } from '../store/chartState';
+import { FollowMode } from '../store/followSettings';
+
+export const calculateSMA = (data: any[], period: number) => {
+    const sma = [];
+    for (let i = 0; i < data.length; i++) {
+        if (i < period - 1) continue;
+        const window = data.slice(i - period + 1, i + 1);
+        const avg = window.reduce((sum, d) => sum + d.close, 0) / period;
+        sma.push({ time: data[i].time, value: avg });
+    }
+    return sma;
+};
+
+// 根据跟随模式确定需要更新的图表索引
+const getTargetChartIndices = (
+    chartIndex: number,
+    mode: FollowMode,
+    get: () => ChartState
+): number[] => {
+    const { charts, followSettings, symbol, timeFrames } = get();
+    const currentSymbol = symbol;
+    const currentTimeFrame = timeFrames[chartIndex];
+
+    switch (mode) {
+        case FollowMode.Global:
+            return Array.from({ length: charts.length }, (_, i) => i);
+        case FollowMode.Window:
+            return [chartIndex];
+        case FollowMode.Symbol:
+            return Array.from({ length: charts.length }, (_, i) => i).filter(
+                () => symbol === currentSymbol
+            );
+        case FollowMode.TimeFrame:
+            return Array.from({ length: charts.length }, (_, i) => i).filter(
+                (i) => timeFrames[i] === currentTimeFrame
+            );
+        case FollowMode.SymbolAndTimeFrame:
+            return Array.from({ length: charts.length }, (_, i) => i).filter(
+                (i) => symbol === currentSymbol && timeFrames[i] === currentTimeFrame
+            );
+        default:
+            return [chartIndex];
+    }
+};
+
+export const toggleSMA = (
+    chartIndex: number,
+    enabled: boolean,
+    get: () => ChartState,
+    set: (partial: Partial<ChartState>) => void
+) => {
+    const { followSettings } = get();
+    const targetIndices = getTargetChartIndices(chartIndex, followSettings.indicatorFollow, get);
+
+    targetIndices.forEach((idx) => {
+        const { charts, seriesByChart, smaSeries, indicatorParams } = get();
+        const chart = charts[idx];
+        if (!chart || !seriesByChart[idx]?.[0]) return;
+
+        // 保存当前时间轴范围
+        const currentRange = chart.timeScale().getVisibleLogicalRange();
+
+        if (enabled) {
+            if (!smaSeries[idx]) {
+                const candlestickData = seriesByChart[idx][0].data() as any[];
+                const smaData = calculateSMA(candlestickData, indicatorParams.smaPeriod);
+                const sma = chart.addSeries(LineSeries, { color: '#ff0000' }, 0);
+                sma.setData(smaData);
+                set((state) => {
+                    const newSmaSeries = [...state.smaSeries];
+                    newSmaSeries[idx] = sma;
+                    const newIndicators = [...state.indicators];
+                    newIndicators[idx] = { ...newIndicators[idx], sma: true };
+                    return { smaSeries: newSmaSeries, indicators: newIndicators };
+                });
+            }
+        } else {
+            if (smaSeries[idx]) {
+                chart.removeSeries(smaSeries[idx]!);
+                set((state) => {
+                    const newSmaSeries = [...state.smaSeries];
+                    newSmaSeries[idx] = null;
+                    const newIndicators = [...state.indicators];
+                    newIndicators[idx] = { ...newIndicators[idx], sma: false };
+                    return { smaSeries: newSmaSeries, indicators: newIndicators };
+                });
+            }
+        }
+
+        // 恢复时间轴范围
+        if (currentRange) {
+            chart.timeScale().setVisibleLogicalRange(currentRange);
+        }
+    });
+};
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\indicators\sma.ts
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartControls.tsx
+```
+import React, { useRef, useState } from 'react';
+import { useChartStore } from '../store/chartStore';
+import IndicatorModal from './IndicatorModal';
+import IndicatorSettingsModal from './IndicatorSettingsModal';
+import ChartTypeSettingsModal from './ChartTypeSettingsModal';
+import ChartSettingsModal from './ChartSettingsModal';
+import FollowSettingsModal from './FollowSettingsModal';
+
+// 控制面板组件，负责布局、指标、周期、品种、K线类型、时区等设置
+const ChartControls: React.FC<{
+    layoutType: string;
+    setLayoutType: (layout: string) => void;
+    focusedChartIndex: number;
+    setShowIndicatorModal: (show: boolean) => void;
+    setShowIndicatorSettings: (show: boolean) => void;
+    setShowChartTypeSettings: (show: boolean) => void;
+    defaultVisibleBarsInput: string;
+    setDefaultVisibleBarsInput: (value: string) => void;
+}> = ({
+    layoutType,
+    setLayoutType,
+    focusedChartIndex,
+    setShowIndicatorModal,
+    setShowIndicatorSettings,
+    setShowChartTypeSettings,
+    defaultVisibleBarsInput,
+    setDefaultVisibleBarsInput,
+}) => {
+        const {
+            timeFrames,
+            symbol,
+            chartTypes,
+            setTimeFrame,
+            setSymbol,
+            setChartType,
+            toggleTimeZone,
+            useUtcTime,
+            setDefaultVisibleBars,
+            charts,
+            resetToDefault,
+        } = useChartStore();
+
+        // 定义按钮的 ref
+        const indicatorButtonRef = useRef<HTMLButtonElement>(null);
+        const indicatorSettingsButtonRef = useRef<HTMLButtonElement>(null);
+        const chartTypeSettingsButtonRef = useRef<HTMLButtonElement>(null);
+        const chartSettingsButtonRef = useRef<HTMLButtonElement>(null);
+        const followSettingsButtonRef = useRef<HTMLButtonElement>(null);
+
+        // 控制弹出窗口的显示状态
+        const [showIndicatorModalLocal, setShowIndicatorModalLocal] = useState(false);
+        const [showIndicatorSettingsLocal, setShowIndicatorSettingsLocal] = useState(false);
+        const [showChartTypeSettingsLocal, setShowChartTypeSettingsLocal] = useState(false);
+        const [showChartSettingsLocal, setShowChartSettingsLocal] = useState(false);
+        const [showFollowSettingsLocal, setShowFollowSettingsLocal] = useState(false);
+
+        // 处理布局变化
+        const handleLayoutChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+            setLayoutType(event.target.value);
+        };
+
+        // 处理周期变化
+        const handleTimeFrameChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+            const newTimeFrame = event.target.value;
+            setTimeFrame(focusedChartIndex, newTimeFrame);
+        };
+
+        // 处理品种变化
+        const handleSymbolChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+            setSymbol(event.target.value);
+        };
+
+        // 处理K线类型变化
+        const handleChartTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+            const newChartType = event.target.value;
+            setChartType(focusedChartIndex, newChartType);
+        };
+
+        // 处理默认显示K线数量变化
+        const handleDefaultVisibleBarsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const value = e.target.value;
+            setDefaultVisibleBarsInput(value);
+            const numValue = parseInt(value, 10);
+            if (!isNaN(numValue) && numValue > 0) {
+                setDefaultVisibleBars(numValue);
+            }
+        };
+
+        // 处理技术指标按钮点击
+        const handleIndicatorButtonClick = () => {
+            setShowIndicatorModalLocal((prev) => !prev);
+            setShowIndicatorModal(!showIndicatorModalLocal);
+        };
+
+        // 处理指标参数设置按钮点击
+        const handleIndicatorSettingsButtonClick = () => {
+            setShowIndicatorSettingsLocal((prev) => !prev);
+            setShowIndicatorSettings(!showIndicatorSettingsLocal);
+        };
+
+        // 处理K线类型设置按钮点击
+        const handleChartTypeSettingsButtonClick = () => {
+            setShowChartTypeSettingsLocal((prev) => !prev);
+            setShowChartTypeSettings(!showChartTypeSettingsLocal);
+        };
+
+        // 处理图表设置按钮点击
+        const handleChartSettingsButtonClick = () => {
+            setShowChartSettingsLocal((prev) => !prev);
+        };
+
+        // 处理状态跟随设置按钮点击
+        const handleFollowSettingsButtonClick = () => {
+            setShowFollowSettingsLocal((prev) => !prev);
+        };
+
+        // 处理“显示全部数据”按钮点击
+        const handleShowAllData = () => {
+            const chart = charts[focusedChartIndex];
+            if (chart) {
+                chart.timeScale().fitContent();
+            }
+        };
+
+        // 处理重置按钮点击
+        const handleReset = () => {
+            resetToDefault();
+            setDefaultVisibleBarsInput('50');
+        };
+
+        return (
+            <div style={{ padding: '10px', background: '#f0f0f0', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                {/* 布局选择 */}
+                <div>
+                    <label>布局: </label>
+                    <select value={layoutType} onChange={handleLayoutChange}>
+                        <option value="horizontal">左右二分</option>
+                        <option value="vertical">上下二分</option>
+                        <option value="three-pane">左/右上/右下三分</option>
+                        <option value="upper-left-bottom-right">上/左下/右下三分</option>
+                        <option value="four-pane">四分</option>
+                        <option value="six-pane">六分</option>
+                    </select>
+                </div>
+
+                {/* 技术指标选择 */}
+                <div>
+                    <label>技术指标: </label>
+                    <button
+                        ref={indicatorButtonRef}
+                        onClick={handleIndicatorButtonClick}
+                        style={{ marginLeft: '5px' }}
+                    >
+                        选择指标
+                    </button>
+                    {showIndicatorModalLocal && (
+                        <IndicatorModal
+                            focusedChartIndex={focusedChartIndex}
+                            buttonRef={indicatorButtonRef}
+                            onClose={() => {
+                                setShowIndicatorModalLocal(false);
+                                setShowIndicatorModal(false);
+                            }}
+                        />
+                    )}
+                </div>
+
+                {/* 指标参数设置 */}
+                <div>
+                    <button
+                        ref={indicatorSettingsButtonRef}
+                        onClick={handleIndicatorSettingsButtonClick}
+                    >
+                        指标参数设置
+                    </button>
+                    {showIndicatorSettingsLocal && (
+                        <IndicatorSettingsModal
+                            buttonRef={indicatorSettingsButtonRef}
+                            onClose={() => {
+                                setShowIndicatorSettingsLocal(false);
+                                setShowIndicatorSettings(false);
+                            }}
+                        />
+                    )}
+                </div>
+
+                {/* 周期选择 */}
+                <div>
+                    <label>周期: </label>
+                    <select value={timeFrames[focusedChartIndex] || '1h'} onChange={handleTimeFrameChange}>
+                        <option value="5m">5分钟</option>
+                        <option value="15m">15分钟</option>
+                        <option value="30m">30分钟</option>
+                        <option value="1h">1小时</option>
+                        <option value="4h">4小时</option>
+                        <option value="1d">1天</option>
+                        <option value="1w">1周</option>
+                    </select>
+                </div>
+
+                {/* 品种选择 */}
+                <div>
+                    <label>品种: </label>
+                    <select value={symbol} onChange={handleSymbolChange}>
+                        <option value="BTC">BTC</option>
+                        <option value="ETH">ETH</option>
+                    </select>
+                </div>
+
+                {/* K线类型选择 */}
+                <div>
+                    <label>K线: </label>
+                    <select value={chartTypes[focusedChartIndex] || 'candlestick'} onChange={handleChartTypeChange}>
+                        <option value="candlestick">K线图</option>
+                        <option value="renko">Renko砖块图</option>
+                    </select>
+                </div>
+
+                {/* K线类型设置 */}
+                <div>
+                    <button
+                        ref={chartTypeSettingsButtonRef}
+                        onClick={handleChartTypeSettingsButtonClick}
+                    >
+                        K线类型设置
+                    </button>
+                    {showChartTypeSettingsLocal && (
+                        <ChartTypeSettingsModal
+                            focusedChartIndex={focusedChartIndex}
+                            buttonRef={chartTypeSettingsButtonRef}
+                            onClose={() => {
+                                setShowChartTypeSettingsLocal(false);
+                                setShowChartTypeSettings(false);
+                            }}
+                        />
+                    )}
+                </div>
+
+                {/* 图表设置 */}
+                <div>
+                    <button
+                        ref={chartSettingsButtonRef}
+                        onClick={handleChartSettingsButtonClick}
+                    >
+                        图表设置
+                    </button>
+                    {showChartSettingsLocal && (
+                        <ChartSettingsModal
+                            focusedChartIndex={focusedChartIndex}
+                            buttonRef={chartSettingsButtonRef}
+                            onClose={() => setShowChartSettingsLocal(false)}
+                        />
+                    )}
+                </div>
+
+                {/* 状态跟随设置 */}
+                <div>
+                    <button
+                        ref={followSettingsButtonRef}
+                        onClick={handleFollowSettingsButtonClick}
+                    >
+                        状态跟随设置
+                    </button>
+                    {showFollowSettingsLocal && (
+                        <FollowSettingsModal
+                            buttonRef={followSettingsButtonRef}
+                            onClose={() => setShowFollowSettingsLocal(false)}
+                        />
+                    )}
+                </div>
+
+                {/* 显示K线数量 */}
+                <div>
+                    <label>显示K线数量: </label>
+                    <input
+                        type="number"
+                        value={defaultVisibleBarsInput}
+                        onChange={handleDefaultVisibleBarsChange}
+                        min="1"
+                        style={{ width: '60px' }}
+                    />
+                </div>
+
+                {/* 显示全部数据 */}
+                <div>
+                    <button onClick={handleShowAllData}>
+                        显示全部数据
+                    </button>
+                </div>
+
+                {/* 时区切换 */}
+                <div>
+                    <label>时区: </label>
+                    <button onClick={toggleTimeZone}>
+                        当前 {useUtcTime ? 'UTC时区' : '本地时区'}
+                    </button>
+                </div>
+
+                {/* 重置默认值 */}
+                <div>
+                    <button onClick={handleReset}>
+                        重置默认值
+                    </button>
+                </div>
+            </div>
+        );
+    };
+
+export default ChartControls;
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartControls.tsx
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\components\FollowSettingsModal.tsx
+```
+import React from 'react';
+import { useChartStore } from '../store/chartStore';
+import { getModalPosition, getModalMaxHeight } from '../utils/modalUtils';
+import { FollowMode } from '../store/followSettings';
+
+// 状态跟随设置模态框组件
+const FollowSettingsModal: React.FC<{
+    buttonRef: React.RefObject<HTMLButtonElement>;
+    onClose: () => void;
+}> = ({ buttonRef, onClose }) => {
+    const { followSettings, setFollowSettings } = useChartStore();
+
+    // 处理跟随设置保存
+    const handleFollowSettingsSave = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        setFollowSettings({
+            indicatorFollow: formData.get('indicatorFollow') as FollowMode,
+            timeFrameFollow: formData.get('timeFrameFollow') as FollowMode,
+            symbolFollow: formData.get('symbolFollow') as FollowMode,
+            chartTypeFollow: formData.get('chartTypeFollow') as FollowMode,
+            chartFollow: formData.get('chartFollow') as FollowMode,
+            timeZoneFollow: formData.get('timeZoneFollow') as FollowMode,
+            visibleBarsFollow: formData.get('visibleBarsFollow') as FollowMode,
+        });
+        onClose();
+    };
+
+    return (
+        <div
+            style={{
+                position: 'absolute',
+                background: 'white',
+                padding: '20px',
+                border: '1px solid #ccc',
+                zIndex: 1000,
+                width: '300px',
+                ...getModalPosition(buttonRef),
+                ...getModalMaxHeight(buttonRef),
+            }}
+        >
+            <h2>状态跟随设置</h2>
+            <form onSubmit={handleFollowSettingsSave}>
+                <div>
+                    <label>指标跟随: </label>
+                    <select name="indicatorFollow" defaultValue={followSettings.indicatorFollow}>
+                        <option value={FollowMode.Global}>跟随全局</option>
+                        <option value={FollowMode.Window}>跟随窗口</option>
+                        <option value={FollowMode.Symbol}>跟随品种</option>
+                        <option value={FollowMode.TimeFrame}>跟随周期</option>
+                        <option value={FollowMode.SymbolAndTimeFrame}>跟随品种和周期</option>
+                    </select>
+                </div>
+                <div>
+                    <label>周期跟随: </label>
+                    <select name="timeFrameFollow" defaultValue={followSettings.timeFrameFollow}>
+                        <option value={FollowMode.Global}>跟随全局</option>
+                        <option value={FollowMode.Window}>跟随窗口</option>
+                    </select>
+                </div>
+                <div>
+                    <label>品种跟随: </label>
+                    <select name="symbolFollow" defaultValue={followSettings.symbolFollow}>
+                        <option value={FollowMode.Global}>跟随全局</option>
+                        <option value={FollowMode.Window}>跟随窗口</option>
+                    </select>
+                </div>
+                <div>
+                    <label>K线跟随: </label>
+                    <select name="chartTypeFollow" defaultValue={followSettings.chartTypeFollow}>
+                        <option value={FollowMode.Global}>跟随全局</option>
+                        <option value={FollowMode.Window}>跟随窗口</option>
+                        <option value={FollowMode.Symbol}>跟随品种</option>
+                        <option value={FollowMode.TimeFrame}>跟随周期</option>
+                        <option value={FollowMode.SymbolAndTimeFrame}>跟随品种和周期</option>
+                    </select>
+                </div>
+                <div>
+                    <label>图表跟随: </label>
+                    <select name="chartFollow" defaultValue={followSettings.chartFollow}>
+                        <option value={FollowMode.Global}>跟随全局</option>
+                        <option value={FollowMode.Window}>跟随窗口</option>
+                    </select>
+                </div>
+                <div>
+                    <label>时区跟随: </label>
+                    <select name="timeZoneFollow" defaultValue={followSettings.timeZoneFollow}>
+                        <option value={FollowMode.Global}>跟随全局</option>
+                        <option value={FollowMode.Window}>跟随窗口</option>
+                    </select>
+                </div>
+                <div>
+                    <label>显示K线数量跟随: </label>
+                    <select name="visibleBarsFollow" defaultValue={followSettings.visibleBarsFollow}>
+                        <option value={FollowMode.Global}>跟随全局</option>
+                        <option value={FollowMode.Window}>跟随窗口</option>
+                    </select>
+                </div>
+                <button type="submit" style={{ marginTop: '10px' }}>保存</button>
+                <button type="button" onClick={onClose} style={{ marginLeft: '10px' }}>取消</button>
+            </form>
+        </div>
+    );
+};
+
+export default FollowSettingsModal;
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\components\FollowSettingsModal.tsx
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\store\chartState.ts
+```
+import { IChartApi, ISeriesApi, UTCTimestamp } from 'lightweight-charts';
+import { FollowSettings, defaultFollowSettings } from './followSettings';
+
+// 图表状态接口定义
+export interface ChartState {
+    charts: IChartApi[];
+    series: ISeriesApi<'Candlestick'>[];
+    seriesByChart: ISeriesApi<'Candlestick'>[][];
+    layoutType: string;
+    timeFrames: string[];
+    symbol: string;
+    chartTypes: string[];
+    renkoParams: { brickSize: number; atrPeriod: number; atrMultiplier: number }[];
+    chartData: any[][];
+    baseData: any[][];
+    allData: { [key: string]: any[] };
+    useUtcTime: boolean;
+    defaultVisibleBars: number;
+    smaSeries: (ISeriesApi<'Line'> | null)[];
+    rsiSeries: (ISeriesApi<'Line'> | null)[];
+    emaSeries: (ISeriesApi<'Line'> | null)[];
+    macdSeries: { macd: ISeriesApi<'Line'> | null; signal: ISeriesApi<'Line'> | null; histogram: ISeriesApi<'Histogram'> | null }[];
+    indicatorParams: {
+        smaPeriod: number;
+        rsiPeriod: number;
+        emaPeriod: number;
+        macdFastPeriod: number;
+        macdSlowPeriod: number;
+        macdSignalPeriod: number;
+    };
+    indicators: { sma: boolean; rsi: boolean; ema: boolean; macd: boolean }[];
+    barSpacing: number; // 修改：全局设置
+    minBarSpacing: number; // 修改：全局设置
+    followSettings: FollowSettings; // 新增：跟随设置
+}
+
+// 图表状态初始值
+export const initialChartState: ChartState = {
+    charts: [],
+    series: [],
+    seriesByChart: [],
+    layoutType: 'vertical',
+    timeFrames: [],
+    symbol: 'BTC',
+    chartTypes: [],
+    renkoParams: [],
+    chartData: [],
+    baseData: [],
+    allData: {},
+    useUtcTime: true,
+    defaultVisibleBars: 50,
+    smaSeries: [],
+    rsiSeries: [],
+    emaSeries: [],
+    macdSeries: [],
+    indicatorParams: {
+        smaPeriod: 14,
+        rsiPeriod: 14,
+        emaPeriod: 14,
+        macdFastPeriod: 12,
+        macdSlowPeriod: 26,
+        macdSignalPeriod: 9,
+    },
+    indicators: [],
+    barSpacing: 6, // 修改：全局默认值
+    minBarSpacing: 6, // 修改：全局默认值
+    followSettings: defaultFollowSettings, // 新增：默认跟随设置
+};
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\store\chartState.ts
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\utils\dataUtils.ts
+```
+export function generateCandlestickData(count: number, timeFrame: string, symbol: string) {
+    const data = [];
+    const config = {
+        BTC: { initialPrice: 30000, priceChange: 1000, volatility: 500 },
+        ETH: { initialPrice: 2000, priceChange: 100, volatility: 50 },
+    };
+    const { initialPrice, priceChange, volatility } = config[symbol as keyof typeof config] || config.BTC;
+    let lastClose = initialPrice;
+
+    const timeMultiplier = {
+        '5m': 5 * 60 * 1000,
+        '15m': 15 * 60 * 1000,
+        '30m': 30 * 60 * 1000,
+        '1h': 60 * 60 * 1000,
+        '4h': 4 * 60 * 60 * 1000,
+        '1d': 24 * 60 * 60 * 1000,
+        '1w': 7 * 24 * 60 * 60 * 1000,
+    }[timeFrame] || 60 * 60 * 1000;
+
+    const baseTime = new Date('2023-10-01T00:00:00Z').getTime();
+    for (let i = 0; i < 500; i++) {
+        const timestamp = baseTime + i * timeMultiplier;
+        const time = Math.floor(timestamp / 1000);
+        const open = lastClose;
+        const close = open + (Math.random() - 0.5) * priceChange;
+        const high = Math.max(open, close) + Math.random() * volatility;
+        const low = Math.min(open, close) - Math.random() * volatility;
+        data.push({ time, open, high, low, close });
+        lastClose = close;
+    }
+    console.log(`[generateCandlestickData] Generated ${data.length} candlestick data points, timeFrame=${timeFrame}, symbol=${symbol}`);
+    const isTimeSorted = data.every((d, i) => i === 0 || d.time > data[i - 1].time);
+    if (!isTimeSorted) {
+        console.warn(`[generateCandlestickData] Time is not sorted`);
+    }
+    return data;
+}
+
+function calculateATR(data: any[], period: number = 14) {
+    const trValues: number[] = [];
+    for (let i = 1; i < data.length; i++) {
+        const high = data[i].high;
+        const low = data[i].low;
+        const prevClose = data[i - 1].close;
+        const tr = Math.max(high - low, Math.abs(high - prevClose), Math.abs(low - prevClose));
+        trValues.push(tr);
+    }
+
+    const atrValues: number[] = [];
+    for (let i = 0; i < trValues.length; i++) {
+        if (i < period - 1) continue;
+        const window = trValues.slice(i - period + 1, i + 1);
+        const atr = window.reduce((sum, val) => sum + val, 0) / period;
+        atrValues.push(atr);
+    }
+
+    const atr = atrValues.length > 0 ? atrValues[atrValues.length - 1] : 50;
+    return atr;
+}
+
+export function convertToRenko(data: any[], brickSize: number, atrPeriod: number = 14, atrMultiplier: number = 0.5, timeFrame: string = '1h') {
+    if (!data || data.length === 0) return [];
+
+    const renkoData: any[] = [];
+    const effectiveBrickSize = brickSize > 0 ? brickSize : Math.max(calculateATR(data, atrPeriod) * atrMultiplier, 1);
+    let lastPrice = data[0].close;
+    let lastRenkoOpen = lastPrice;
+    let lastRenkoClose = lastPrice;
+    let currentDirection: number = 0; // 0: 无方向, 1: 上涨, -1: 下跌
+    let lastTime = data[0].time;
+
+    for (let i = 1; i < data.length; i++) {
+        const currentPrice = data[i].close;
+        const currentTime = data[i].time;
+
+        // 计算价格变化
+        const priceDiff = currentPrice - lastRenkoClose;
+        const direction = priceDiff >= 0 ? 1 : -1;
+
+        // 计算需要生成的砖块数量
+        let bricksToGenerate = 0;
+        let isReversal = false;
+
+        if (currentDirection === 0) {
+            // 初始方向：需要 1 倍阈值
+            const absPriceDiff = Math.abs(priceDiff);
+            if (absPriceDiff >= effectiveBrickSize) {
+                currentDirection = direction;
+                bricksToGenerate = Math.floor(absPriceDiff / effectiveBrickSize);
+            }
+        } else if (currentDirection === direction) {
+            // 继续当前方向（突破）：需要 1 倍阈值
+            const absPriceDiff = Math.abs(priceDiff);
+            if (absPriceDiff >= effectiveBrickSize) {
+                bricksToGenerate = Math.floor(absPriceDiff / effectiveBrickSize);
+            }
+        } else {
+            // 可能反转：需要 2 倍阈值
+            const priceDiffSinceLastClose = currentPrice - lastRenkoClose;
+            const absPriceDiffSinceLastClose = Math.abs(priceDiffSinceLastClose);
+            if (absPriceDiffSinceLastClose >= 2 * effectiveBrickSize) {
+                isReversal = true;
+                currentDirection = direction;
+                bricksToGenerate = Math.floor(absPriceDiffSinceLastClose / effectiveBrickSize);
+            }
+        }
+
+        if (bricksToGenerate > 0) {
+            for (let j = 0; j < bricksToGenerate; j++) {
+                // 确定开盘价和收盘价
+                let open: number;
+                let close: number;
+
+                if (isReversal && j === 0) {
+                    // 反转：新砖块的开盘价等于前一个砖块的开盘价
+                    open = lastRenkoOpen;
+                    close = open + currentDirection * effectiveBrickSize;
+                } else {
+                    // 突破：新砖块的开盘价等于前一个砖块的收盘价
+                    open = lastRenkoClose;
+                    close = open + currentDirection * effectiveBrickSize;
+                }
+
+                // 确保砖块斜向排列（open 和 close 不能相等）
+                if (Math.abs(open - close) < 0.0001) {
+                    console.warn(`[convertToRenko] Invalid brick: open=${open}, close=${close}, skipping`);
+                    continue;
+                }
+
+                // 确保时间戳唯一，递增 1 秒
+                const brickTime = j === 0 ? currentTime : lastTime + 1;
+                lastTime = brickTime;
+
+                // Renko 砖块的最高价和最低价等同于开盘价和收盘价
+                const high = Math.max(open, close);
+                const low = Math.min(open, close);
+
+                const brick = {
+                    time: brickTime,
+                    open,
+                    high,
+                    low,
+                    close,
+                };
+                renkoData.push(brick);
+
+                // 更新 lastRenkoOpen 和 lastRenkoClose
+                lastRenkoOpen = open;
+                lastRenkoClose = close;
+            }
+        }
+
+        lastPrice = currentPrice;
+    }
+
+    // 验证连续性和方向
+    for (let i = 1; i < renkoData.length; i++) {
+        const prevBrick = renkoData[i - 1];
+        const currBrick = renkoData[i];
+        const prevDirection = prevBrick.close > prevBrick.open ? 1 : -1;
+        const currDirection = currBrick.close > currBrick.open ? 1 : -1;
+
+        // 移除对 prev.open 和 curr.open 相等的警告，因为反转时这是正常现象
+        // 真正的“横向砖块”应该是同一个砖块内的 open 和 close 相等，但这已经在上面检查过了
+
+        if (prevDirection === currDirection) {
+            // 突破：前一个收盘价应等于下一个开盘价
+            if (Math.abs(prevBrick.close - currBrick.open) > 0.0001) {
+                console.warn(`[convertToRenko] Continuity error (continuation) at index ${i}: prev.close=${prevBrick.close}, curr.open=${currBrick.open}`);
+            }
+        } else {
+            // 反转：前一个开盘价应等于下一个开盘价
+            if (Math.abs(prevBrick.open - currBrick.open) > 0.0001) {
+                console.warn(`[convertToRenko] Continuity error (reversal) at index ${i}: prev.open=${prevBrick.open}, curr.open=${currBrick.open}`);
+            }
+        }
+    }
+
+    console.log(`[convertToRenko] Generated ${renkoData.length} bricks with brickSize=${effectiveBrickSize}, atrPeriod=${atrPeriod}, atrMultiplier=${atrMultiplier}, timeFrame=${timeFrame}`);
+    const areTimestampsUnique = new Set(renkoData.map(d => d.time)).size === renkoData.length;
+    if (!areTimestampsUnique) {
+        console.warn(`[convertToRenko] Timestamps are not unique`);
+    }
+    const isTimeSorted = renkoData.every((d, i) => i === 0 || d.time > renkoData[i - 1].time);
+    if (!isTimeSorted) {
+        console.warn(`[convertToRenko] Time is not sorted`);
+    }
+    return renkoData;
+}
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\utils\dataUtils.ts
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartSettingsModal.tsx
+```
+import React from 'react';
+import { useChartStore } from '../store/chartStore';
+import { getModalPosition, getModalMaxHeight } from '../utils/modalUtils';
+
+// 图表设置模态框组件
+const ChartSettingsModal: React.FC<{
+    focusedChartIndex: number;
+    buttonRef: React.RefObject<HTMLButtonElement>;
+    onClose: () => void;
+}> = ({ buttonRef, onClose }) => {
+    const { barSpacing, minBarSpacing, setBarSpacing, setMinBarSpacing } = useChartStore();
+
+    // 处理图表设置保存
+    const handleChartSettingsSave = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const newBarSpacing = Number(formData.get('barSpacing'));
+        const newMinBarSpacing = Number(formData.get('minBarSpacing'));
+        setBarSpacing(newBarSpacing); // 修改为全局设置
+        setMinBarSpacing(newMinBarSpacing); // 修改为全局设置
+        onClose();
+    };
+
+    return (
+        <div
+            style={{
+                position: 'absolute',
+                background: 'white',
+                padding: '20px',
+                border: '1px solid #ccc',
+                zIndex: 1000,
+                width: '300px',
+                ...getModalPosition(buttonRef),
+                ...getModalMaxHeight(buttonRef),
+            }}
+        >
+            <h2>图表设置</h2>
+            <form onSubmit={handleChartSettingsSave}>
+                <div>
+                    <label>Bar Spacing: </label>
+                    <input
+                        type="number"
+                        name="barSpacing"
+                        defaultValue={barSpacing || 6} // 使用全局值
+                        min="1"
+                        step="0.1"
+                    />
+                </div>
+                <div>
+                    <label>Min Bar Spacing: </label>
+                    <input
+                        type="number"
+                        name="minBarSpacing"
+                        defaultValue={minBarSpacing || 6} // 使用全局值
+                        min="1"
+                        step="0.1"
+                    />
+                </div>
+                <button type="submit" style={{ marginTop: '10px' }}>保存</button>
+                <button type="button" onClick={onClose} style={{ marginLeft: '10px' }}>取消</button>
+            </form>
+        </div>
+    );
+};
+
+export default ChartSettingsModal;
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartSettingsModal.tsx
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\store\chartActions.ts
+```
+import { createChart, IChartApi, ISeriesApi, CandlestickSeries, UTCTimestamp } from 'lightweight-charts';
+import { ChartState } from './chartState';
+import { convertToRenko } from '../utils/dataUtils';
+
+// 初始化图表
+export const initChart = (
+    container: HTMLElement,
+    layoutType: string,
+    chartIndex: number,
+    paneCount: number,
+    timeFrame: string,
+    chartType: string,
+    get: () => ChartState,
+    set: (partial: Partial<ChartState>) => void
+): IChartApi => {
+    console.log(`[ChartActions] Initializing chart ${chartIndex} with layout: ${layoutType}, container size: ${container.clientWidth}x${container.clientHeight}`);
+
+    const chart = createChart(container, {
+        layout: { textColor: 'black', background: { type: 'solid', color: 'white' } as const },
+        width: container.clientWidth,
+        height: container.clientHeight,
+        autoSize: false,
+        timeScale: {
+            fixLeftEdge: false,
+            fixRightEdge: false,
+            timeVisible: true,
+            secondsVisible: false,
+            lockVisibleTimeRangeOnResize: false,
+            rightOffset: 5, // 修改为 5，增加空白区域以展示 Bar Spacing 效果
+            visible: true,
+            tickMarkFormatter: (time: UTCTimestamp, _tickMarkType: string, _locale: string) => {
+                const date = new Date(time * 1000);
+                const useUtc = get().useUtcTime;
+                const timeFrame = get().timeFrames[chartIndex] || '1h';
+                const year = useUtc ? date.getUTCFullYear() : date.getFullYear();
+                const month = (useUtc ? date.getUTCMonth() : date.getMonth()) + 1; // 修正：使用 getUTCMonth
+                const day = useUtc ? date.getUTCDate() : date.getDate();
+                const hours = useUtc ? date.getUTCHours() : date.getHours();
+                const minutes = useUtc ? date.getUTCMinutes() : date.getMinutes();
+
+                switch (timeFrame) {
+                    case '5m':
+                    case '15m':
+                    case '30m':
+                        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                    case '1h':
+                    case '4h':
+                        return `${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                    case '1d':
+                        return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                    case '1w':
+                        return `${year}-${month.toString().padStart(2, '0')}`;
+                    default:
+                        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                }
+            },
+        },
+    });
+
+    updateChart(chartIndex, chart, set);
+    set((state) => ({
+        seriesByChart: [...state.seriesByChart, ...(state.seriesByChart[chartIndex] ? [] : [[]])],
+        timeFrames: [...state.timeFrames, ...(state.timeFrames[chartIndex] ? [] : [timeFrame])],
+        chartTypes: [...state.chartTypes, ...(state.chartTypes[chartIndex] ? [] : [chartType])],
+        renkoParams: [...state.renkoParams, ...(state.renkoParams[chartIndex] ? [] : [{ brickSize: 0, atrPeriod: 14, atrMultiplier: 0.5 }])],
+        chartData: [...state.chartData, ...(state.chartData[chartIndex] ? [] : [[]])],
+        baseData: [...state.baseData, ...(state.baseData[chartIndex] ? [] : [[]])],
+        smaSeries: [...state.smaSeries, ...(state.smaSeries[chartIndex] ? [] : [null])],
+        rsiSeries: [...state.rsiSeries, ...(state.rsiSeries[chartIndex] ? [] : [null])],
+        emaSeries: [...state.emaSeries, ...(state.emaSeries[chartIndex] ? [] : [null])],
+        macdSeries: [...state.macdSeries, ...(state.macdSeries[chartIndex] ? [] : [{ macd: null, signal: null, histogram: null }])],
+        indicators: [...state.indicators, ...(state.indicators[chartIndex] ? [] : [{ sma: false, rsi: false, ema: false, macd: false }])],
+        // 移除 barSpacing 和 minBarSpacing 的数组初始化
+    }));
+
+    for (let paneIndex = 0; paneIndex < paneCount; paneIndex++) {
+        setCandlestickData(chart, chartIndex, paneIndex, timeFrame, chartType, get, set);
+    }
+
+    return chart;
+};
+
+// 设置K线数据
+export const setCandlestickData = (
+    chart: IChartApi,
+    chartIndex: number,
+    paneIndex: number,
+    timeFrame: string,
+    chartType: string,
+    get: () => ChartState,
+    set: (partial: Partial<ChartState>) => void
+) => {
+    const candlestickSeries = chart.addSeries(CandlestickSeries, {
+        upColor: '#26a69a',
+        downColor: '#ef5350',
+        borderVisible: false,
+        wickVisible: chartType !== 'renko',
+    }, paneIndex);
+
+    const { symbol, renkoParams, allData, defaultVisibleBars, barSpacing, minBarSpacing } = get();
+    const key = `${symbol}_${timeFrame}`;
+    const baseData = allData[key] || [];
+    const processedData = chartType === 'candlestick'
+        ? baseData
+        : convertToRenko(baseData, renkoParams[chartIndex].brickSize, renkoParams[chartIndex].atrPeriod, renkoParams[chartIndex].atrMultiplier, timeFrame);
+
+    const isTimeSorted = processedData.every((d, i) => i === 0 || d.time > processedData[i - 1].time);
+    if (!isTimeSorted) {
+        console.warn(`[ChartActions] Data for chart ${chartIndex} is not time sorted`);
+    }
+    candlestickSeries.setData(processedData);
+    set((state) => {
+        const newChartData = [...state.chartData];
+        const newBaseData = [...state.baseData];
+        newChartData[chartIndex] = processedData;
+        newBaseData[chartIndex] = baseData;
+        return { chartData: newChartData, baseData: newBaseData };
+    });
+    addSeries(candlestickSeries, chartIndex, set);
+
+    chart.timeScale().applyOptions({
+        fixLeftEdge: false,
+        fixRightEdge: false,
+        timeVisible: true,
+        secondsVisible: false,
+        visible: true,
+        barSpacing: barSpacing, // 使用全局 barSpacing
+        minBarSpacing: minBarSpacing, // 使用全局 minBarSpacing
+        lockVisibleTimeRangeOnResize: false,
+        rightOffset: 5, // 修改为 5，增加空白区域以展示 Bar Spacing 效果
+        tickMarkFormatter: (time: UTCTimestamp, _tickMarkType: string, _locale: string) => {
+            const date = new Date(time * 1000);
+            const useUtc = get().useUtcTime;
+            const timeFrame = get().timeFrames[chartIndex] || '1h';
+            const year = useUtc ? date.getUTCFullYear() : date.getFullYear();
+            const month = (useUtc ? date.getUTCMonth() : date.getMonth()) + 1; // 修正：使用 getUTCMonth
+            const day = useUtc ? date.getUTCDate() : date.getDate();
+            const hours = useUtc ? date.getUTCHours() : date.getHours();
+            const minutes = useUtc ? date.getUTCMinutes() : date.getMinutes();
+
+            switch (timeFrame) {
+                case '5m':
+                case '15m':
+                case '30m':
+                    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                case '1h':
+                case '4h':
+                    return `${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                case '1d':
+                    return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                case '1w':
+                    return `${year}-${month.toString().padStart(2, '0')}`;
+                default:
+                    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+            }
+        },
+    });
+
+    if (processedData.length > 0) {
+        const totalBars = processedData.length;
+        const visibleBars = Math.min(defaultVisibleBars, totalBars);
+        chart.timeScale().setVisibleLogicalRange({
+            from: totalBars - visibleBars,
+            to: totalBars,
+        });
+    }
+};
+
+// 清除所有图表
+export const clearCharts = (get: () => ChartState, set: (partial: Partial<ChartState>) => void) => {
+    const { charts } = get();
+    charts.forEach((chart) => {
+        if (chart) {
+            chart.remove();
+        }
+    });
+    set({
+        charts: [],
+        series: [],
+        seriesByChart: [],
+        timeFrames: [],
+        chartTypes: [],
+        renkoParams: [],
+        chartData: [],
+        baseData: [],
+        smaSeries: [],
+        rsiSeries: [],
+        emaSeries: [],
+        macdSeries: [],
+        indicators: [],
+        barSpacing: 6, // 重置为默认值
+        minBarSpacing: 6, // 重置为默认值
+    });
+};
+
+// 更新图表
+export const updateChart = (chartIndex: number, chart: IChartApi, set: (partial: Partial<ChartState>) => void) => {
+    set((state) => {
+        const newCharts = [...state.charts];
+        newCharts[chartIndex] = chart;
+        return { charts: newCharts, layoutType: state.layoutType };
+    });
+};
+
+// 添加K线系列
+export const addSeries = (series: ISeriesApi<'Candlestick'>, chartIndex: number, set: (partial: Partial<ChartState>) => void) => {
+    set((state) => {
+        const newSeries = [...state.series, series];
+        const newSeriesByChart = [...state.seriesByChart];
+        newSeriesByChart[chartIndex] = [...(newSeriesByChart[chartIndex] || []), series];
+        return { series: newSeries, seriesByChart: newSeriesByChart };
+    });
+};
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\store\chartActions.ts
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\App.tsx
+```
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import ChartContainer from './components/ChartContainer';
+import PositionManagement from './components/PositionManagement';
+import ChartControls from './components/ChartControls';
+import { useChartStore } from './store/chartStore';
+import { getChartLayoutConfig } from './utils/chartLayouts';
+
+// 主应用组件，负责整体布局和状态管理
+const App: React.FC = () => {
+    const [layoutType, setLayoutType] = useState('horizontal');
+    const [chartHeight, setChartHeight] = useState(80);
+    const [focusedChartIndex, setFocusedChartIndex] = useState(0);
+    const [defaultVisibleBarsInput, setDefaultVisibleBarsInput] = useState('50');
+    const containerRef = useRef<HTMLDivElement>(null);
+    const chartRef = useRef<{ resize: () => void }>(null);
+    const { initAllData } = useChartStore();
+
+    const chartConfig = getChartLayoutConfig(layoutType);
+
+    // 处理图表聚焦
+    const handleChartFocus = useCallback((chartIndex: number) => {
+        console.log(`[App] Focusing chart ${chartIndex}`);
+        setFocusedChartIndex(chartIndex);
+    }, []);
+
+    // 初始化所有数据
+    useEffect(() => {
+        initAllData();
+    }, [initAllData]);
+
+    // 处理拖拽调整图表高度
+    const startDragging = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        const startY = e.clientY;
+        const containerHeight = containerRef.current?.clientHeight || 0;
+
+        const onMouseMove = (moveEvent: MouseEvent) => {
+            const deltaY = moveEvent.clientY - startY;
+            const newHeight = Math.max(10, Math.min(100, chartHeight + (deltaY / containerHeight) * 100));
+            setChartHeight(newHeight);
+        };
+
+        const onMouseUp = () => {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+            console.log('[App] Drag ended, triggering resize');
+            if (chartRef.current) {
+                chartRef.current.resize();
+            }
+        };
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    }, [chartHeight]);
+
+    return (
+        <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }} ref={containerRef}>
+            {/* 控制面板 */}
+            <ChartControls
+                layoutType={layoutType}
+                setLayoutType={setLayoutType}
+                focusedChartIndex={focusedChartIndex}
+                setShowIndicatorModal={() => { }}
+                setShowIndicatorSettings={() => { }}
+                setShowChartTypeSettings={() => { }}
+                defaultVisibleBarsInput={defaultVisibleBarsInput}
+                setDefaultVisibleBarsInput={setDefaultVisibleBarsInput}
+            />
+
+            {/* 图表容器 */}
+            <div style={{ height: `${chartHeight}%`, overflow: 'hidden' }}>
+                <ChartContainer
+                    layoutType={layoutType}
+                    ref={chartRef}
+                    initialTimeFrame="1h"
+                    initialChartType="candlestick"
+                    chartConfig={chartConfig}
+                    onChartFocus={handleChartFocus}
+                    chartHeight={chartHeight}
+                />
+            </div>
+
+            {/* 拖拽调整高度的分隔条 */}
+            <div
+                style={{ height: '5px', background: '#ccc', cursor: 'ns-resize', userSelect: 'none' }}
+                onMouseDown={startDragging}
+            />
+
+            {/* 仓位管理 */}
+            <div style={{ height: `${100 - chartHeight}%`, overflow: 'auto', background: '#fafafa' }}>
+                <PositionManagement />
+            </div>
+        </div>
+    );
+};
+
+export default App;
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\App.tsx
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartResizer.tsx
+```
+import React, { useRef, useEffect, useLayoutEffect, useImperativeHandle, forwardRef } from 'react';
+import { useChartStore } from '../store/chartStore';
+
+interface ChartResizerProps {
+    layoutType: string;
+    chartCount: number;
+    initialTimeFrame: string;
+    initialChartType: string;
+    getChartStyle: (layout: string, chartIndex: number, focusedChartIndex: number) => React.CSSProperties;
+    onChartFocus?: (chartIndex: number) => void;
+    chartHeight: number; // 图表区域高度百分比
+}
+
+const ChartResizer = forwardRef<{ resize: () => void }, ChartResizerProps>(
+    ({ layoutType, chartCount, initialTimeFrame, initialChartType, getChartStyle, onChartFocus, chartHeight }, ref) => {
+        const chartRefs = useRef<(HTMLDivElement | null)[]>([]);
+        const focusedChartIndex = useRef<number>(0);
+        const chartsInitialized = useRef<boolean>(false);
+        const prevLayoutType = useRef<string | null>(null);
+        const { charts, chartTypes, renkoParams, indicatorParams, updateData, initChart, clearCharts, syncCharts, initAllData } = useChartStore();
+
+        // 保存每个图表的时间轴可见范围
+        const visibleRanges = useRef<(null | { from: number; to: number })[]>([]);
+
+        // 调整图表大小
+        const resize = () => {
+            console.log(`[ChartResizer] Attempting to resize, charts.length: ${charts.length}, chartCount: ${chartCount}`);
+
+            if (charts.length === 0 || charts.length !== chartCount) {
+                console.warn(`[ChartResizer] Skipping resize due to chart count mismatch or empty charts. Charts: ${JSON.stringify(charts.map(c => c?.options()))}, chartCount: ${chartCount}`);
+                return;
+            }
+
+            chartRefs.current.forEach((ref, chartIndex) => {
+                if (ref && chartIndex < chartCount) {
+                    const chart = charts[chartIndex];
+                    if (chart) {
+                        try {
+                            // 保存当前时间轴的可见范围
+                            const currentRange = chart.timeScale().getVisibleLogicalRange();
+                            if (currentRange) {
+                                visibleRanges.current[chartIndex] = currentRange;
+                            }
+
+                            const newWidth = ref.clientWidth;
+                            const newHeight = ref.clientHeight;
+                            const currentOptions = chart.options();
+                            console.log(`[ChartResizer] Resizing chart ${chartIndex}: newWidth=${newWidth}, newHeight=${newHeight}, currentWidth=${currentOptions.width}, currentHeight=${currentOptions.height}`);
+                            if (
+                                currentOptions.width !== newWidth ||
+                                currentOptions.height !== newHeight
+                            ) {
+                                chart.applyOptions({ width: newWidth, height: newHeight, autoSize: false });
+
+                                // 恢复之前保存的时间轴范围
+                                if (visibleRanges.current[chartIndex]) {
+                                    chart.timeScale().setVisibleLogicalRange(visibleRanges.current[chartIndex]!);
+                                }
+                            }
+                        } catch (error) {
+                            console.error(`[ChartResizer] Error resizing chart ${chartIndex}:`, error);
+                        }
+                    } else {
+                        console.warn(`[ChartResizer] Chart ${chartIndex} not found in store`);
+                    }
+                } else {
+                    console.warn(`[ChartResizer] Chart ref ${chartIndex} is null or out of bounds`);
+                }
+            });
+        };
+
+        // 初始化图表
+        const initializeCharts = () => {
+            console.log(`[ChartResizer] Initializing layout: ${layoutType}, chartCount: ${chartCount}, initialTimeFrame: ${initialTimeFrame}, initialChartType: ${initialChartType}`);
+            if (!chartsInitialized.current) {
+                console.log('[ChartResizer] Initializing all data');
+                initAllData();
+            }
+            console.log('[ChartResizer] Clearing existing charts');
+            clearCharts();
+
+            const newCharts = [];
+            for (let chartIndex = 0; chartIndex < chartCount; chartIndex++) {
+                const ref = chartRefs.current[chartIndex];
+                if (ref) {
+                    const chartType = chartTypes[chartIndex] || initialChartType;
+                    const timeFrame = chartIndex === 0 ? initialTimeFrame : '1h';
+                    console.log(`[ChartResizer] Initializing chart ${chartIndex} with type: ${chartType}, timeFrame: ${timeFrame}`);
+                    newCharts.push(
+                        initChart(ref, layoutType, chartIndex, 1, timeFrame, chartType)
+                    );
+                } else {
+                    console.warn(`[ChartResizer] Chart ref ${chartIndex} is null`);
+                }
+            }
+
+            console.log(`[ChartResizer] Syncing ${newCharts.length} charts`);
+            syncCharts(newCharts);
+            chartsInitialized.current = true;
+            prevLayoutType.current = layoutType;
+
+            // 初始化 visibleRanges
+            visibleRanges.current = Array(chartCount).fill(null);
+        };
+
+        useImperativeHandle(ref, () => ({ resize }));
+
+        useLayoutEffect(() => {
+            console.log(`[ChartResizer] useLayoutEffect triggered with layoutType: ${layoutType}, prevLayoutType: ${prevLayoutType.current}, initialTimeFrame: ${initialTimeFrame}, initialChartType: ${initialChartType}`);
+            if (!chartsInitialized.current || prevLayoutType.current !== layoutType) {
+                initializeCharts();
+            }
+        }, [layoutType, initialTimeFrame, initialChartType]);
+
+        // 监听 chartHeight 变化，触发 resize
+        useEffect(() => {
+            if (charts.length === 0) return;
+
+            console.log('[ChartResizer] chartHeight changed, triggering resize:', chartHeight);
+            resize();
+        }, [chartHeight, charts, chartCount]);
+
+        useEffect(() => {
+            if (charts.length === 0) return;
+
+            const handleResize = () => {
+                console.log('[ChartResizer] Window resize event triggered');
+                resize();
+            };
+
+            window.addEventListener('resize', handleResize);
+
+            const observer = new ResizeObserver(() => {
+                console.log('[ChartResizer] ResizeObserver triggered');
+                resize();
+            });
+            chartRefs.current.forEach((ref, idx) => {
+                if (ref) {
+                    console.log(`[ChartResizer] Observing chart ref ${idx}`);
+                    observer.observe(ref);
+                }
+            });
+
+            return () => {
+                console.log('[ChartResizer] Cleaning up resize listeners');
+                window.removeEventListener('resize', handleResize);
+                observer.disconnect();
+            };
+        }, [charts, chartCount]);
+
+        const handleChartClick = (chartIndex: number) => {
+            console.log(`[ChartResizer] Chart ${chartIndex} clicked`);
+            focusedChartIndex.current = chartIndex;
+            onChartFocus?.(chartIndex);
+            chartRefs.current.forEach((ref, idx) => {
+                if (ref) {
+                    ref.style.borderColor = idx === chartIndex ? '#808080' : 'transparent';
+                }
+            });
+        };
+
+        const renderCharts = () => {
+            console.log(`[ChartResizer] Rendering charts for layoutType: ${layoutType}, chartCount: ${chartCount}, chartHeight: ${chartHeight}`);
+            const chartElements = [];
+            if (layoutType === 'vertical') {
+                // 上下二分布局：根据 chartHeight 动态分配高度
+                const totalChartHeight = 100; // 图表区域总高度（百分比）
+                const chartHeightPercentage = totalChartHeight / chartCount; // 每个图表的高度百分比
+                for (let i = 0; i < chartCount; i++) {
+                    chartElements.push(
+                        <div
+                            key={i}
+                            ref={(el) => (chartRefs.current[i] = el)}
+                            style={{
+                                ...getChartStyle(layoutType, i, focusedChartIndex.current),
+                                height: `${chartHeightPercentage}%`, // 动态高度
+                                width: '100%',
+                            }}
+                            onClick={() => handleChartClick(i)}
+                        />
+                    );
+                }
+            } else if (layoutType === 'three-pane') {
+                chartElements.push(
+                    <div
+                        key={0}
+                        ref={(el) => (chartRefs.current[0] = el)}
+                        style={getChartStyle(layoutType, 0, focusedChartIndex.current)}
+                        onClick={() => handleChartClick(0)}
+                    />
+                );
+                chartElements.push(
+                    <div
+                        key="right-container"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            flexWrap: 'nowrap',
+                            width: '50%',
+                            height: '100%',
+                            flex: '0 0 50%',
+                        }}
+                    >
+                        <div
+                            key={1}
+                            ref={(el) => (chartRefs.current[1] = el)}
+                            style={getChartStyle(layoutType, 1, focusedChartIndex.current)}
+                            onClick={() => handleChartClick(1)}
+                        />
+                        <div
+                            key={2}
+                            ref={(el) => (chartRefs.current[2] = el)}
+                            style={getChartStyle(layoutType, 2, focusedChartIndex.current)}
+                            onClick={() => handleChartClick(2)}
+                        />
+                    </div>
+                );
+            } else if (layoutType === 'upper-left-bottom-right') {
+                chartElements.push(
+                    <div
+                        key={0}
+                        ref={(el) => (chartRefs.current[0] = el)}
+                        style={getChartStyle(layoutType, 0, focusedChartIndex.current)}
+                        onClick={() => handleChartClick(0)}
+                    />
+                );
+                chartElements.push(
+                    <div
+                        key="bottom-container"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            flexWrap: 'nowrap',
+                            width: '100%',
+                            height: '50%',
+                            flex: '0 0 100%',
+                        }}
+                    >
+                        <div
+                            key={1}
+                            ref={(el) => (chartRefs.current[1] = el)}
+                            style={getChartStyle(layoutType, 1, focusedChartIndex.current)}
+                            onClick={() => handleChartClick(1)}
+                        />
+                        <div
+                            key={2}
+                            ref={(el) => (chartRefs.current[2] = el)}
+                            style={getChartStyle(layoutType, 2, focusedChartIndex.current)}
+                            onClick={() => handleChartClick(2)}
+                        />
+                    </div>
+                );
+            } else {
+                for (let i = 0; i < chartCount; i++) {
+                    chartElements.push(
+                        <div
+                            key={i}
+                            ref={(el) => (chartRefs.current[i] = el)}
+                            style={getChartStyle(layoutType, i, focusedChartIndex.current)}
+                            onClick={() => handleChartClick(i)}
+                        />
+                    );
+                }
+            }
+            return chartElements;
+        };
+
+        return <>{renderCharts()}</>;
+    }
+);
+
+ChartResizer.displayName = 'ChartResizer';
+
+export default ChartResizer;
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartResizer.tsx
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\components\IndicatorModal.tsx
+```
+import React from 'react';
+import { useChartStore } from '../store/chartStore';
+import { getModalPosition, getModalMaxHeight } from '../utils/modalUtils';
+
+// 指标选择模态框组件
+const IndicatorModal: React.FC<{
+    focusedChartIndex: number;
+    buttonRef: React.RefObject<HTMLButtonElement>;
+    onClose: () => void;
+}> = ({ focusedChartIndex, buttonRef, onClose }) => {
+    const { indicators, setIndicators, toggleSMA, toggleRSI, toggleEMA, toggleMACD } = useChartStore();
+
+    // 获取当前图表的指标状态，防止越界
+    const currentIndicators = indicators[focusedChartIndex] || { sma: false, rsi: false, ema: false, macd: false };
+
+    // 处理指标模态框保存
+    const handleIndicatorModalSave = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const newIndicators = {
+            sma: formData.get('sma') === 'on',
+            rsi: formData.get('rsi') === 'on',
+            ema: formData.get('ema') === 'on',
+            macd: formData.get('macd') === 'on',
+        };
+
+        // 更新全局指标状态
+        setIndicators(focusedChartIndex, newIndicators);
+
+        // 切换指标状态
+        toggleSMA(focusedChartIndex, newIndicators.sma);
+        toggleRSI(focusedChartIndex, newIndicators.rsi);
+        toggleEMA(focusedChartIndex, newIndicators.ema);
+        toggleMACD(focusedChartIndex, newIndicators.macd);
+
+        onClose();
+    };
+
+    return (
+        <div
+            style={{
+                position: 'absolute',
+                background: 'white',
+                padding: '20px',
+                border: '1px solid #ccc',
+                zIndex: 1000,
+                width: '300px',
+                ...getModalPosition(buttonRef),
+                ...getModalMaxHeight(buttonRef),
+            }}
+        >
+            <h2>选择技术指标</h2>
+            <form onSubmit={handleIndicatorModalSave}>
+                {Object.keys(currentIndicators).map((key) => (
+                    <div key={key}>
+                        <label>
+                            <input
+                                type="checkbox"
+                                name={key}
+                                defaultChecked={currentIndicators[key as keyof typeof currentIndicators]}
+                            />
+                            {key.toUpperCase()}
+                        </label>
+                    </div>
+                ))}
+                <button type="submit" style={{ marginTop: '10px' }}>保存</button>
+                <button type="button" onClick={onClose} style={{ marginLeft: '10px' }}>取消</button>
+            </form>
+        </div>
+    );
+};
+
+export default IndicatorModal;
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\components\IndicatorModal.tsx
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartContainer.tsx
+```
+import React, { forwardRef, useMemo } from 'react';
+import ChartResizer from './ChartResizer';
+import { getChartStyle } from './ChartStyles';
+import { ChartLayoutConfig } from '../utils/chartLayouts';
+
+interface ChartContainerProps {
+    layoutType: string;
+    initialTimeFrame: string;
+    initialChartType: string;
+    chartConfig: ChartLayoutConfig;
+    onChartFocus?: (chartIndex: number) => void;
+    chartHeight: number; // 新增 chartHeight prop
+}
+
+const ChartContainer = forwardRef<{ resize: () => void }, ChartContainerProps>(
+    ({ layoutType, initialTimeFrame, initialChartType, chartConfig, onChartFocus, chartHeight }, ref) => {
+        const { chartCount, isVertical } = chartConfig;
+
+        // 使用 useMemo 确保样式对象引用稳定
+        const containerStyle = useMemo(() => ({
+            display: 'flex',
+            flexDirection: isVertical ? 'column' : 'row',
+            flexWrap: 'wrap',
+            width: '100%',
+            height: '100%', // 容器高度占满父容器
+            overflow: 'hidden',
+        }), [isVertical]);
+
+        return (
+            <div style={containerStyle}>
+                <ChartResizer
+                    ref={ref}
+                    layoutType={layoutType}
+                    chartCount={chartCount}
+                    initialTimeFrame={initialTimeFrame}
+                    initialChartType={initialChartType}
+                    getChartStyle={getChartStyle}
+                    onChartFocus={onChartFocus}
+                    chartHeight={chartHeight} // 传递 chartHeight 给 ChartResizer
+                />
+            </div>
+        );
+    }
+);
+
+ChartContainer.displayName = 'ChartContainer';
+
+export default ChartContainer;
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartContainer.tsx
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartStyles.ts
+```
+// 图表样式工具函数，负责生成图表的CSS样式
+// 拆分为基础样式和布局样式，增强可读性和维护性
+
+// 获取基础样式，所有布局通用的样式
+const getBaseStyle = (): React.CSSProperties => ({
+    boxSizing: 'border-box',
+    padding: 0,
+    margin: 0,
+    position: 'relative',
+    overflow: 'hidden',
+});
+
+// 获取边框样式，根据聚焦状态动态调整颜色
+const getBorderStyle = (isFocused: boolean): React.CSSProperties => {
+    const borderColor = isFocused ? '#808080' : 'transparent';
+    return {
+        borderTop: `2px solid ${borderColor}`,
+        borderRight: `2px solid ${borderColor}`,
+        borderBottom: `2px solid ${borderColor}`,
+        borderLeft: `2px solid ${borderColor}`,
+    };
+};
+
+// 获取分隔线样式，根据聚焦状态调整透明度
+const getDividerStyle = (isFocused: boolean, chartIndex: number, layout: string): React.CSSProperties => {
+    const dividerColor = `rgba(128, 128, 128, ${isFocused ? 0.7 : 0.3})`;
+    const borderColor = isFocused ? '#808080' : 'transparent';
+
+    switch (layout) {
+        case 'horizontal':
+            return {
+                borderRight: chartIndex === 0 ? `2px solid ${dividerColor}` : `2px solid ${borderColor}`,
+            };
+        case 'vertical':
+            return {
+                borderBottom: chartIndex === 0 ? `2px solid ${dividerColor}` : `2px solid ${borderColor}`,
+            };
+        case 'three-pane':
+            return chartIndex === 0
+                ? { borderRight: `2px solid ${dividerColor}` }
+                : { borderBottom: chartIndex === 1 ? `2px solid ${dividerColor}` : `2px solid ${borderColor}` };
+        case 'upper-left-bottom-right':
+            return chartIndex === 0
+                ? { borderBottom: `2px solid ${dividerColor}` }
+                : { borderRight: chartIndex === 1 ? `2px solid ${dividerColor}` : `2px solid ${borderColor}` };
+        case 'four-pane':
+            return {
+                borderRight: chartIndex % 2 === 0 ? `2px solid ${dividerColor}` : `2px solid ${borderColor}`,
+                borderBottom: chartIndex < 2 ? `2px solid ${dividerColor}` : `2px solid ${borderColor}`,
+            };
+        case 'six-pane':
+            return {
+                borderRight: chartIndex % 3 !== 2 ? `2px solid ${dividerColor}` : `2px solid ${borderColor}`,
+                borderBottom: chartIndex < 3 ? `2px solid ${dividerColor}` : `2px solid ${borderColor}`,
+            };
+        default:
+            return {};
+    }
+};
+
+// 获取布局样式，根据不同布局调整宽高和flex属性
+const getLayoutStyle = (layout: string, chartIndex: number): React.CSSProperties => {
+    switch (layout) {
+        case 'horizontal':
+            return { width: '50%', height: '100%', flex: '0 0 50%' };
+        case 'vertical':
+            return { width: '100%', flex: '1' }; // 移除固定高度，交给父组件动态分配
+        case 'three-pane':
+            return chartIndex === 0
+                ? { width: '50%', height: '100%', flex: '0 0 50%' }
+                : { width: '100%', height: '50%', flex: '0 0 50%' };
+        case 'upper-left-bottom-right':
+            return chartIndex === 0
+                ? { width: '100%', height: '50%', flex: '0 0 100%' }
+                : { width: '50%', height: '100%', flex: '0 0 50%' };
+        case 'four-pane':
+            return { width: '50%', height: '50%', flex: '0 0 50%' };
+        case 'six-pane':
+            return { width: '33.33%', height: '50%', flex: '0 0 33.33%' };
+        default:
+            return { width: '100%', height: '100%' };
+    }
+};
+
+// 合并所有样式，生成最终的图表样式
+export const getChartStyle = (layout: string, chartIndex: number, focusedChartIndex: number): React.CSSProperties => {
+    const isFocused = focusedChartIndex === chartIndex;
+    return {
+        ...getBaseStyle(),
+        ...getBorderStyle(isFocused),
+        ...getLayoutStyle(layout, chartIndex),
+        ...getDividerStyle(isFocused, chartIndex, layout),
+    };
+};
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartStyles.ts
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartTypeSettingsModal.tsx
+```
+import React from 'react';
+import { useChartStore } from '../store/chartStore';
+import { getModalPosition, getModalMaxHeight } from '../utils/modalUtils';
+
+// K线类型设置模态框组件
+const ChartTypeSettingsModal: React.FC<{
+    focusedChartIndex: number;
+    buttonRef: React.RefObject<HTMLButtonElement>;
+    onClose: () => void;
+}> = ({ focusedChartIndex, buttonRef, onClose }) => {
+    const { renkoParams, setRenkoParams } = useChartStore();
+
+    // 处理K线类型参数保存
+    const handleChartTypeSettingsSave = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        setRenkoParams(focusedChartIndex, {
+            brickSize: Number(formData.get('brickSize')),
+            atrPeriod: Number(formData.get('atrPeriod')),
+            atrMultiplier: Number(formData.get('atrMultiplier')),
+        });
+        onClose();
+    };
+
+    return (
+        <div
+            style={{
+                position: 'absolute',
+                background: 'white',
+                padding: '20px',
+                border: '1px solid #ccc',
+                zIndex: 1000,
+                width: '300px',
+                ...getModalPosition(buttonRef),
+                ...getModalMaxHeight(buttonRef),
+            }}
+        >
+            <h2>K线类型参数设置</h2>
+            <form onSubmit={handleChartTypeSettingsSave}>
+                <div>
+                    <label>Renko 砖块大小 (0 表示使用 ATR): </label>
+                    <input type="number" name="brickSize" defaultValue={renkoParams[focusedChartIndex]?.brickSize ?? 0} min="0" step="0.1" />
+                </div>
+                <div>
+                    <label>ATR 周期: </label>
+                    <input type="number" name="atrPeriod" defaultValue={renkoParams[focusedChartIndex]?.atrPeriod ?? 14} min="1" />
+                </div>
+                <div>
+                    <label>ATR 倍数: </label>
+                    <input type="number" name="atrMultiplier" defaultValue={renkoParams[focusedChartIndex]?.atrMultiplier ?? 0.5} min="0.1" step="0.1" />
+                </div>
+                <button type="submit" style={{ marginTop: '10px' }}>保存</button>
+                <button type="button" onClick={onClose} style={{ marginLeft: '10px' }}>取消</button>
+            </form>
+        </div>
+    );
+};
+
+export default ChartTypeSettingsModal;
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\components\ChartTypeSettingsModal.tsx
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\components\IndicatorSettingsModal.tsx
+```
+import React from 'react';
+import { useChartStore } from '../store/chartStore';
+import { getModalPosition, getModalMaxHeight } from '../utils/modalUtils';
+
+// 指标参数设置模态框组件
+const IndicatorSettingsModal: React.FC<{
+    buttonRef: React.RefObject<HTMLButtonElement>;
+    onClose: () => void;
+}> = ({ buttonRef, onClose }) => {
+    const { indicatorParams, setIndicatorParams } = useChartStore();
+
+    // 处理指标参数保存
+    const handleIndicatorSettingsSave = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        setIndicatorParams({
+            smaPeriod: Number(formData.get('smaPeriod')),
+            rsiPeriod: Number(formData.get('rsiPeriod')),
+            emaPeriod: Number(formData.get('emaPeriod')),
+            macdFastPeriod: Number(formData.get('macdFastPeriod')),
+            macdSlowPeriod: Number(formData.get('macdSlowPeriod')),
+            macdSignalPeriod: Number(formData.get('macdSignalPeriod')),
+        });
+        onClose();
+    };
+
+    return (
+        <div
+            style={{
+                position: 'absolute',
+                background: 'white',
+                padding: '20px',
+                border: '1px solid #ccc',
+                zIndex: 1000,
+                width: '300px',
+                ...getModalPosition(buttonRef),
+                ...getModalMaxHeight(buttonRef),
+            }}
+        >
+            <h2>技术指标参数设置</h2>
+            <form onSubmit={handleIndicatorSettingsSave}>
+                <div>
+                    <label>SMA 周期: </label>
+                    <input type="number" name="smaPeriod" defaultValue={indicatorParams.smaPeriod} min="1" />
+                </div>
+                <div>
+                    <label>RSI 周期: </label>
+                    <input type="number" name="rsiPeriod" defaultValue={indicatorParams.rsiPeriod} min="1" />
+                </div>
+                <div>
+                    <label>EMA 周期: </label>
+                    <input type="number" name="emaPeriod" defaultValue={indicatorParams.emaPeriod} min="1" />
+                </div>
+                <div>
+                    <label>MACD 快线周期: </label>
+                    <input type="number" name="macdFastPeriod" defaultValue={indicatorParams.macdFastPeriod} min="1" />
+                </div>
+                <div>
+                    <label>MACD 慢线周期: </label>
+                    <input type="number" name="macdSlowPeriod" defaultValue={indicatorParams.macdSlowPeriod} min="1" />
+                </div>
+                <div>
+                    <label>MACD 信号线周期: </label>
+                    <input type="number" name="macdSignalPeriod" defaultValue={indicatorParams.macdSignalPeriod} min="1" />
+                </div>
+                <button type="submit" style={{ marginTop: '10px' }}>保存</button>
+                <button type="button" onClick={onClose} style={{ marginLeft: '10px' }}>取消</button>
+            </form>
+        </div>
+    );
+};
+
+export default IndicatorSettingsModal;
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\components\IndicatorSettingsModal.tsx
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\utils\modalUtils.ts
+```
+// 计算模态框位置，确保在按钮下方显示
+export const getModalPosition = (buttonRef: React.RefObject<HTMLButtonElement>) => {
+    if (!buttonRef.current) return { top: '20%', left: '20%' };
+
+    const rect = buttonRef.current.getBoundingClientRect();
+    const modalWidth = 300; // 模态框宽度
+    const modalHeight = 400; // 模态框高度
+    let top = rect.bottom + window.scrollY + 5; // 在按钮下方 5px 处显示
+    let left = rect.left + window.scrollX;
+
+    // 确保模态框不超出屏幕右侧
+    if (left + modalWidth > window.innerWidth) {
+        left = window.innerWidth - modalWidth - 10;
+    }
+
+    // 确保模态框不超出屏幕左侧
+    if (left < 0) {
+        left = 10;
+    }
+
+    return { top: `${top}px`, left: `${left}px` };
+};
+
+// 计算模态框最大高度，并根据屏幕大小决定是否显示滚动条
+export const getModalMaxHeight = (buttonRef: React.RefObject<HTMLButtonElement>) => {
+    if (!buttonRef.current) return { maxHeight: '400px', overflowY: 'auto' };
+
+    const rect = buttonRef.current.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - (rect.bottom + window.scrollY) - 10; // 按钮下方可用空间
+    const defaultHeight = 400; // 默认高度
+
+    // 如果下方空间足够，设置最大高度为默认高度，不显示滚动条
+    if (spaceBelow >= defaultHeight) {
+        return { maxHeight: `${defaultHeight}px`, overflowY: 'hidden' };
+    }
+
+    // 如果下方空间不足，设置最大高度为可用空间，显示滚动条
+    return { maxHeight: `${spaceBelow}px`, overflowY: 'auto' };
+};
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\utils\modalUtils.ts
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\store\chartSync.ts
+```
+import { IChartApi, ISeriesApi, CrosshairMoveParam } from 'lightweight-charts';
+import { ChartState } from './chartState';
+
+// 同步图表十字线
+export const syncCharts = (charts: IChartApi[], get: () => ChartState) => {
+    const { seriesByChart, chartData, baseData, chartTypes } = get();
+
+    const getCrosshairDataPoint = (series: ISeriesApi<'Candlestick'>, param: CrosshairMoveParam) =>
+        param.time ? param.seriesData.get(series) || null : null;
+
+    const findClosestValidTime = (time: number, data: any[]) => {
+        if (!data.length) return null;
+        const closest = data.reduce((prev, curr) =>
+            Math.abs(curr.time - time) < Math.abs(prev.time - time) ? curr : prev
+        );
+        return closest.time >= data[0].time && closest.time <= data[data.length - 1].time ? closest : null;
+    };
+
+    const syncCrosshair = (
+        chart: IChartApi,
+        series: ISeriesApi<'Candlestick'>[],
+        sourceTime: number,
+        sourceChartType: string,
+        targetChartType: string,
+        sourceBaseData: any[],
+        targetData: any[],
+        targetIndex: number
+    ) => {
+        const closestBase = findClosestValidTime(sourceTime, sourceBaseData);
+        if (!closestBase) {
+            chart.clearCrosshairPosition();
+            return;
+        }
+
+        const closestTarget = findClosestValidTime(closestBase.time, targetData);
+        if (closestTarget) {
+            series.forEach((s) => chart.setCrosshairPosition(closestTarget.close, closestTarget.time, s));
+        } else {
+            chart.clearCrosshairPosition();
+        }
+    };
+
+    charts.forEach((chart) => chart.unsubscribeCrosshairMove(() => { }));
+    charts.forEach((chart, index) => {
+        chart.subscribeCrosshairMove((param) => {
+            const series = seriesByChart[index];
+            if (!series || series.length === 0) return;
+
+            const dataPoint = getCrosshairDataPoint(series[0], param);
+            if (!dataPoint) {
+                charts.forEach((otherChart) => {
+                    if (otherChart !== chart) otherChart.clearCrosshairPosition();
+                });
+                return;
+            }
+
+            charts.forEach((otherChart, otherIndex) => {
+                if (otherChart !== chart) {
+                    const otherSeries = seriesByChart[otherIndex];
+                    if (otherSeries && otherSeries.length > 0) {
+                        syncCrosshair(
+                            otherChart,
+                            otherSeries,
+                            dataPoint.time,
+                            chartTypes[index],
+                            chartTypes[otherIndex],
+                            baseData[index],
+                            chartData[otherIndex],
+                            otherIndex
+                        );
+                    }
+                }
+            });
+        });
+    });
+};
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\store\chartSync.ts
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\main.tsx
+```
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import './index.css';
+import App from './App.tsx';
+/*
+用中文回复
+注意main.tsx文件里面的注释提示, 里面有官方的示例, 优先使用官方示例的写法
+如果有文件需要修改, 给我完整代码, 方便我复制, 如果不需要修改, 就声明不需要修改, 如果需要删除, 就声明需要删除, 如果需要新增, 就声明需要新增, 并且给我完整代码, 方便我复制
+还有, 不要说什么, "当前代码无需更改, 以下是需要确认后的完整代码", 我不需要确认, 既然无需修改, 你说一声无需修改就行了, 不用给我发代码了, 只有新增文件和修改文件时再给我发代码
+如果有修改, 一定要给我该文件的完整代码, 而不仅仅只是"显示关键部分", 要完整代码, 也别自作聪明说什么"之前已提供过完整代码, 现在只显示部分修改", 只要有修改就给我完整代码, 明白吗
+main.tsx里面的注释不可删除, 要保留
+有时候我会把文件复制错误, 出现两个一模一样的文件, 或者明显复制错了内容的文件, 需要提醒我
+在生成的代码文件的末尾最后一行, 添加一个注释//文件路径名字, 这样可以及时发现我是否复制错了文件
+优先使用事件监听代替延迟监听, 往往逻辑会更可靠, 延迟监听容易掩盖问题
+*/
+/*代码风格应该浅显易懂,人类易读,拆分模块,方便维护,但是不要过度抽象过度包装,而且还要做好注释 */
+/*
+我希望renko, 突破时需要1倍阈值新增砖块, 反转时需要两倍阈值新增砖块, 砖块只能斜着排列, 不允许横向排列
+renko跟k线用一样的图表, 只不过renko默认会把最高价和最低价等同于开盘价和收盘价
+renko时间源自于K线时间, renko如果有重复的时间戳, 就+1秒, 或+1毫秒, 或+1微妙, 好让renko可以顺序显示
+renko图表, 突破时, 前一个收盘价等于下一个开盘价, 反转时前一个开盘价等于下一个开盘价
+ */
+/*
+注意Lightweight Charts 的要求：数据必须按时间升序排列且时间戳不能重复。
+*/
+/*
+我用的是v5.0+, 所以优先使用新版本方法
+这些注释是为了提醒, 要优先使用新版本的方法
+v4 Method  v4 方法	v5 Method  v5 方法
+chart.addLineSeries(options)	chart.addSeries(LineSeries, options)
+chart.addAreaSeries(options)	chart.addSeries(AreaSeries, options)
+chart.addBarSeries(options)	chart.addSeries(BarSeries, options)
+chart.addBaselineSeries(options)	chart.addSeries(BaselineSeries, options)
+chart.addCandlestickSeries(options)	chart.addSeries(CandlestickSeries, options)
+chart.addHistogramSeries(options)	chart.addSeries(HistogramSeries, options)
+*/
+/*
+这是最新版添加多窗格的方法, 优先使用最新版的方法
+How to add a pane
+如何添加窗格
+To introduce an additional pane into a chart, specify paneIndex during series creation.
+要在图表中引入附加窗格，请在创建系列期间指定paneIndex 。
+
+Alternatively, you can invoke the moveToPane method on the series instance. Note that if the pane with specified index doesn't exist, it will be created.
+或者，您可以调用系列实例上的moveToPane方法。请注意，如果指定索引的窗格不存在，则会创建它。
+
+const volumeSeries = chart.addSeries(
+    HistogramSeries,
+    {
+        priceFormat: {
+            type: 'volume',
+        },
+    },
+    1 // Pane index
+);
+// Moving the series to a different pane
+volumeSeries.moveToPane(2);
+
+If a series is moved out of a pane and no other series remain, the pane will be automatically removed.
+如果将某个系列移出窗格并且没有其他系列剩余，则该窗格将被自动删除。
+
+Customizations  自定义
+Lightweight Charts™ provides options to customize the panes. You can adjust the pane separator color by specifying the separatorColor property in the layout.panes chart options, and use separatorHoverColor to change the separator color on hover.
+Lightweight Charts™ 提供自定义窗格separatorColor选项。您可以通过在 layout.panes图表选项，并使用separatorHoverColor在悬停时更改分隔符颜色。
+
+chart.applyOptions({
+    layout: {
+        panes: {
+            separatorColor: '#ff0000',
+            separatorHoverColor: '#00ff00',
+            enableResize: false,
+        },
+    },
+});
+
+Lightweight Charts™ includes PaneApi that allows you to control each pane. The API has methods to get information on the pane such as getHeight(), paneIndex(), and getSeries(). It also contains methods to adjust the pane parameters, for example setHeight(height) and moveTo(paneIndex).
+Lightweight Charts™ 包含PaneApi ，可让您控制每个窗格。该 API 具有获取窗格信息的方法，例如getHeight() 、 paneIndex()和getSeries() 。它还包含调整窗格参数的方法，例如setHeight(height)和moveTo(paneIndex) 。
+To get a PaneApi instance for each pane, you need to call the panes method on the ChartApi instance. Let's say we want to set the height of the second pane to 300px and move it to the first position.
+要获取每个窗格的PaneApi实例，您需要在ChartApi实例上调用panes方法。假设我们要将第二个窗格的高度设置为 300px，并将其移动到第一个位置。
+const secondPane = chart.panes()[1];
+secondPane.setHeight(300);
+secondPane.moveTo(0);
+Note that the minimum pane height is 30px. Any values lower than 30px will be ignored.
+请注意，窗格的最小高度为 30px。任何低于 30px 的值都将被忽略。
+To remove the pane, you can call the removePane(paneIndex) method on the ChartApi instance.
+要删除窗格，您可以调用ChartApi实例上的removePane(paneIndex)方法。
+chart.removePane(1);
+Note that removing a pane also removes any series contained within it.
+请注意，删除窗格也会删除其中包含的所有系列。
+*/
+/*关于时间轴的官方示例
+Time scale
+Overview  概述
+Time scale (or time axis) is a horizontal scale at the bottom of the chart that displays the time of bars.
+时间刻度（或时间轴）是图表底部的水平刻度，显示条形的时间。
+
+Time scale
+
+Time scale controls a current visible range, allows you to affect or change it, and can convert a time point or an index to a coordinate and vice versa (basically everything related to a x-scale of a chart).
+时间尺度控制当前可见范围，允许您影响或改变它，并且可以将时间点或索引转换为坐标，反之亦然（基本上与图表的 x 尺度相关的所有内容）。
+
+Also, it has a couple of events you can subscribe to to be notified when anything is happened.
+此外，它还有一些事件您可以订阅，以便在发生任何事情时收到通知。
+
+To work with time scale you can either change its options or use methods ITimeScaleApi which could be retrieved by using IChartApi.timeScale method. All available options are declared in TimeScaleOptions interface.
+要使用时间刻度，您可以更改其选项或使用方法ITimeScaleApi ，该方法可以通过使用IChartApi.timeScale方法检索。所有可用选项均在TimeScaleOptions接口中声明。
+
+Note that you can apply options either via ITimeScaleApi.applyOptions or IChartApi.applyOptions with timeScale sub-object in passed options - these 2 approaches both have the same effect.
+请注意，您可以通过ITimeScaleApi.applyOptions或IChartApi.applyOptions应用选项，并在传递的选项中使用timeScale子对象 - 这两种方法具有相同的效果。
+
+Logical range  逻辑范围
+A logical range is an object with 2 properties: from and to, which are numbers and represent logical indexes on the time scale.
+逻辑范围是一个具有两个属性的对象： from和to ，它们是数字，表示时间尺度上的逻辑索引。
+
+The starting point of the time scale's logical range is the first data item among all series. Before that point all indexes are negative, starting from that point - positive.
+时间刻度逻辑范围的起点是所有系列中的第一个数据项。在此点之前，所有指标均为负数，从此点开始为正数。
+
+Indexes might have fractional parts, for instance 4.2, due to the time-scale being continuous rather than discrete.
+由于时间尺度是连续的而不是离散的，因此指数可能有小数部分，例如4.2 。
+
+Integer part of the logical index means index of the fully visible bar. Thus, if we have 5.2 as the last visible logical index (to field), that means that the last visible bar has index 5, but we also have partially visible (for 20%) 6th bar. Half (e.g. 1.5, 3.5, 10.5) means exactly a middle of the bar.
+逻辑索引的整数部分表示完全可见条的索引。因此，如果我们将5.2作为最后一个可见逻辑索引（ to字段），则意味着最后一个可见条的索引为 5，但我们还有部分可见（占 20%） 3.5第 6 条。一半（例如1.5 ）表示恰好是条的10.5 。
+
+Logical range
+
+Red vertical lines here are borders between bars.
+此处的红色垂直线是条形之间的边界。
+
+Thus, the visible logical range on the chart above is approximately from -4.73 to 5.05.
+因此，上图上可见的逻辑范围大约是从-4.73到5.05 。
+
+Chart margin  图表边距
+Margin is the space between the chart's borders and the series. It depends on the following time scale options:
+边距是图表边框与系列之间的空间。它取决于以下时间刻度选项：
+
+barSpacing. The default value is 6.
+barSpacing 。默认值为6 。
+rightOffset. The default value is 0.
+rightOffset 。默认值为0 。
+You can specify these options as described in Overview.
+您可以按照概述中所述指定这些选项。
+
+Note that if a series contains only a few data points, the chart may have a large margin on the left side.
+请注意，如果一个系列仅包含几个数据点，则图表左侧的边距可能会很大。
+
+A series with a few points
+
+In this case, you can call the fitContent method that adjust the view and fits all data within the chart.
+在这种情况下，您可以调用fitContent方法来调整视图并适合图表内的所有数据。
+
+chart.timeScale().fitContent();
+
+If calling fitContent has no effect, it might be due to how the library displays data.
+如果调用fitContent没有效果，则可能是由于库显示数据的方式造成的。
+
+The library allocates specific width for each data point to maintain consistency between different chart types. For example, for line series, the plot point is placed at the center of this allocated space, while candlestick series use most of the width for the candle body. The allocated space for each data point is proportional to the chart width. As a result, series with fewer data points may have a small margin on both sides.
+该库为每个数据点分配特定的宽度，以保持不同图表类型之间的一致性。例如，对于线系列，绘图点位于此分配空间的中心，而蜡烛图系列则使用蜡烛主体的大部分宽度。每个数据点的分配空间与图表宽度成比例。因此，数据点较少的系列可能在两侧都有较小的边距。
+
+Margin
+
+You can specify the logical range with the setVisibleLogicalRange method to display the series exactly to the edges. For example, the code sample below adjusts the range by half a bar-width on both sides.
+您可以使用setVisibleLogicalRange方法指定逻辑范围，以便将系列精确地显示到边缘。例如，下面的代码示例将范围在两侧调整为条形宽度的一半。
+
+const vr = chart.timeScale().getVisibleLogicalRange();
+chart.timeScale().setVisibleLogicalRange({ from: vr.from + 0.5, to: vr.to - 0.5 });
+ */
+createRoot(document.getElementById('root')!).render(
+    <React.StrictMode>
+        <App />
+    </React.StrictMode>
+);
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\components\PositionManagement.tsx
+```
+import React, { useState } from 'react';
+
+// 表格列定义，提取为常量以增强可维护性
+const TABLE_COLUMNS = [
+    '合约',
+    '数量',
+    '开仓价格',
+    '强平价格',
+    '保证金比率',
+    '保证金',
+    '盈亏',
+    '一键平仓',
+    '止盈',
+    '止损',
+];
+
+// 仓位管理组件，显示仓位相关信息和操作
+const PositionManagement: React.FC = () => {
+    const [activeTab, setActiveTab] = useState('position');
+
+    const mainTabs = [
+        { id: 'position', label: '仓位' },
+        { id: 'currentOrders', label: '当前委托' },
+        { id: 'historyOrders', label: '历史委托' },
+        { id: 'historyTrades', label: '历史成交' },
+        { id: 'positionHistory', label: '仓位历史记录' },
+    ];
+
+    return (
+        <div style={{ padding: '10px' }}>
+            {/* 选项卡切换 */}
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                {mainTabs.map((tab) => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        style={{
+                            padding: '5px 10px',
+                            background: activeTab === tab.id ? '#007bff' : '#ddd',
+                            color: activeTab === tab.id ? 'white' : 'black',
+                            border: 'none',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        {tab.label}
+                    </button>
+                ))}
+            </div>
+
+            {/* 表格展示 */}
+            <div style={{ padding: '10px', border: '1px solid #ddd' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                        <tr>
+                            {TABLE_COLUMNS.map((column, index) => (
+                                <th
+                                    key={index}
+                                    style={{
+                                        padding: '8px',
+                                        border: '1px solid #ddd',
+                                        background: '#f0f0f0',
+                                        textAlign: 'left',
+                                    }}
+                                >
+                                    {column}
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {TABLE_COLUMNS.map((_, index) => (
+                                <td
+                                    key={index}
+                                    style={{
+                                        padding: '8px',
+                                        border: '1px solid #ddd',
+                                        textAlign: 'left',
+                                    }}
+                                >
+                                    -
+                                </td>
+                            ))}
+                        </tr>
+                    </tbody>
+                </table>
+                <p>这里可以显示对应的数据或操作界面。</p>
+            </div>
+        </div>
+    );
+};
+
+export default PositionManagement;
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\components\PositionManagement.tsx
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\utils\chartLayouts.ts
+```
+export interface ChartLayoutConfig {
+    chartCount: number;
+    panesPerChart: number[];
+    isVertical: boolean;
+}
+
+export const getChartLayoutConfig = (layout: string): ChartLayoutConfig => {
+    switch (layout) {
+        case 'horizontal':
+            return { chartCount: 2, panesPerChart: [1, 1], isVertical: false };
+        case 'vertical':
+            return { chartCount: 2, panesPerChart: [1, 1], isVertical: true };
+        case 'three-pane':
+            return { chartCount: 3, panesPerChart: [1, 1, 1], isVertical: false };
+        case 'upper-left-bottom-right':
+            return { chartCount: 3, panesPerChart: [1, 1, 1], isVertical: false };
+        case 'four-pane':
+            return { chartCount: 4, panesPerChart: [1, 1, 1, 1], isVertical: false };
+        case 'six-pane':
+            return { chartCount: 6, panesPerChart: [1, 1, 1, 1, 1, 1], isVertical: false };
+        default:
+            return { chartCount: 1, panesPerChart: [1], isVertical: false };
+    }
+};
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\utils\chartLayouts.ts
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\vite-env.d.ts
+```
+/// <reference types="vite/client" />
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\store\chartSettings.ts
+```
+import { ChartState } from './chartState';
+import { updateData } from './chartData';
+import { toggleSMA } from '../indicators/sma';
+import { toggleRSI } from '../indicators/rsi';
+import { toggleEMA } from '../indicators/ema';
+import { toggleMACD } from '../indicators/macd';
+import { FollowMode } from './followSettings';
+
+// 根据跟随模式确定需要更新的图表索引
+const getTargetChartIndices = (
+    chartIndex: number,
+    mode: FollowMode,
+    get: () => ChartState
+): number[] => {
+    const { charts, symbol, timeFrames } = get();
+    const currentSymbol = symbol;
+    const currentTimeFrame = timeFrames[chartIndex];
+
+    switch (mode) {
+        case FollowMode.Global:
+            return Array.from({ length: charts.length }, (_, i) => i);
+        case FollowMode.Window:
+            return [chartIndex];
+        case FollowMode.Symbol:
+            return Array.from({ length: charts.length }, (_, i) => i).filter(
+                () => symbol === currentSymbol
+            );
+        case FollowMode.TimeFrame:
+            return Array.from({ length: charts.length }, (_, i) => i).filter(
+                (i) => timeFrames[i] === currentTimeFrame
+            );
+        case FollowMode.SymbolAndTimeFrame:
+            return Array.from({ length: charts.length }, (_, i) => i).filter(
+                (i) => symbol === currentSymbol && timeFrames[i] === currentTimeFrame
+            );
+        default:
+            return [chartIndex];
+    }
+};
+
+// 保存状态到 localStorage
+const saveStateToStorage = (get: () => ChartState) => {
+    const state = get();
+    const stateToStore = {
+        layoutType: state.layoutType,
+        timeFrames: state.timeFrames,
+        symbol: state.symbol,
+        chartTypes: state.chartTypes,
+        useUtcTime: state.useUtcTime,
+        defaultVisibleBars: state.defaultVisibleBars,
+        indicatorParams: state.indicatorParams,
+        indicators: state.indicators,
+        barSpacing: state.barSpacing,
+        minBarSpacing: state.minBarSpacing,
+        followSettings: state.followSettings,
+    };
+    localStorage.setItem('chartStoreState', JSON.stringify(stateToStore));
+};
+
+// 设置时间框架
+export const setTimeFrame = (chartIndex: number, timeFrame: string, get: () => ChartState, set: (partial: Partial<ChartState>) => void) => {
+    const { followSettings } = get();
+    const targetIndices = getTargetChartIndices(chartIndex, followSettings.timeFrameFollow, get);
+
+    targetIndices.forEach((idx) => {
+        set((state) => {
+            const newTimeFrames = [...state.timeFrames];
+            newTimeFrames[idx] = timeFrame;
+            return { timeFrames: newTimeFrames };
+        });
+        updateData(idx, get, set);
+    });
+    saveStateToStorage(get);
+};
+
+// 设置交易品种
+export const setSymbol = (symbol: string, get: () => ChartState, set: (partial: Partial<ChartState>) => void) => {
+    const { followSettings, charts } = get();
+    const targetIndices = getTargetChartIndices(0, followSettings.symbolFollow, get);
+
+    set({ symbol });
+    targetIndices.forEach((idx) => {
+        updateData(idx, get, set);
+    });
+    saveStateToStorage(get);
+};
+
+// 设置图表类型
+export const setChartType = (chartIndex: number, chartType: string, get: () => ChartState, set: (partial: Partial<ChartState>) => void) => {
+    const { followSettings } = get();
+    const targetIndices = getTargetChartIndices(chartIndex, followSettings.chartTypeFollow, get);
+
+    targetIndices.forEach((idx) => {
+        set((state) => {
+            const newChartTypes = [...state.chartTypes];
+            newChartTypes[idx] = chartType;
+            return { chartTypes: newChartTypes };
+        });
+        updateData(idx, get, set);
+    });
+    saveStateToStorage(get);
+};
+
+// 切换时区
+export const toggleTimeZone = (get: () => ChartState, set: (partial: Partial<ChartState>) => void) => {
+    const { followSettings, charts } = get();
+    const targetIndices = getTargetChartIndices(0, followSettings.timeZoneFollow, get);
+
+    set((state) => ({ useUtcTime: !state.useUtcTime }));
+    targetIndices.forEach((idx) => {
+        updateData(idx, get, set);
+    });
+    saveStateToStorage(get);
+};
+
+// 设置默认显示K线数量
+export const setDefaultVisibleBars = (count: number, get: () => ChartState, set: (partial: Partial<ChartState>) => void) => {
+    const { followSettings, charts } = get();
+    const targetIndices = getTargetChartIndices(0, followSettings.visibleBarsFollow, get);
+
+    set({ defaultVisibleBars: count });
+    targetIndices.forEach((idx) => {
+        updateData(idx, get, set);
+    });
+    saveStateToStorage(get);
+};
+
+// 设置指标参数
+export const setIndicatorParams = (params: Partial<ChartState['indicatorParams']>, get: () => ChartState, set: (partial: Partial<ChartState>) => void) => {
+    set((state) => ({
+        indicatorParams: { ...state.indicatorParams, ...params },
+    }));
+    const { charts, indicators } = get();
+    for (let i = 0; i < charts.length; i++) {
+        // 更新图表数据
+        updateData(i, get, set);
+        // 如果指标已启用，重新计算并更新指标数据
+        const chartIndicators = indicators[i];
+        if (chartIndicators) {
+            if (chartIndicators.sma) {
+                toggleSMA(i, false, get, set);
+                toggleSMA(i, true, get, set);
+            }
+            if (chartIndicators.rsi) {
+                toggleRSI(i, false, get, set);
+                toggleRSI(i, true, get, set);
+            }
+            if (chartIndicators.ema) {
+                toggleEMA(i, false, get, set);
+                toggleEMA(i, true, get, set);
+            }
+            if (chartIndicators.macd) {
+                toggleMACD(i, false, get, set);
+                toggleMACD(i, true, get, set);
+            }
+        }
+    }
+    saveStateToStorage(get);
+};
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\store\chartSettings.ts
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\store\chartStore.ts
+```
+import { create } from 'zustand';
+import { ChartState, initialChartState } from './chartState';
+import { initChart, setCandlestickData, clearCharts, updateChart, addSeries } from './chartActions';
+import { syncCharts } from './chartSync';
+import { initAllData, updateData, setRenkoParams } from './chartData';
+import { setTimeFrame, setSymbol, setChartType, toggleTimeZone, setDefaultVisibleBars, setIndicatorParams } from './chartSettings';
+import { toggleSMA } from '../indicators/sma';
+import { toggleRSI } from '../indicators/rsi';
+import { toggleEMA } from '../indicators/ema';
+import { toggleMACD } from '../indicators/macd';
+import { FollowSettings, defaultFollowSettings } from './followSettings';
+
+// 持久化存储的键名
+const STORAGE_KEY = 'chartStoreState';
+
+// 从 localStorage 加载状态
+const loadStateFromStorage = (): Partial<ChartState> => {
+    const storedState = localStorage.getItem(STORAGE_KEY);
+    if (storedState) {
+        try {
+            const parsedState = JSON.parse(storedState);
+            // 确保 followSettings 存在
+            return {
+                ...parsedState,
+                followSettings: parsedState.followSettings || defaultFollowSettings,
+            };
+        } catch (error) {
+            console.error('[ChartStore] Failed to parse stored state:', error);
+            return {};
+        }
+    }
+    return {};
+};
+
+// 保存状态到 localStorage
+const saveStateToStorage = (state: ChartState) => {
+    const stateToStore = {
+        layoutType: state.layoutType,
+        timeFrames: state.timeFrames,
+        symbol: state.symbol,
+        chartTypes: state.chartTypes,
+        useUtcTime: state.useUtcTime,
+        defaultVisibleBars: state.defaultVisibleBars,
+        indicatorParams: state.indicatorParams,
+        indicators: state.indicators,
+        barSpacing: state.barSpacing,
+        minBarSpacing: state.minBarSpacing,
+        followSettings: state.followSettings,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToStore));
+};
+
+// 图表状态管理入口，整合所有模块
+export const useChartStore = create<ChartState & {
+    initChart: (container: HTMLElement, layoutType: string, chartIndex: number, paneCount: number, timeFrame: string, chartType: string) => IChartApi;
+    setCandlestickData: (chart: IChartApi, chartIndex: number, paneIndex: number, timeFrame: string, chartType: string) => void;
+    clearCharts: () => void;
+    updateChart: (chartIndex: number, chart: IChartApi) => void;
+    addSeries: (series: ISeriesApi<'Candlestick'>, chartIndex: number) => void;
+    syncCharts: (charts: IChartApi[]) => void;
+    setTimeFrame: (chartIndex: number, timeFrame: string) => void;
+    setSymbol: (symbol: string) => void;
+    setChartType: (chartIndex: number, chartType: string) => void;
+    updateData: (chartIndex: number) => void;
+    setRenkoParams: (chartIndex: number, params: Partial<ChartState['renkoParams'][number]>) => void;
+    toggleTimeZone: () => void;
+    initAllData: () => void;
+    setDefaultVisibleBars: (count: number) => void;
+    toggleSMA: (chartIndex: number, enabled: boolean) => void;
+    toggleRSI: (chartIndex: number, enabled: boolean) => void;
+    toggleEMA: (chartIndex: number, enabled: boolean) => void;
+    toggleMACD: (chartIndex: number, enabled: boolean) => void;
+    setIndicatorParams: (params: Partial<ChartState['indicatorParams']>) => void;
+    setIndicators: (chartIndex: number, indicators: Partial<ChartState['indicators'][number]>) => void;
+    setBarSpacing: (barSpacing: number) => void;
+    setMinBarSpacing: (minBarSpacing: number) => void;
+    setFollowSettings: (settings: Partial<FollowSettings>) => void; // 新增：设置跟随模式
+    resetToDefault: () => void; // 新增：重置到默认值
+}>((set, get) => {
+    // 加载持久化状态
+    const persistedState = loadStateFromStorage();
+    const initialState = {
+        ...initialChartState,
+        ...persistedState,
+    };
+
+    return {
+        ...initialState,
+
+        initChart: (container, layoutType, chartIndex, paneCount, timeFrame, chartType) =>
+            initChart(container, layoutType, chartIndex, paneCount, timeFrame, chartType, get, set),
+
+        setCandlestickData: (chart, chartIndex, paneIndex, timeFrame, chartType) =>
+            setCandlestickData(chart, chartIndex, paneIndex, timeFrame, chartType, get, set),
+
+        clearCharts: () => clearCharts(get, set),
+
+        updateChart: (chartIndex, chart) => updateChart(chartIndex, chart, set),
+
+        addSeries: (series, chartIndex) => addSeries(series, chartIndex, set),
+
+        syncCharts: (charts) => syncCharts(charts, get),
+
+        setTimeFrame: (chartIndex, timeFrame) => setTimeFrame(chartIndex, timeFrame, get, set),
+
+        setSymbol: (symbol) => setSymbol(symbol, get, set),
+
+        setChartType: (chartIndex, chartType) => setChartType(chartIndex, chartType, get, set),
+
+        updateData: (chartIndex) => updateData(chartIndex, get, set),
+
+        setRenkoParams: (chartIndex, params) => setRenkoParams(chartIndex, params, get, set),
+
+        toggleTimeZone: () => toggleTimeZone(get, set),
+
+        initAllData: () => initAllData(set),
+
+        setDefaultVisibleBars: (count) => setDefaultVisibleBars(count, get, set),
+
+        toggleSMA: (chartIndex, enabled) => toggleSMA(chartIndex, enabled, get, set),
+
+        toggleRSI: (chartIndex, enabled) => toggleRSI(chartIndex, enabled, get, set),
+
+        toggleEMA: (chartIndex, enabled) => toggleEMA(chartIndex, enabled, get, set),
+
+        toggleMACD: (chartIndex, enabled) => toggleMACD(chartIndex, enabled, get, set),
+
+        setIndicatorParams: (params) => setIndicatorParams(params, get, set),
+
+        setIndicators: (chartIndex, indicators) => {
+            set((state) => {
+                const newIndicators = [...state.indicators];
+                newIndicators[chartIndex] = { ...newIndicators[chartIndex], ...indicators };
+                return { indicators: newIndicators };
+            });
+            saveStateToStorage(get());
+        },
+
+        setBarSpacing: (barSpacing: number) => {
+            set({ barSpacing });
+            get().charts.forEach((chart) => {
+                if (chart) {
+                    chart.timeScale().applyOptions({ barSpacing });
+                }
+            });
+            saveStateToStorage(get());
+        },
+
+        setMinBarSpacing: (minBarSpacing: number) => {
+            set({ minBarSpacing });
+            get().charts.forEach((chart) => {
+                if (chart) {
+                    chart.timeScale().applyOptions({ minBarSpacing });
+                }
+            });
+            saveStateToStorage(get());
+        },
+
+        setFollowSettings: (settings: Partial<FollowSettings>) => {
+            set((state) => ({
+                followSettings: { ...state.followSettings, ...settings },
+            }));
+            saveStateToStorage(get());
+        },
+
+        resetToDefault: () => {
+            const chartsLength = get().charts.length;
+            set({
+                ...initialChartState,
+                charts: get().charts,
+                series: get().series,
+                seriesByChart: get().seriesByChart,
+                chartData: get().chartData,
+                baseData: get().baseData,
+                allData: get().allData,
+                smaSeries: get().smaSeries,
+                rsiSeries: get().rsiSeries,
+                emaSeries: get().emaSeries,
+                macdSeries: get().macdSeries,
+                // 确保 timeFrames 和 chartTypes 长度与 charts 一致
+                timeFrames: Array(chartsLength).fill(initialChartState.timeFrames[0] || '1h'),
+                chartTypes: Array(chartsLength).fill(initialChartState.chartTypes[0] || 'candlestick'),
+                renkoParams: Array(chartsLength).fill({ brickSize: 0, atrPeriod: 14, atrMultiplier: 0.5 }),
+                indicators: Array(chartsLength).fill({ sma: false, rsi: false, ema: false, macd: false }),
+            });
+            saveStateToStorage(get());
+            // 刷新所有图表
+            get().charts.forEach((_, index) => {
+                updateData(index, get, set);
+            });
+        },
+    };
+});
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\store\chartStore.ts
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\store\chartData.ts
+```
+import { ChartState } from './chartState';
+import { generateCandlestickData, convertToRenko } from '../utils/dataUtils';
+
+// 初始化所有数据
+export const initAllData = (set: (partial: Partial<ChartState>) => void) => {
+    const symbols = ['BTC', 'ETH'];
+    const timeFrames = ['5m', '15m', '30m', '1h', '4h', '1d', '1w'];
+    const allData: { [key: string]: any[] } = {};
+
+    symbols.forEach((symbol) => {
+        timeFrames.forEach((timeFrame) => {
+            const key = `${symbol}_${timeFrame}`;
+            allData[key] = generateCandlestickData(500, timeFrame, symbol);
+        });
+    });
+
+    set({ allData });
+};
+
+// 更新图表数据
+export const updateData = (chartIndex: number, get: () => ChartState, set: (partial: Partial<ChartState>) => void) => {
+    const { allData, symbol, timeFrames, chartTypes, renkoParams, useUtcTime } = get();
+    const timeFrame = timeFrames[chartIndex];
+    const chartType = chartTypes[chartIndex];
+
+    console.log(
+        `[ChartData] Updating data for chart ${chartIndex}, timeFrame: ${timeFrame}, chartType: ${chartType}, symbol: ${symbol}`
+    );
+
+    if (!timeFrame || !chartType) {
+        console.warn(`[ChartData] timeFrame or chartType is undefined for chart ${chartIndex}`);
+        return;
+    }
+
+    const key = `${symbol}_${timeFrame}`;
+    let data = allData[key] || [];
+
+    if (chartType === 'renko') {
+        // 确保 renkoParams[chartIndex] 存在，否则使用默认值
+        const params = renkoParams[chartIndex] || { brickSize: 0, atrPeriod: 14, atrMultiplier: 0.5 };
+        data = convertToRenko(data, params.brickSize, params.atrPeriod, params.atrMultiplier, timeFrame);
+    }
+
+    if (useUtcTime) {
+        data = data.map((d) => ({
+            ...d,
+            time: Math.floor(new Date(d.time * 1000).getTime() / 1000),
+        }));
+    }
+
+    set((state) => {
+        const newChartData = [...state.chartData];
+        const newBaseData = [...state.baseData];
+        newChartData[chartIndex] = data;
+        newBaseData[chartIndex] = allData[key] || [];
+        return { chartData: newChartData, baseData: newBaseData };
+    });
+};
+
+// 设置 Renko 参数
+export const setRenkoParams = (
+    chartIndex: number,
+    params: Partial<ChartState['renkoParams'][number]>,
+    get: () => ChartState,
+    set: (partial: Partial<ChartState>) => void
+) => {
+    set((state) => {
+        const newRenkoParams = [...state.renkoParams];
+        newRenkoParams[chartIndex] = { ...newRenkoParams[chartIndex], ...params };
+        return { renkoParams: newRenkoParams };
+    });
+    updateData(chartIndex, get, set);
+};
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\store\chartData.ts
+
+```
+
+D:\my_repo\lightweight_chart_demo\frontend\src\store\followSettings.ts
+```
+// 跟随模式枚举
+export enum FollowMode {
+    Global = 'global', // 跟随全局
+    Window = 'window', // 跟随窗口
+    Symbol = 'symbol', // 跟随品种
+    TimeFrame = 'timeFrame', // 跟随周期
+    SymbolAndTimeFrame = 'symbolAndTimeFrame', // 跟随品种和周期
+}
+
+// 跟随设置接口
+export interface FollowSettings {
+    indicatorFollow: FollowMode; // 指标跟随
+    timeFrameFollow: FollowMode; // 周期跟随
+    symbolFollow: FollowMode; // 品种跟随
+    chartTypeFollow: FollowMode; // K线跟随
+    chartFollow: FollowMode; // 图表跟随
+    timeZoneFollow: FollowMode; // 时区跟随
+    visibleBarsFollow: FollowMode; // 显示K线数量跟随
+}
+
+// 默认跟随设置
+export const defaultFollowSettings: FollowSettings = {
+    indicatorFollow: FollowMode.Window,
+    timeFrameFollow: FollowMode.Window, // 修改：默认跟随窗口
+    symbolFollow: FollowMode.Global,
+    chartTypeFollow: FollowMode.Window,
+    chartFollow: FollowMode.Global,
+    timeZoneFollow: FollowMode.Global,
+    visibleBarsFollow: FollowMode.Global,
+};
+
+// 文件路径名字: D:\my_repo\lightweight_chart_demo\frontend\src\store\followSettings.ts
+
+```
+
