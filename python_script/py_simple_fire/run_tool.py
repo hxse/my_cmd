@@ -35,7 +35,7 @@ def convert_to_2d(input_list, step, pad_none=False):
     return result
 
 
-def export_codes_to_file(*code_files, output_file="exported_codes.txt"):
+def export_codes_to_file(*code_files, output_file="exported_codes.txt", step=10):
     """
     将多个代码文件的绝对路径和内容导出到一个文件中。
 
@@ -44,7 +44,7 @@ def export_codes_to_file(*code_files, output_file="exported_codes.txt"):
     - output_file: 输出的文件名，默认为 exported_codes.txt
     """
     try:
-        l_list = convert_to_2d(code_files, 10)
+        l_list = convert_to_2d(code_files, step=step)
         l_list_length = len([i for i in l_list for i in i])
         print(l_list)
         print(l_list_length)
