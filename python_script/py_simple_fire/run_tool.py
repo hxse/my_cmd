@@ -21,6 +21,22 @@ def export_codes_to_file(*code_files, output_file="exported_codes.txt"):
     """
     try:
         with open(output_file, "w", encoding="utf-8") as outfile:
+            file_arr = []
+            for code_file in code_files:
+                abs_path = os.path.abspath(code_file)
+                # 检查文件是否存在
+                if not os.path.exists(code_file):
+                    print(f"错误：文件 {code_file} 不存在，跳过此文件。")
+                    continue
+                file_arr.append(abs_path)
+
+            for i in file_arr:
+                outfile.write(f"{i}\n")
+
+            outfile.write(
+                f"\n下面是代码内容, 请检查是否读取到了全部 {len(file_arr)} 个文件内容\n\n"
+            )
+
             for code_file in code_files:
                 # 获取文件的绝对路径
                 abs_path = os.path.abspath(code_file)
