@@ -91,6 +91,14 @@ def export_codes_to_file(*code_files, output_file="exported_codes.txt", step=10)
         print(f"错误：无法写入文件 {new_output_file}，错误信息：{e}")
 
 
+def dir_codes_to_file(dir, suffix="*", output_file="exported_codes.txt", step=10):
+    code_files = []
+    for i in Path(dir).rglob(suffix):
+        if i.is_file():
+            code_files.append(i)
+    export_codes_to_file(*code_files, output_file=output_file, step=step)
+
+
 def test_convert_to_2d():
     # 测试 pad_none=False
     assert convert_to_2d([1, 2, 3, 4, 5], 2, False) == [[1, 2], [3, 4], [5]]
@@ -117,5 +125,6 @@ if __name__ == "__main__":
     simple_fire(
         {
             "export_codes_to_file": export_codes_to_file,
+            "dir_codes_to_file": dir_codes_to_file,
         }
     )
