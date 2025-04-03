@@ -91,11 +91,14 @@ def export_codes_to_file(*code_files, output_file="exported_codes.txt", step=10)
         print(f"错误：无法写入文件 {new_output_file}，错误信息：{e}")
 
 
-def dir_codes_to_file(dir, suffix="*", output_file="exported_codes.txt", step=10):
+def dir_codes_to_file(dir, suffix="", output_file="exported_codes.txt", step=10):
+    suffix = suffix.split(",")
+    suffix = [i for i in suffix if i != ""]
     code_files = []
-    for i in Path(dir).rglob(suffix):
-        if i.is_file():
-            code_files.append(i)
+    for i in Path(dir).rglob("*"):
+        for s in suffix:
+            if i.is_file() and i.name.endswith(s):
+                code_files.append(i)
     export_codes_to_file(*code_files, output_file=output_file, step=step)
 
 
