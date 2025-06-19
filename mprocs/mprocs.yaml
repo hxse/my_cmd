@@ -43,4 +43,4 @@ procs:
   mcp-playwright:
     shell:
       $select: os
-      windows: "npx @playwright/mcp@latest --port 8931"
+      windows: "pnpx @playwright/mcp@latest --port 8931"
