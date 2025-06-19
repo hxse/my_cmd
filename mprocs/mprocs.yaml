@@ -26,7 +26,7 @@ procs:
   player:
     shell:
       $select: os
-      windows: 'D: && cd D:/my_repo/webdav-player && yarn dev'
+      windows: "D: && cd D:/my_repo/webdav-player && yarn dev"
   frp:
     shell:
       $select: os
@@ -35,8 +35,12 @@ procs:
   dufs-e:
     shell:
       $select: os
-      windows: 'dufs -p 5640 -a hxse:asdf@/:rw --enable-cors E:/'
+      windows: "dufs -p 5640 -a hxse:asdf@/:rw --enable-cors E:/"
   dufs-f:
     shell:
       $select: os
-      windows: 'dufs -p 5641 -a hxse:asdf@/:rw --enable-cors F:/'
+      windows: "dufs -p 5641 -a hxse:asdf@/:rw --enable-cors F:/"
+  mcp-playwright:
+    shell:
+      $select: os
+      windows: "npx @playwright/mcp@latest --port 8931"
