@@ -48,3 +48,7 @@ procs:
     shell:
       $select: os
       windows: "pnpx @playwright/mcp@latest --port 8931"
+  ollama-server:
+    shell:
+      $select: os
+      windows: "ollama serve"
