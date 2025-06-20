@@ -1,4 +1,8 @@
 procs:
+  scoop-update:
+    shell:
+      $select: os
+      windows: "scoop update && scoop update *"
   active-windows-keyboard:
     shell:
       $select: os
