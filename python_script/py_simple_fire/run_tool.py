@@ -1,8 +1,7 @@
 import sys, os
 
-sys.path.append(
-    os.path.dirname(os.path.abspath(__file__)) + "/.."
-)  # import tool from parent dir
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
+                "/..")  # import tool from parent dir
 from tool import convert2d, convert2dIndex, z_fill
 from simple_fire import simple_fire
 import subprocess
@@ -28,14 +27,16 @@ def convert_to_2d(input_list, step, pad_none=False):
 
     result = []
     for i in range(0, len(input_list), step):
-        sublist = input_list[i : i + step]
+        sublist = input_list[i:i + step]
         if pad_none and len(sublist) < step:
             sublist.extend([None] * (step - len(sublist)))
         result.append(sublist)
     return result
 
 
-def export_codes_to_file(*code_files, output_file="exported_codes.txt", step=10):
+def export_codes_to_file(*code_files,
+                         output_file="exported_codes.txt",
+                         step=10):
     """
     将多个代码文件的绝对路径和内容导出到一个文件中。
 
@@ -56,24 +57,21 @@ def export_codes_to_file(*code_files, output_file="exported_codes.txt", step=10)
                 )
 
                 outfile.write(
-                    f"当前合集序号 {k_l} 当前合集内文档 {len(v_l)} 全部文档 {l_list_length}\n"
-                )
+                    f"当前合集序号 {k_l} 当前合集内文档 {len(v_l)} 全部文档 {l_list_length}\n")
 
                 outfile.write("当前合集内文档目录如下\n")
                 for file_path in v_l:
                     assert Path(file_path).is_file(), f"{file_path} 文件不存在"
                     outfile.write(f"{file_path}\n")
 
-                outfile.write(
-                    """
+                outfile.write("""
                     代码内容格式如下:
                     开头标注文件路径名
                     ```
                     代码内容
                     // 末尾在代码中再次注释文件路径名
                     ```
-                    """
-                )
+                    """)
 
                 outfile.write("\n下面是代码内容如下\n\n")
 
@@ -91,14 +89,18 @@ def export_codes_to_file(*code_files, output_file="exported_codes.txt", step=10)
         print(f"错误：无法写入文件 {new_output_file}，错误信息：{e}")
 
 
-def dir_codes_to_file(dir, suffix="", output_file="exported_codes.txt", step=10):
+def dir_codes_to_file(*dir,
+                      suffix="",
+                      output_file="exported_codes.txt",
+                      step=10):
     suffix = suffix.split(",")
     suffix = [i for i in suffix if i != ""]
     code_files = []
-    for i in Path(dir).rglob("*"):
-        for s in suffix:
-            if i.is_file() and i.name.endswith(s):
-                code_files.append(i)
+    for _dir in dir:
+        for i in Path(_dir).rglob("*"):
+            for s in suffix:
+                if i.is_file() and i.name.endswith(s):
+                    code_files.append(i)
     export_codes_to_file(*code_files, output_file=output_file, step=step)
 
 
@@ -109,7 +111,8 @@ def test_convert_to_2d():
     assert convert_to_2d([], 2, False) == []
 
     # 测试 pad_none=True
-    assert convert_to_2d([1, 2, 3, 4, 5], 2, True) == [[1, 2], [3, 4], [5, None]]
+    assert convert_to_2d([1, 2, 3, 4, 5], 2, True) == [[1, 2], [3, 4],
+                                                       [5, None]]
     assert convert_to_2d([1, 2, 3, 4], 2, True) == [[1, 2], [3, 4]]
     assert convert_to_2d([], 2, True) == []
 
@@ -125,9 +128,7 @@ def test_convert_to_2d():
 
 if __name__ == "__main__":
     # test_convert_to_2d()
-    simple_fire(
-        {
-            "export_codes_to_file": export_codes_to_file,
-            "dir_codes_to_file": dir_codes_to_file,
-        }
-    )
+    simple_fire({
+        "export_codes_to_file": export_codes_to_file,
+        "dir_codes_to_file": dir_codes_to_file,
+    })
