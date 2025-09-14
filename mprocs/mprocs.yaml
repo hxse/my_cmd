@@ -11,39 +11,10 @@ procs:
     shell:
       $select: os
       windows: 'D:\App\proxy\subconverter\subconverter\subconverter.exe'
-  alist:
-    shell:
-      $select: os
-      windows: "alist server"
-  ftp1:
-    shell:
-      $select: os
-      windows: 'E: && "%userprofile%/scoop/apps/python310/current/python.exe" -m pyftpdlib -p 21 --username=hxse --password=asdf'
-  ftp2:
-    shell:
-      $select: os
-      windows: 'F: && "%userprofile%/scoop/apps/python310/current/python.exe" -m pyftpdlib -p 23 --username=hxse --password=asdf'
-  webdav:
-    shell:
-      $select: os
-      windows: 'wsgidav --config="D:/my_repo/my_cmd/mprocs/sample_wsgidav.yaml"'
   player:
     shell:
       $select: os
       windows: "D: && cd D:/my_repo/webdav-player && yarn dev"
-  frp:
-    shell:
-      $select: os
-      windows: 'D: && cd D:\App\proxy\frp\frp_0.60.0_windows_amd64 && .\frpc.exe -c frpc.toml'
-    autostart: false
-  dufs-e:
-    shell:
-      $select: os
-      windows: "dufs -p 5640 -a hxse:asdf@/:rw --enable-cors E:/"
-  dufs-f:
-    shell:
-      $select: os
-      windows: "dufs -p 5641 -a hxse:asdf@/:rw --enable-cors F:/"
   mcp-playwright:
     shell:
       $select: os
@@ -52,3 +23,11 @@ procs:
     shell:
       $select: os
       windows: "ollama serve"
+  copyparty-e:
+    shell:
+      $select: os
+      windows: "copyparty --ftp 3912 -p 3913 -a hxse:asdf -v E:/::A,hxse"
+  copyparty-f:
+    shell:
+      $select: os
+      windows: "copyparty --ftp 3922 -p 3923 -a hxse:asdf -v F:/::A,hxse"
