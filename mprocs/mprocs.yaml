@@ -26,8 +26,8 @@ procs:
   copyparty-e:
     shell:
       $select: os
-      windows: "copyparty --ftp 3912 -p 3913 -a hxse:asdf -v E:/::A,hxse"
+      windows: 'copyparty --ftp 3912 -p 3913 -a hxse:asdf -v E:/::A,hxse --acao "192.168.10.110:3000" --acam "*"'
   copyparty-f:
     shell:
       $select: os
-      windows: "copyparty --ftp 3922 -p 3923 -a hxse:asdf -v F:/::A,hxse"
+      windows: 'copyparty --ftp 3922 -p 3923 -a hxse:asdf -v F:/::A,hxse --acao "192.168.10.110:3000" --acam "*"'
