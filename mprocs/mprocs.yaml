@@ -14,7 +14,7 @@ procs:
   player:
     shell:
       $select: os
-      windows: "D: && cd D:/my_repo/webdav-player && yarn dev"
+      windows: "D: && cd D:/my_repo/webdav-player && pnpm dev"
   mcp-playwright:
     shell:
       $select: os
