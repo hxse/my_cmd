@@ -13,7 +13,7 @@ Function nstp {
 }
 
 function sn {
-    sudo netsh interface show interface
+    netsh interface show interface
 }
 function dn {
     sudo netsh interface set interface $config.dn.name disable
