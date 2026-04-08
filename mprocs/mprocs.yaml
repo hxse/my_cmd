@@ -7,7 +7,7 @@ procs:
   cpa:
     shell:
       $select: os
-      windows: 'D:\App\ai\cpa CLIProxyAPI\CLIProxyAPI_6.9.15_windows_amd64\cli-proxy-api.exe'
+      windows: 'D: && cd "D:\App\ai\cpa CLIProxyAPI\CLIProxyAPI_6.9.15_windows_amd64" && . "D:\App\ai\cpa CLIProxyAPI\CLIProxyAPI_6.9.15_windows_amd64\cli-proxy-api.exe"'
   active-windows-keyboard:
     shell:
       $select: os
