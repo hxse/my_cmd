@@ -1,5 +1,5 @@
 ﻿#Requires AutoHotkey >=2.0
-sleepTime := 250
+sleepTime := 500
 F3::
 {
 

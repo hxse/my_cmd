@@ -10,27 +10,27 @@ F3::
         Sleep 2000
 
         Send "!{TAB}"
-        Sleep 200
+        Sleep 5000
 
         Send "!{TAB}"
-        Sleep 200
-        
+        Sleep 5000
+
         Sleep 1000
         Send "^{Enter}"
-        
+
         Sleep 1000
         Send "{Esc}"
-        
+
         Send "!{TAB}"
-        Sleep 200
-        
+        Sleep 500
+
         Send "{Down}"
         Sleep 200
-        
+
     }
 }
 
 
 F4:: ExitApp
 
-F5::Pause
+F5:: Pause

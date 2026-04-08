@@ -1,8 +1,13 @@
+# 如果windows上无法显示输出, 就安装 scoop install pwsh
 procs:
   scoop-update:
     shell:
       $select: os
       windows: "scoop update && scoop update *"
+  cpa:
+    shell:
+      $select: os
+      windows: 'D:\App\ai\cpa CLIProxyAPI\CLIProxyAPI_6.9.15_windows_amd64\cli-proxy-api.exe'
   active-windows-keyboard:
     shell:
       $select: os
